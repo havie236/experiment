@@ -62,7 +62,8 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    for (let i = 0; i < 25; i++) {
+    // CHANGE: Loop 49 times (7x7 = 49)
+    for (let i = 0; i < 49; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
         if (val === 0) currentZeros++;
         
@@ -170,3 +171,4 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
+
