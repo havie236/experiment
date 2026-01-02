@@ -8,9 +8,9 @@ let matricesSolvedInBlock = 0;
 let participantData = [];
 
 let conditions = [
-    { type: 'High', text: "In a previous session, a high school student completed 10 matrices and earned 5000VND." },
-    { type: 'Low', text: "In a previous session, a high school student completed 40 matrix and earn 20000VND" },
-    { type: 'Control', text: "No peer information provided." }
+    { type: 'High', text: "Trong một buổi trước, một học sinh trung học đã hoàn thành 10 ma trận và nhận được 5000VN." },
+    { type: 'Low', text: "Trong một buổi trước, một học sinh trung học đã hoàn thành 40 ma trận và nhận được 20000VN." },
+    { type: 'Control', text: "Bạn cứ làm nhé!" }
 ];
 
 conditions = conditions.sort(() => Math.random() - 0.5);
@@ -171,6 +171,7 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
+
 
 
 
