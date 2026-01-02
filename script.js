@@ -1,5 +1,5 @@
 const BLOCK_DURATION_SEC = 8 * 60; 
-const PAY_PER_MATRIX = 1000; 
+const PAY_PER_MATRIX = 500; 
 let currentBlock = 0;
 const totalBlocks = 3; 
 let earnings = 0;
@@ -171,4 +171,5 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
+
 
