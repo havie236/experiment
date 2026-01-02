@@ -1,0 +1,26 @@
+body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; text-align: center; }
+.screen { display: none; } /* Hide all screens by default */
+.active { display: block; } /* Show only active screen */
+.hidden { display: none; }
+
+#matrix-container {
+    display: grid;
+    grid-template-columns: repeat(5, 40px); /* 5x5 Matrix */
+    gap: 5px;
+    justify-content: center;
+    margin: 20px 0;
+    font-family: monospace;
+    font-size: 18px;
+}
+.matrix-cell {
+    background: #f0f0f0;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+.highlight-box {
+    background-color: #e8f4fd;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #2196f3;
+}
+.leisure-btn { background-color: #ffcccc; color: #cc0000; margin-top: 20px;}
