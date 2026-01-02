@@ -1,4 +1,4 @@
-const BLOCK_DURATION_SEC = 8 * 60; 
+const BLOCK_DURATION_SEC = 10 * 60; 
 const PAY_PER_MATRIX = 500; 
 let currentBlock = 0;
 const totalBlocks = 3; 
@@ -8,8 +8,8 @@ let matricesSolvedInBlock = 0;
 let participantData = [];
 
 let conditions = [
-    { type: 'High', text: "In a previous session, a peer earned ~80th percentile amount." },
-    { type: 'Low', text: "In a previous session, a peer earned ~20th percentile amount." },
+    { type: 'High', text: "In a previous session, a high school student completed 10 matrices and earned 5000VND." },
+    { type: 'Low', text: "In a previous session, a high school student completed 40 matrix and earn 20000VND" },
     { type: 'Control', text: "No peer information provided." }
 ];
 
@@ -171,5 +171,6 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
+
 
 
