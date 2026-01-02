@@ -9,15 +9,15 @@
 
     <div id="screen-intro" class="screen active">
         <h1>Welcome</h1>
-        [cite_start]<p>You will complete three work blocks, with a 2-minute break between blocks. [cite: 28]</p>
-        [cite_start]<p>Task: Count the number of zeros in a series of matrices. [cite: 29]</p>
-        [cite_start]<p>Pay Rate: 1,000 VND per correct matrix. [cite: 30]</p>
+        <p>You will complete three work blocks, with a 2-minute break between blocks.</p>
+        <p>Task: Count the number of zeros in a series of matrices.</p>
+        <p>Pay Rate: 1,000 VND per correct matrix.</p>
         <button onclick="startExperiment()">Next</button>
     </div>
 
     <div id="screen-block-intro" class="screen hidden">
         <h2 id="block-title">BLOCK X</h2>
-        [cite_start]<p>Time Limit: 8 minutes [cite: 36]</p>
+        <p>Time Limit: 8 minutes</p>
         <p id="social-reference-text" class="highlight-box"></p> 
         <button onclick="startBlock()">Start Block</button>
     </div>
@@ -31,23 +31,23 @@
         <div class="input-area">
             <label>Count of Zeros:</label>
             <input type="number" id="zero-input">
-            [cite_start]<button onclick="submitMatrix()">Submit [cite: 43]</button>
+            <button onclick="submitMatrix()">Submit</button>
         </div>
 
         <hr>
-        <p><i>You may stop working at any time. [cite_start]This decision is irreversible. [cite: 9]</i></p>
+        <p><i>You may stop working at any time. This decision is irreversible.</i></p>
         <button onclick="switchToLeisure()" class="leisure-btn">Stop & Switch to Leisure</button>
     </div>
 
     <div id="screen-survey" class="screen hidden">
         <h2>Block Survey</h2>
-        <label>1. How satisfied are you with your earnings? (1-7) [cite_start][cite: 46]</label>
+        <label>1. How satisfied are you with your earnings? (1-7)</label>
         <input type="number" min="1" max="7" id="survey-satisfaction"><br><br>
         
-        <label>2. How tedious/boring was the task? (1-7) [cite_start][cite: 48]</label>
+        <label>2. How tedious/boring was the task? (1-7)</label>
         <input type="number" min="1" max="7" id="survey-boredom"><br><br>
 
-        <label>3. [cite_start]Recall the peer earnings shown (VND): [cite: 50]</label>
+        <label>3. Recall the peer earnings shown (VND):</label>
         <input type="number" id="survey-recall"><br><br>
 
         <button onclick="submitSurvey()">Submit Survey</button>
