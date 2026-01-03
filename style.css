@@ -1,110 +1,161 @@
+/* --- GLOBAL TYPOGRAPHY --- */
 body {
-    font-family: Arial, sans-serif;
-    padding: 20px;
-    max-width: 900px; /* Slightly wider to fit the side-by-side view */
+    /* Single clean font stack */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 40px 20px;
+    max-width: 800px;
     margin: auto;
     text-align: center;
     color: #333;
     background-color: #fff;
+    line-height: 1.8; /* Increased line spacing */
+    font-weight: 400; /* Standard, not bold */
 }
 
-/* --- Screen Visibility Logic --- */
-.screen { display: none; } /* Hide all screens by default */
-.active { display: block; } /* Show only active screen */
+/* --- SCREEN VISIBILITY --- */
+.screen { display: none; }
+.active { display: block; }
 .hidden { display: none; }
 
-/* --- Typography & Spacing --- */
-h1 {
-    color: #0056b3; /* Professional Blue */
-    margin-bottom: 10px;
+/* --- INTRO SCREEN --- */
+h1, h2 {
+    color: #222;
+    margin-bottom: 20px;
     margin-top: 0;
     text-transform: uppercase;
-}
-
-h2 {
-    margin-top: 0;
+    font-weight: 600; /* Reduced from 700/bold */
 }
 
 ul {
     text-align: left;
     display: inline-block;
     max-width: 600px;
-    margin-top: 5px;
+    margin-top: 20px;
+    padding-left: 20px;
 }
 
 li {
-    margin-bottom: 5px;
+    margin-bottom: 15px; /* More breathing room */
+    font-size: 16px;
 }
 
-/* --- Checkbox Styling --- */
-input[type="checkbox"] {
-    vertical-align: middle;
-    margin-right: 5px;
-    transform: scale(1.2); /* Make checkbox slightly bigger */
+/* --- SESSION INTRO SCREEN --- */
+.session-time-text {
+    font-size: 15px;
+    color: #888;
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 50px;
 }
 
-/* --- TASK SCREEN LAYOUT (Side-by-Side) --- */
-.task-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Aligns top of matrix with top of note */
-    gap: 40px; /* Space between the Note and the Matrix */
-    margin-top: 20px;
+.benchmark-text {
+    font-size: 18px;
+    color: #333;
+    font-weight: 400;
+    max-width: 650px;
+    margin: 0 auto 60px auto;
 }
 
-/* The Reference Note (Left Side) */
-.reference-sidebar {
-    width: 200px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    text-align: left;
-    font-size: 14px;
-    color: #444;
-    line-height: 1.4;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+/* --- BUTTONS (General) --- */
+button {
+    font-family: inherit; /* Forces buttons to use the same font */
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-/* The Matrix Area (Right Side) */
+/* Start Session Button */
+.start-session-btn {
+    font-size: 16px;
+    padding: 12px 32px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f8f8f8;
+    color: #333;
+}
+.start-session-btn:hover {
+    background-color: #eef;
+    border-color: #bbb;
+}
+
+/* --- TASK SCREEN LAYOUT (Centered) --- */
+/* We removed the wrapper. Now we just center the matrix area directly. */
 .matrix-area {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
+    margin-top: 40px;
 }
 
-/* --- THE MATRIX GRID (8x8) --- */
+/* --- THE MATRIX GRID --- */
 #matrix-container {
     display: grid;
-    /* 8 columns, 35px wide */
     grid-template-columns: repeat(8, 35px);
-    gap: 4px;
+    gap: 6px; /* Slightly more gap for airiness */
     justify-content: center;
-    margin: 0 0 15px 0; /* Spacing below the grid */
-    font-family: monospace;
-    font-size: 16px;
+    margin: 0 0 30px 0; /* Space below grid */
 }
 
 .matrix-cell {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    /* Match the column width */
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
     width: 35px; 
     height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
+    font-size: 16px;
+    font-weight: 500; /* Not bold, just clear */
+    border-radius: 4px;
 }
 
-/* --- Inputs & Buttons --- */
+/* --- INPUTS AREA --- */
 .input-area {
-    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px; /* Spacing between input and button */
 }
 
 input[type="number"] {
-    padding: 5px;
-    width: 60px;
+    padding: 10px; /* Taller input */
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 80px;
+    font-size: 16px;
+    text-align: center;
 }
 
-button {
+/* Submit button (Small & Distinct) */
+.submit-btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: #fff;
+    font-size: 14px; /* Visually smaller than text */
+}
+.submit-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Stop Working Button (Neutral & Separated) */
+.leisure-btn { 
+    background-color: transparent; 
+    color: #777; 
+    border: 1px solid #e0e0e0; 
+    margin-top: 60px; /* Lots of space */
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+.leisure-btn:hover {
+    background-color: #f9f9f9;
+    color: #333;
+    border-color: #ccc;
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+    transform: scale(1.2);
+    margin-right: 10px;
+}
