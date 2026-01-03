@@ -1,15 +1,13 @@
 /* --- GLOBAL TYPOGRAPHY --- */
 body {
-    /* Single clean font stack */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    padding: 40px 20px;
+    padding: 20px;
     max-width: 800px;
     margin: auto;
     text-align: center;
     color: #333;
     background-color: #fff;
-    line-height: 1.8; /* Increased line spacing */
-    font-weight: 400; /* Standard, not bold */
+    line-height: 1.4; /* Reduced from 1.6/1.8 for tighter text */
 }
 
 /* --- SCREEN VISIBILITY --- */
@@ -17,145 +15,134 @@ body {
 .active { display: block; }
 .hidden { display: none; }
 
-/* --- INTRO SCREEN --- */
-h1, h2 {
-    color: #222;
-    margin-bottom: 20px;
+/* --- INTRO SCREEN (Blue Title) --- */
+h1 {
+    color: #0056b3 !important; /* Force Blue */
+    margin-bottom: 10px;
     margin-top: 0;
     text-transform: uppercase;
-    font-weight: 600; /* Reduced from 700/bold */
+    font-weight: 700;
 }
 
+h2 {
+    color: #222;
+    margin-bottom: 15px;
+}
+
+/* --- TIGHTER LISTS --- */
 ul {
     text-align: left;
     display: inline-block;
-    max-width: 600px;
-    margin-top: 20px;
+    max-width: 650px;
+    margin-top: 10px;
     padding-left: 20px;
 }
 
 li {
-    margin-bottom: 15px; /* More breathing room */
+    margin-bottom: 8px; /* Reduced spacing between bullets */
     font-size: 16px;
+}
+
+p {
+    margin-bottom: 8px; /* Reduced spacing between paragraphs */
 }
 
 /* --- SESSION INTRO SCREEN --- */
 .session-time-text {
     font-size: 15px;
     color: #888;
-    font-weight: 400;
-    margin-top: 0;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
 }
 
 .benchmark-text {
     font-size: 18px;
     color: #333;
-    font-weight: 400;
     max-width: 650px;
-    margin: 0 auto 60px auto;
+    margin: 0 auto 50px auto;
 }
 
-/* --- BUTTONS (General) --- */
+/* --- BUTTONS --- */
 button {
-    font-family: inherit; /* Forces buttons to use the same font */
+    font-family: inherit;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-/* Start Session Button */
-.start-session-btn {
+/* Start & Next Buttons */
+.start-session-btn, #start-btn {
     font-size: 16px;
-    padding: 12px 32px;
-    border-radius: 8px;
+    padding: 10px 30px;
+    border-radius: 6px;
     border: 1px solid #ccc;
-    background-color: #f8f8f8;
+    background-color: #f0f0f0;
     color: #333;
+    margin-top: 20px;
 }
-.start-session-btn:hover {
-    background-color: #eef;
+.start-session-btn:hover, #start-btn:hover:enabled {
+    background-color: #e0e0e0;
     border-color: #bbb;
 }
 
-/* --- TASK SCREEN LAYOUT (Centered) --- */
-/* We removed the wrapper. Now we just center the matrix area directly. */
+/* --- TASK SCREEN --- */
 .matrix-area {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 40px;
+    margin-top: 30px;
 }
 
-/* --- THE MATRIX GRID --- */
 #matrix-container {
     display: grid;
     grid-template-columns: repeat(8, 35px);
-    gap: 6px; /* Slightly more gap for airiness */
+    gap: 5px;
     justify-content: center;
-    margin: 0 0 30px 0; /* Space below grid */
+    margin: 0 0 20px 0;
 }
 
 .matrix-cell {
     background: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    width: 35px; 
-    height: 35px;
+    border: 1px solid #ddd;
+    width: 35px; height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
-    font-weight: 500; /* Not bold, just clear */
-    border-radius: 4px;
+    font-weight: 500;
 }
 
-/* --- INPUTS AREA --- */
+/* --- INPUTS --- */
 .input-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 15px; /* Spacing between input and button */
+    gap: 10px;
 }
 
 input[type="number"] {
-    padding: 10px; /* Taller input */
+    padding: 8px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 4px;
     width: 80px;
-    font-size: 16px;
     text-align: center;
 }
 
-/* Submit button (Small & Distinct) */
 .submit-btn {
-    padding: 10px 20px;
-    border-radius: 6px;
+    padding: 8px 16px;
+    border-radius: 4px;
     border: 1px solid #bbb;
     background: #fff;
-    font-size: 14px; /* Visually smaller than text */
-}
-.submit-btn:hover {
-    background-color: #f0f0f0;
 }
 
-/* Stop Working Button (Neutral & Separated) */
 .leisure-btn { 
     background-color: transparent; 
     color: #777; 
     border: 1px solid #e0e0e0; 
-    margin-top: 60px; /* Lots of space */
-    padding: 10px 24px;
+    margin-top: 50px;
+    padding: 8px 20px;
     border-radius: 6px;
     font-size: 14px;
 }
 .leisure-btn:hover {
     background-color: #f9f9f9;
     color: #333;
-    border-color: #ccc;
-}
-
-/* Checkbox */
-input[type="checkbox"] {
-    transform: scale(1.2);
-    margin-right: 10px;
 }
