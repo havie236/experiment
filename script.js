@@ -1,44 +1,30 @@
+// --- CONFIGURATION ---
 const BLOCK_DURATION_SEC = 10 * 60; // 10 minutes
-const PAY_PER_MATRIX = 500; 
+const PAY_PER_MATRIX = 1000;        // 1,000 VND per correct answer
+const TOTAL_BLOCKS = 3; 
+
+// --- STATE VARIABLES ---
 let currentBlock = 0;
-const totalBlocks = 3; 
 let earnings = 0;
 let timerInterval;
 let matricesSolvedInBlock = 0;
 let participantData = [];
-
-// NEW: Variables to track time per matrix
 let matrixStartTime = 0;
-let matrixTimesList = []; // Stores list like [12.5, 4.2, 5.5]
+let matrixTimesList = []; 
 let focusSwitches = 0;
+let currentZeros = 0;
 
-// --- Consent Logic ---
-function toggleStartButton() {
-    const checkbox = document.getElementById('consent-checkbox');
-    const btn = document.getElementById('start-btn');
-    
-    if (checkbox.checked) {
-        // Enable button
-        btn.disabled = false;
-        btn.style.opacity = "1";
-        btn.style.cursor = "pointer";
-    } else {
-        // Disable button
-        btn.disabled = true;
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-    }
-}
-
-// Social Reference Logic
+// --- CONDITIONS (Randomized) ---
 let conditions = [
-    { type: 'High', text: "In a previous session, a Fulbright student completed 30 matrices and earned 15,000 VND in this same task." },
-    { type: 'Low', text: "In a previous session, a Fulbright student completed 10 matrices and earned 5,000 VND in this same task." },
-    { type: 'Control', text: "" }
+    { type: 'High', text: "In a previous session, a Fulbright student completed 30 matrices and earned 30,000 VND in this same task." },
+    { type: 'Low', text: "In a previous session, a Fulbright student completed 10 matrices and earned 10,000 VND in this same task." },
+    { type: 'Control', text: "" } // Control shows nothing
 ];
 
+// Shuffle conditions once at the start
 conditions = conditions.sort(() => Math.random() - 0.5);
 
+// --- NAVIGATION & INTRO ---
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => {
         s.classList.remove('active');
@@ -54,21 +40,16 @@ function startExperiment() {
     setupBlockIntro();
 }
 
-// Track if user leaves the window (Distraction Check)
-window.addEventListener('blur', () => {
-    if (!document.getElementById('screen-task').classList.contains('hidden')) {
-        focusSwitches++;
-    }
-});
-
 function setupBlockIntro() {
-    if (currentBlock >= totalBlocks) {
+    if (currentBlock >= TOTAL_BLOCKS) {
         showFinalResults();
         return;
     }
     
+    // 1. Set Block Title
     document.getElementById('block-title').innerText = `BLOCK ${currentBlock + 1}`;
     
+    // 2. Set Condition Text
     let condition = conditions[currentBlock]; 
     let text = condition.type === 'Control' ? "" : condition.text;
     document.getElementById('social-reference-text').innerText = text;
@@ -76,14 +57,30 @@ function setupBlockIntro() {
     showScreen('screen-block-intro');
 }
 
-let currentZeros = 0;
+// --- TASK LOGIC ---
 
 function startBlock() {
     showScreen('screen-task');
+    
+    // Reset Block Variables
     earnings = 0; 
     matricesSolvedInBlock = 0;
     focusSwitches = 0;
-    matrixTimesList = []; // Reset list for new block
+    matrixTimesList = []; 
+    
+    // --- NEW: SIDE NOTE LOGIC ---
+    // Copy the text from the intro screen to the side box
+    let currentText = document.getElementById('social-reference-text').innerText;
+    const sideNote = document.getElementById('task-side-note');
+    
+    if (currentText === "") {
+        // If Control, hide the box completely
+        sideNote.style.display = "none";
+    } else {
+        // If High/Low, show the box and add text
+        sideNote.style.display = "block";
+        sideNote.innerText = "REMINDER: " + currentText;
+    }
     
     updateEarningsUI();
     generateMatrix();
@@ -95,7 +92,7 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    // CHANGE: 8x8 = 64 items
+    // 8x8 Grid = 64 items
     for (let i = 0; i < 64; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
         if (val === 0) currentZeros++;
@@ -106,7 +103,6 @@ function generateMatrix() {
         container.appendChild(cell);
     }
 
-    // NEW: Start the stopwatch for this specific matrix
     matrixStartTime = Date.now();
 }
 
@@ -114,29 +110,32 @@ function submitMatrix() {
     let input = parseInt(document.getElementById('zero-input').value);
     
     if (input === currentZeros) {
-        // NEW: Calculate exactly how long this one took
+        // Record Time
         let timeNow = Date.now();
         let durationSeconds = (timeNow - matrixStartTime) / 1000;
-        matrixTimesList.push(durationSeconds.toFixed(2)); // Save "12.45"
+        matrixTimesList.push(durationSeconds.toFixed(2));
         
+        // Add Earnings
         earnings += PAY_PER_MATRIX; 
         matricesSolvedInBlock++;
         updateEarningsUI();
         
+        // Reset Input & Next Matrix
         document.getElementById('zero-input').value = '';
-        generateMatrix(); // Start next matrix
+        generateMatrix(); 
     } else {
-        alert("Incorrect count.");
+        alert("Incorrect count. Please try again.");
     }
 }
 
 function updateEarningsUI() {
-    document.getElementById('current-earnings').innerText = earnings;
+    document.getElementById('current-earnings').innerText = earnings.toLocaleString();
 }
 
+// --- TIMER ---
 function startTimer(seconds) {
     let timeLeft = seconds;
-    updateTimerUI(timeLeft);
+    updateTimerUI(timeLeft); // Keep updating UI even if hidden
     
     timerInterval = setInterval(() => {
         timeLeft--;
@@ -155,6 +154,7 @@ function updateTimerUI(seconds) {
         `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
+// --- ENDING A BLOCK ---
 function switchToLeisure() {
     if (confirm("Are you sure? You cannot return to the task in this block?")) {
         clearInterval(timerInterval);
@@ -168,13 +168,13 @@ function endBlock() {
 }
 
 function submitSurvey() {
+    // Save Data Row
     let row = {
         block: currentBlock + 1,
         condition: conditions[currentBlock].type,
         matrices_solved: matricesSolvedInBlock,
         earnings: earnings,
         distractions: focusSwitches,
-        // NEW: Join the list of times into a string like "5.2 | 12.1 | 8.8"
         times_per_matrix: matrixTimesList.join(' | '), 
         satisfaction: document.getElementById('survey-satisfaction').value,
         boredom: document.getElementById('survey-boredom').value,
@@ -183,18 +183,20 @@ function submitSurvey() {
     
     participantData.push(row);
 
+    // Clear Survey Inputs
     document.getElementById('survey-satisfaction').value = '';
     document.getElementById('survey-boredom').value = '';
     document.getElementById('survey-recall').value = '';
 
+    // Move to Next Block
     currentBlock++;
     setupBlockIntro();
 }
 
+// --- FINAL RESULTS ---
 function showFinalResults() {
     showScreen('screen-end');
 
-    // Added "TimesPerMatrix" column at the end
     let csvContent = "Block,Condition,MatricesSolved,Earnings,Distractions,Satisfaction,Boredom,Recall,TimesPerMatrix\n";
     
     participantData.forEach(row => {
@@ -218,5 +220,26 @@ function copyData() {
     alert("Data copied! Please paste it into a message.");
 }
 
+// --- UTILITIES ---
+// Track Distractions (Tab Switching)
+window.addEventListener('blur', () => {
+    if (!document.getElementById('screen-task').classList.contains('hidden')) {
+        focusSwitches++;
+    }
+});
 
-
+// Consent Checkbox Logic
+function toggleStartButton() {
+    const checkbox = document.getElementById('consent-checkbox');
+    const btn = document.getElementById('start-btn');
+    
+    if (checkbox.checked) {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+    } else {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+    }
+}
