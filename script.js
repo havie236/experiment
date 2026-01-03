@@ -1,4 +1,4 @@
-const BLOCK_DURATION_SEC = 10 * 60; 
+const BLOCK_DURATION_SEC = 10 * 60; // 10 minutes
 const PAY_PER_MATRIX = 500; 
 let currentBlock = 0;
 const totalBlocks = 3; 
@@ -7,10 +7,16 @@ let timerInterval;
 let matricesSolvedInBlock = 0;
 let participantData = [];
 
+// NEW: Variables to track time per matrix
+let matrixStartTime = 0;
+let matrixTimesList = []; // Stores list like [12.5, 4.2, 5.5]
+let focusSwitches = 0;
+
+// Social Reference Logic
 let conditions = [
-    { type: 'High', text: "Trong một buổi trước, một học sinh trung học đã hoàn thành 10 ma trận và nhận được 5000VN." },
-    { type: 'Low', text: "Trong một buổi trước, một học sinh trung học đã hoàn thành 40 ma trận và nhận được 20000VN." },
-    { type: 'Control', text: "Bạn cứ làm nhé!" }
+    { type: 'High', text: "In a previous session, a Fulbright student completed 30 matrices and earned 15,000 VND in this same task." },
+    { type: 'Low', text: "In a previous session, a Fulbright student completed 10 matrices and earned 5,000 VND in this same task." },
+    { type: 'Control', text: "" }
 ];
 
 conditions = conditions.sort(() => Math.random() - 0.5);
@@ -29,6 +35,13 @@ function startExperiment() {
     participantData = []; 
     setupBlockIntro();
 }
+
+// Track if user leaves the window (Distraction Check)
+window.addEventListener('blur', () => {
+    if (!document.getElementById('screen-task').classList.contains('hidden')) {
+        focusSwitches++;
+    }
+});
 
 function setupBlockIntro() {
     if (currentBlock >= totalBlocks) {
@@ -51,6 +64,8 @@ function startBlock() {
     showScreen('screen-task');
     earnings = 0; 
     matricesSolvedInBlock = 0;
+    focusSwitches = 0;
+    matrixTimesList = []; // Reset list for new block
     
     updateEarningsUI();
     generateMatrix();
@@ -62,8 +77,8 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    // CHANGE: Loop 49 times (7x7 = 49)
-    for (let i = 0; i < 49; i++) {
+    // CHANGE: 12x12 = 144 items
+    for (let i = 0; i < 144; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
         if (val === 0) currentZeros++;
         
@@ -72,20 +87,29 @@ function generateMatrix() {
         cell.innerText = val;
         container.appendChild(cell);
     }
+
+    // NEW: Start the stopwatch for this specific matrix
+    matrixStartTime = Date.now();
 }
 
 function submitMatrix() {
     let input = parseInt(document.getElementById('zero-input').value);
+    
     if (input === currentZeros) {
+        // NEW: Calculate exactly how long this one took
+        let timeNow = Date.now();
+        let durationSeconds = (timeNow - matrixStartTime) / 1000;
+        matrixTimesList.push(durationSeconds.toFixed(2)); // Save "12.45"
+        
         earnings += PAY_PER_MATRIX; 
         matricesSolvedInBlock++;
         updateEarningsUI();
+        
+        document.getElementById('zero-input').value = '';
+        generateMatrix(); // Start next matrix
     } else {
         alert("Incorrect count.");
     }
-    
-    document.getElementById('zero-input').value = '';
-    generateMatrix(); 
 }
 
 function updateEarningsUI() {
@@ -131,6 +155,9 @@ function submitSurvey() {
         condition: conditions[currentBlock].type,
         matrices_solved: matricesSolvedInBlock,
         earnings: earnings,
+        distractions: focusSwitches,
+        // NEW: Join the list of times into a string like "5.2 | 12.1 | 8.8"
+        times_per_matrix: matrixTimesList.join(' | '), 
         satisfaction: document.getElementById('survey-satisfaction').value,
         boredom: document.getElementById('survey-boredom').value,
         recall: document.getElementById('survey-recall').value
@@ -149,10 +176,11 @@ function submitSurvey() {
 function showFinalResults() {
     showScreen('screen-end');
 
-    let csvContent = "Block,Condition,MatricesSolved,Earnings,Satisfaction,Boredom,Recall\n";
+    // Added "TimesPerMatrix" column at the end
+    let csvContent = "Block,Condition,MatricesSolved,Earnings,Distractions,Satisfaction,Boredom,Recall,TimesPerMatrix\n";
     
     participantData.forEach(row => {
-        csvContent += `${row.block},${row.condition},${row.matrices_solved},${row.earnings},${row.satisfaction},${row.boredom},${row.recall}\n`;
+        csvContent += `${row.block},${row.condition},${row.matrices_solved},${row.earnings},${row.distractions},${row.satisfaction},${row.boredom},${row.recall},${row.times_per_matrix}\n`;
     });
 
     const endDiv = document.getElementById('screen-end');
@@ -171,7 +199,3 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
-
-
-
-
