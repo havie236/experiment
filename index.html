@@ -8,29 +8,30 @@
 <body>
 
     <div id="screen-intro" class="screen active">
-        <h1>WELCOME</h1>
-        <p>There will be 03 sessions in this experiment.In each session: </p>
-        <ul style="text-align: left; display: inline-block; max-width: 600px;">
-            <li>You will see matrices on the screen (like the example below):
-                <br>
-                <img src="matrix-example.png" alt="Example Matrix" style="max-width: 300px; border: 1px solid #ccc; margin: 15px 0; display: block;">
+        <h1>Welcome</h1>
+        <p style="margin-bottom: 5px;">There will be 03 sessions in this experiment.</p>
+        <p style="margin-top: 0;"><strong>In each session:</strong></p>
+        
+        <ul style="text-align: left; display: inline-block; max-width: 600px; margin-top: 5px;">
+            <li style="margin-bottom: 15px;">You will see matrices on the screen:
+                <img src="matrix-example.png" alt="Example Matrix" style="max-width: 280px; border: 1px solid #ccc; margin: 10px 0; display: block;">
             </li>
-            <li style="margin-bottom: 10px;">Your task is to count how many zeros appear in each matrix.</li>
-            <li style="margin-bottom: 10px;">You earn <strong>1,000 VND</strong> for each correct answer.</li>
-            <li style="margin-bottom: 10px;">Each session lasts up to <strong>10 minutes</strong>.</li>
+            <li style="margin-bottom: 5px;">Your task is to count how many zeros appear in each matrix.</li>
+            <li style="margin-bottom: 5px;">You earn <strong>1,000 VND</strong> for each correct answer.</li>
+            <li style="margin-bottom: 5px;">Each session lasts up to <strong>10 minutes</strong>.</li>
         </ul>
 
-        <br><br>
-        <p><i>You may stop working at any time.</i></p>
+        <br>
+        <p style="margin-bottom: 5px;"><i>You may stop working at any time.</i></p>
         
-        <div style="margin: 20px 0; font-size: 18px;">
+        <div style="margin: 10px 0; font-size: 18px;">
             <input type="checkbox" id="consent-checkbox" onchange="toggleStartButton()">
             <label for="consent-checkbox">I confirm I understand the experiment</label>
         </div>
 
         <button id="start-btn" onclick="startExperiment()" disabled style="opacity: 0.5; cursor: not-allowed;">Next</button>
     </div>
-
+    
     <div id="screen-block-intro" class="screen hidden">
         <h2 id="block-title">BLOCK X</h2>
         <p>Time Limit: 10 minutes</p>
@@ -74,6 +75,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
