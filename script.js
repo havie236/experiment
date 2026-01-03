@@ -6,6 +6,7 @@ const TOTAL_BLOCKS = 3;
 // --- STATE VARIABLES ---
 let currentBlock = 0;
 let blockEarnings = 0;
+let totalEarningsGlobal = 0; // <--- NEW: Tracks total across all blocks
 let timerInterval;
 let matrixStartTime = 0;
 let currentZeros = 0;
@@ -29,11 +30,9 @@ let conditions = [
 ];
 conditions = conditions.sort(() => Math.random() - 0.5);
 
-// --- VISIBILITY LISTENER (Multiple Switches Supported) ---
-// This handles the "OUT | IN | OUT | IN" logic automatically
+// --- VISIBILITY LISTENER ---
 document.addEventListener("visibilitychange", () => {
     const taskScreen = document.getElementById('screen-task');
-    // Only track if we are actively doing the task
     if (!taskScreen || taskScreen.classList.contains('hidden')) return;
 
     const now = new Date();
@@ -71,8 +70,6 @@ function toggleStartButton() {
     }
 }
 
-// --- NEW: TOGGLE SUBMIT BUTTON ---
-// Runs every time they type a number
 function toggleSubmitButton() {
     const inputVal = document.getElementById('user-answer').value;
     const btn = document.getElementById('submit-matrix-btn');
@@ -90,6 +87,7 @@ function toggleSubmitButton() {
 
 function startExperiment() {
     currentBlock = 0;
+    totalEarningsGlobal = 0; // Reset total on new experiment
     detailedLog = []; 
     setupBlockIntro();
 }
@@ -134,6 +132,7 @@ function submitFinalSurvey(event) {
         year = "Other: " + document.getElementById('final-year-other').value;
     }
 
+    // Save demographic data to all rows
     detailedLog.forEach(row => {
         row.final_importance = importance;
         row.final_distraction = distraction;
@@ -141,6 +140,9 @@ function submitFinalSurvey(event) {
         row.gender = gender;
         row.major = major;
         row.year_of_study = year;
+        
+        // Save the Grand Total to every row too (optional but helpful)
+        row.grand_total_earnings = totalEarningsGlobal;
     });
 
     showFinalResults();
@@ -163,7 +165,6 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    // Reset switch tracking for this specific matrix
     matrixTabSwitches = 0; 
     matrixSwitchHistory = []; 
     
@@ -182,8 +183,6 @@ function generateMatrix() {
     const input = document.getElementById('user-answer');
     input.value = '';
     input.focus();
-    
-    // Force button to disable state at start of new matrix
     toggleSubmitButton();
 }
 
@@ -191,7 +190,6 @@ function checkAnswer() {
     const inputField = document.getElementById('user-answer');
     const userInput = parseInt(inputField.value);
 
-    // Double check logic (though button is disabled)
     if (isNaN(userInput)) return;
 
     const timeNow = Date.now();
@@ -212,7 +210,7 @@ function checkAnswer() {
         time_spent_seconds: durationSeconds.toFixed(3),
         tab_switches_count: matrixTabSwitches,
         switch_history: historyString, 
-        earnings_at_attempt: blockEarnings,
+        earnings_at_attempt: blockEarnings, // Earnings BEFORE this add
         timestamp: new Date().toISOString()
     });
 
@@ -246,9 +244,7 @@ function stopEarly() {
     }
 }
 
-// --- NEW: LOG THE LAST 'ABANDONED' ATTEMPT ---
 function logAbandonedAttempt(reason) {
-    // If they haven't typed anything or just left, we still want the data.
     const timeNow = Date.now();
     const durationSeconds = (timeNow - matrixStartTime) / 1000;
     const historyString = matrixSwitchHistory.join(" | ");
@@ -259,18 +255,12 @@ function logAbandonedAttempt(reason) {
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock + 1,
         condition: conditions[currentBlock].type,
-        
-        // Mark as ABANDONED so you know they didn't finish
         user_guess: "ABANDONED", 
         actual_answer: currentZeros,
-        is_correct: "FALSE", // or N/A
-        
+        is_correct: "FALSE", 
         time_spent_seconds: durationSeconds.toFixed(3),
-        
-        // WE SAVE THE CRITICAL SWITCH DATA HERE
         tab_switches_count: matrixTabSwitches,
         switch_history: historyString, 
-        
         earnings_at_attempt: blockEarnings,
         timestamp: new Date().toISOString(),
         note: reason === 'time_out' ? "Time Out" : "Stopped Early"
@@ -279,11 +269,8 @@ function logAbandonedAttempt(reason) {
 
 function endBlock(reason) {
     clearInterval(timerInterval);
-
-    // 1. Log the current incomplete matrix before leaving
     logAbandonedAttempt(reason);
 
-    // 2. Calculate Total Time
     const timeNow = Date.now();
     finalBlockDuration = (timeNow - blockStartTime) / 1000;
 
@@ -315,6 +302,9 @@ function submitSurvey(event) {
     const bore = document.getElementById('survey-boredom').value;
     const recall = document.getElementById('survey-recall').value;
 
+    // --- NEW: ADD BLOCK EARNINGS TO GRAND TOTAL ---
+    totalEarningsGlobal += blockEarnings;
+
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock + 1) {
             row.satisfaction = sat;
@@ -331,6 +321,8 @@ function submitSurvey(event) {
 
 function showFinalResults() {
     showScreen('screen-end');
+    // --- NEW: UPDATE THE HTML WITH THE TOTAL ---
+    document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
 }
 
 function downloadCSV() {
@@ -343,7 +335,8 @@ function downloadCSV() {
         "Block_Duration_Total", "Note",
         "Satisfaction", "Boredom", "Peer_Recall_Guess", 
         "Timestamp",
-        "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study"
+        "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study",
+        "GRAND_TOTAL_EARNINGS" // <-- Added to CSV as well
     ];
 
     const rows = detailedLog.map(row => [
@@ -352,7 +345,7 @@ function downloadCSV() {
         row.tab_switches_count, 
         row.switch_history,     
         row.block_total_duration, 
-        row.note || "", // New Note column for ABANDONED status
+        row.note || "",
         row.satisfaction || "N/A", row.boredom || "N/A",
         row.recall_guess || "N/A", row.timestamp,
         row.final_importance, 
@@ -360,7 +353,8 @@ function downloadCSV() {
         row.age, 
         row.gender, 
         row.major, 
-        row.year_of_study
+        row.year_of_study,
+        row.grand_total_earnings // <-- Added here
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
