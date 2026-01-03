@@ -197,26 +197,31 @@ function stopEarly() {
 
 function endBlock() {
     clearInterval(timerInterval);
-    
-    // LOGIC: Handle Peer Earning Question Visibility
+
+    // 1. Show the Time Up Notification
+    alert("Time is up. Please complete the survey.");
+
+    // 2. Handle Peer Earning Question Logic
     const currentConditionType = conditions[currentBlock].type;
+    
+    // We use a safety check here just in case HTML is missing
     const recallContainer = document.getElementById('recall-container');
     const recallInput = document.getElementById('survey-recall');
 
-    if (currentConditionType === 'Control') {
-        // If Control: HIDE question, make NOT required
-        recallContainer.style.display = 'none';
-        recallInput.required = false;
-        recallInput.value = ""; // Clear any old value
-    } else {
-        // If High/Low: SHOW question, make REQUIRED
-        recallContainer.style.display = 'block';
-        recallInput.required = true;
+    if (recallContainer && recallInput) {
+        if (currentConditionType === 'Control') {
+            recallContainer.style.display = 'none';
+            recallInput.required = false;
+            recallInput.value = ""; 
+        } else {
+            recallContainer.style.display = 'block';
+            recallInput.required = true;
+        }
     }
 
+    // 3. Actually switch the screen
     showScreen('screen-survey'); 
 }
-
 // --- SURVEY LOGIC ---
 function submitSurvey(event) {
     event.preventDefault(); 
@@ -289,4 +294,5 @@ function downloadCSV() {
 // Track focus switches (tab switching) if you still want that data?
 // I'll leave it out for now to keep the CSV clean based on your specific request for Attempt Data.
 // If you want it back, let me know!
+
 
