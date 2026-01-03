@@ -68,19 +68,13 @@ function startBlock() {
     focusSwitches = 0;
     matrixTimesList = []; 
     
-    // --- NEW: SIDE NOTE LOGIC ---
-    // Copy the text from the intro screen to the side box
-    let currentText = document.getElementById('social-reference-text').innerText;
-    const sideNote = document.getElementById('task-side-note');
+    // --- SIDE NOTE LOGIC REMOVED ---
+    // We no longer need to update the side note because it was deleted from the UI.
     
-    if (currentText === "") {
-        // If Control, hide the box completely
-        sideNote.style.display = "none";
-    } else {
-        // If High/Low, show the box and add text
-        sideNote.style.display = "block";
-        sideNote.innerText = "REMINDER: " + currentText;
-    }
+    updateEarningsUI();
+    generateMatrix();
+    startTimer(BLOCK_DURATION_SEC);
+}
     
     updateEarningsUI();
     generateMatrix();
@@ -243,3 +237,4 @@ function toggleStartButton() {
         btn.style.cursor = "not-allowed";
     }
 }
+
