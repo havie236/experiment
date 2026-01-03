@@ -11,9 +11,11 @@ let matrixStartTime = 0;
 let currentZeros = 0;
 let attemptGlobalCounter = 0; 
 
-// --- NEW: DETAILED SWITCH TRACKING ---
-let matrixTabSwitches = 0;    // Total count for current matrix
-let matrixSwitchHistory = []; // Array to store timestamps strings
+// --- TIME & SWITCH TRACKING ---
+let blockStartTime = 0;       
+let finalBlockDuration = 0;   
+let matrixTabSwitches = 0;    
+let matrixSwitchHistory = []; 
 
 // --- DATA LOGGING ---
 let detailedLog = []; 
@@ -25,32 +27,27 @@ let conditions = [
     { type: 'Low', text: "In a previous session, a Fulbright student completed 10 matrices and earned 10,000 VND in this same task." },
     { type: 'Control', text: "" } 
 ];
-
-// Randomize order on load
 conditions = conditions.sort(() => Math.random() - 0.5);
 
-// --- UPDATED: VISIBILITY LISTENER ---
+// --- VISIBILITY LISTENER (Multiple Switches Supported) ---
+// This handles the "OUT | IN | OUT | IN" logic automatically
 document.addEventListener("visibilitychange", () => {
-    // Only track if the task screen is actually active
     const taskScreen = document.getElementById('screen-task');
+    // Only track if we are actively doing the task
     if (!taskScreen || taskScreen.classList.contains('hidden')) return;
 
     const now = new Date();
-    const timeString = now.toLocaleTimeString('en-GB'); // Format: HH:MM:SS
+    const timeString = now.toLocaleTimeString('en-GB'); 
 
     if (document.visibilityState === "hidden") {
-        // User LEFT the tab
         matrixTabSwitches++;
         matrixSwitchHistory.push(`OUT: ${timeString}`);
-        console.log("Switch OUT at", timeString);
     } else {
-        // User CAME BACK
         matrixSwitchHistory.push(`IN: ${timeString}`);
-        console.log("Switch IN at", timeString);
     }
 });
 
-// --- NAVIGATION ---
+// --- NAVIGATION & UI ---
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => {
         s.classList.remove('active');
@@ -63,8 +60,24 @@ function showScreen(screenId) {
 function toggleStartButton() {
     const checkbox = document.getElementById('consent-checkbox');
     const btn = document.getElementById('start-btn');
-    
     if (checkbox.checked) {
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+    } else {
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+    }
+}
+
+// --- NEW: TOGGLE SUBMIT BUTTON ---
+// Runs every time they type a number
+function toggleSubmitButton() {
+    const inputVal = document.getElementById('user-answer').value;
+    const btn = document.getElementById('submit-matrix-btn');
+    
+    if (inputVal !== "") {
         btn.disabled = false;
         btn.style.opacity = "1";
         btn.style.cursor = "pointer";
@@ -140,6 +153,8 @@ function startBlock() {
     currentBlockSurveyData = {}; 
     updateEarningsUI();
     generateMatrix();
+    
+    blockStartTime = Date.now(); 
     startTimer(BLOCK_DURATION_SEC);
 }
 
@@ -148,9 +163,9 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    // --- RESET FOR NEW MATRIX ---
+    // Reset switch tracking for this specific matrix
     matrixTabSwitches = 0; 
-    matrixSwitchHistory = []; // Clear the history list
+    matrixSwitchHistory = []; 
     
     for (let i = 0; i < 64; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
@@ -164,18 +179,20 @@ function generateMatrix() {
     
     matrixStartTime = Date.now();
     
-    document.getElementById('user-answer').value = '';
-    document.getElementById('user-answer').focus();
+    const input = document.getElementById('user-answer');
+    input.value = '';
+    input.focus();
+    
+    // Force button to disable state at start of new matrix
+    toggleSubmitButton();
 }
 
 function checkAnswer() {
     const inputField = document.getElementById('user-answer');
     const userInput = parseInt(inputField.value);
 
-    if (isNaN(userInput)) {
-        alert("Please enter a number.");
-        return;
-    }
+    // Double check logic (though button is disabled)
+    if (isNaN(userInput)) return;
 
     const timeNow = Date.now();
     const durationSeconds = (timeNow - matrixStartTime) / 1000;
@@ -183,9 +200,6 @@ function checkAnswer() {
     
     attemptGlobalCounter++;
 
-    // --- LOGGING ---
-    // Join the history array into a single string for the CSV cell
-    // e.g. "OUT: 10:00:01 | IN: 10:00:05"
     const historyString = matrixSwitchHistory.join(" | ");
 
     detailedLog.push({
@@ -196,11 +210,8 @@ function checkAnswer() {
         actual_answer: currentZeros,
         is_correct: isCorrect,
         time_spent_seconds: durationSeconds.toFixed(3),
-        
-        // NEW COLUMNS HERE
         tab_switches_count: matrixTabSwitches,
         switch_history: historyString, 
-        
         earnings_at_attempt: blockEarnings,
         timestamp: new Date().toISOString()
     });
@@ -235,8 +246,46 @@ function stopEarly() {
     }
 }
 
+// --- NEW: LOG THE LAST 'ABANDONED' ATTEMPT ---
+function logAbandonedAttempt(reason) {
+    // If they haven't typed anything or just left, we still want the data.
+    const timeNow = Date.now();
+    const durationSeconds = (timeNow - matrixStartTime) / 1000;
+    const historyString = matrixSwitchHistory.join(" | ");
+    
+    attemptGlobalCounter++;
+
+    detailedLog.push({
+        attempt_id: attemptGlobalCounter,
+        block_number: currentBlock + 1,
+        condition: conditions[currentBlock].type,
+        
+        // Mark as ABANDONED so you know they didn't finish
+        user_guess: "ABANDONED", 
+        actual_answer: currentZeros,
+        is_correct: "FALSE", // or N/A
+        
+        time_spent_seconds: durationSeconds.toFixed(3),
+        
+        // WE SAVE THE CRITICAL SWITCH DATA HERE
+        tab_switches_count: matrixTabSwitches,
+        switch_history: historyString, 
+        
+        earnings_at_attempt: blockEarnings,
+        timestamp: new Date().toISOString(),
+        note: reason === 'time_out' ? "Time Out" : "Stopped Early"
+    });
+}
+
 function endBlock(reason) {
     clearInterval(timerInterval);
+
+    // 1. Log the current incomplete matrix before leaving
+    logAbandonedAttempt(reason);
+
+    // 2. Calculate Total Time
+    const timeNow = Date.now();
+    finalBlockDuration = (timeNow - blockStartTime) / 1000;
 
     if (reason === 'time_out') {
         alert("Time is up! Please complete the survey.");
@@ -271,6 +320,7 @@ function submitSurvey(event) {
             row.satisfaction = sat;
             row.boredom = bore;
             row.recall_guess = recall || "N/A"; 
+            row.block_total_duration = finalBlockDuration.toFixed(2);
         }
     });
 
@@ -286,11 +336,11 @@ function showFinalResults() {
 function downloadCSV() {
     if (detailedLog.length === 0) { alert("No data"); return; }
     
-    // --- UPDATED HEADERS ---
     const headers = [
         "Attempt_ID", "Block", "Condition", "Is_Correct", 
         "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
-        "Switch_Count", "Switch_History", // <--- 2 COLUMNS FOR SWITCHING
+        "Switch_Count", "Switch_History", 
+        "Block_Duration_Total", "Note",
         "Satisfaction", "Boredom", "Peer_Recall_Guess", 
         "Timestamp",
         "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study"
@@ -299,11 +349,10 @@ function downloadCSV() {
     const rows = detailedLog.map(row => [
         row.attempt_id, row.block_number, row.condition, row.is_correct, 
         row.user_guess, row.actual_answer, row.time_spent_seconds, 
-        
-        // Map the new data
         row.tab_switches_count, 
         row.switch_history,     
-        
+        row.block_total_duration, 
+        row.note || "", // New Note column for ABANDONED status
         row.satisfaction || "N/A", row.boredom || "N/A",
         row.recall_guess || "N/A", row.timestamp,
         row.final_importance, 
