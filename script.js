@@ -9,12 +9,15 @@ let blockEarnings = 0;
 let timerInterval;
 let matrixStartTime = 0;
 let currentZeros = 0;
-let attemptGlobalCounter = 0; // Unique ID for every attempt across all blocks
+let attemptGlobalCounter = 0; 
+
+// --- NEW: DETAILED SWITCH TRACKING ---
+let matrixTabSwitches = 0;    // Total count for current matrix
+let matrixSwitchHistory = []; // Array to store timestamps strings
 
 // --- DATA LOGGING ---
-// We will store every single attempt here for detailed analysis
 let detailedLog = []; 
-let currentBlockSurveyData = {}; // Temp store for survey answers
+let currentBlockSurveyData = {}; 
 
 // --- CONDITIONS ---
 let conditions = [
@@ -25,6 +28,27 @@ let conditions = [
 
 // Randomize order on load
 conditions = conditions.sort(() => Math.random() - 0.5);
+
+// --- UPDATED: VISIBILITY LISTENER ---
+document.addEventListener("visibilitychange", () => {
+    // Only track if the task screen is actually active
+    const taskScreen = document.getElementById('screen-task');
+    if (!taskScreen || taskScreen.classList.contains('hidden')) return;
+
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-GB'); // Format: HH:MM:SS
+
+    if (document.visibilityState === "hidden") {
+        // User LEFT the tab
+        matrixTabSwitches++;
+        matrixSwitchHistory.push(`OUT: ${timeString}`);
+        console.log("Switch OUT at", timeString);
+    } else {
+        // User CAME BACK
+        matrixSwitchHistory.push(`IN: ${timeString}`);
+        console.log("Switch IN at", timeString);
+    }
+});
 
 // --- NAVIGATION ---
 function showScreen(screenId) {
@@ -58,13 +82,11 @@ function startExperiment() {
 }
 
 function setupBlockIntro() {
-    // CHANGE: If all blocks are done, go to FINAL SURVEY (not results yet)
     if (currentBlock >= TOTAL_BLOCKS) {
         showScreen('screen-final-survey'); 
         return;
     }
     
-    // ... existing block intro code ...
     document.getElementById('block-title').innerText = `SESSION ${currentBlock + 1}`;
     let condition = conditions[currentBlock]; 
     let text = condition.type === 'Control' ? "" : condition.text;
@@ -73,13 +95,11 @@ function setupBlockIntro() {
     showScreen('screen-block-intro');
 }
 
-// --- NEW FUNCTIONS FOR FINAL SURVEY ---
-
 function toggleOtherYear(selectObject) {
     const otherInput = document.getElementById('final-year-other');
     if (selectObject.value === "Other") {
         otherInput.style.display = "block";
-        otherInput.required = true; // Make text compulsory if "Other" picked
+        otherInput.required = true;
     } else {
         otherInput.style.display = "none";
         otherInput.required = false;
@@ -90,21 +110,17 @@ function toggleOtherYear(selectObject) {
 function submitFinalSurvey(event) {
     event.preventDefault();
 
-    // 1. Gather Data
     const importance = document.getElementById('final-importance').value;
     const distraction = document.getElementById('final-distraction').value;
     const age = document.getElementById('final-age').value;
     const gender = document.getElementById('final-gender').value;
     const major = document.getElementById('final-major').value;
     
-    // Handle Year (Check if "Other" text box is used)
     let year = document.getElementById('final-year').value;
     if (year === "Other") {
         year = "Other: " + document.getElementById('final-year-other').value;
     }
 
-    // 2. Add this demographic info to EVERY ROW in the dataset
-    // This makes analysis in Excel much easier (you can filter by Gender/Age easily)
     detailedLog.forEach(row => {
         row.final_importance = importance;
         row.final_distraction = distraction;
@@ -114,18 +130,14 @@ function submitFinalSurvey(event) {
         row.year_of_study = year;
     });
 
-    // 3. Now show the download screen
     showFinalResults();
 }
 
 // --- TASK LOGIC ---
 function startBlock() {
     showScreen('screen-task');
-    
-    // Reset Block Variables
     blockEarnings = 0; 
-    currentBlockSurveyData = {}; // Reset survey data for this new block
-    
+    currentBlockSurveyData = {}; 
     updateEarningsUI();
     generateMatrix();
     startTimer(BLOCK_DURATION_SEC);
@@ -135,6 +147,10 @@ function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = '';
     currentZeros = 0;
+    
+    // --- RESET FOR NEW MATRIX ---
+    matrixTabSwitches = 0; 
+    matrixSwitchHistory = []; // Clear the history list
     
     for (let i = 0; i < 64; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
@@ -146,36 +162,32 @@ function generateMatrix() {
         container.appendChild(cell);
     }
     
-    // Start timer for this specific matrix
     matrixStartTime = Date.now();
     
-    // Auto-focus input for speed
     document.getElementById('user-answer').value = '';
     document.getElementById('user-answer').focus();
 }
 
-// --- CORE UPDATE: CHECK ANSWER LOGIC ---
 function checkAnswer() {
     const inputField = document.getElementById('user-answer');
     const userInput = parseInt(inputField.value);
 
-    // Guard clause: Ensure they typed a number
     if (isNaN(userInput)) {
         alert("Please enter a number.");
         return;
     }
 
-    // 1. Calculate Timing
     const timeNow = Date.now();
     const durationSeconds = (timeNow - matrixStartTime) / 1000;
-    
-    // 2. Check Logic
     const isCorrect = (userInput === currentZeros);
     
     attemptGlobalCounter++;
 
-    // 3. LOG DATA (The "Granular" Request)
-    // We push this immediately. We will append survey data to these rows later.
+    // --- LOGGING ---
+    // Join the history array into a single string for the CSV cell
+    // e.g. "OUT: 10:00:01 | IN: 10:00:05"
+    const historyString = matrixSwitchHistory.join(" | ");
+
     detailedLog.push({
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock + 1,
@@ -184,21 +196,20 @@ function checkAnswer() {
         actual_answer: currentZeros,
         is_correct: isCorrect,
         time_spent_seconds: durationSeconds.toFixed(3),
-        earnings_at_attempt: blockEarnings, // Earnings before this attempt
+        
+        // NEW COLUMNS HERE
+        tab_switches_count: matrixTabSwitches,
+        switch_history: historyString, 
+        
+        earnings_at_attempt: blockEarnings,
         timestamp: new Date().toISOString()
     });
 
-    // 4. Update Game State
     if (isCorrect) {
         blockEarnings += PAY_PER_MATRIX; 
         updateEarningsUI();
-        // Optional: Visual Feedback (e.g., green border flash) could go here
-    } else {
-        // FEEDBACK UPDATE: We do NOT alert/block anymore.
-        // We simply move on.
-    }
+    } 
 
-    // 5. Next Matrix
     generateMatrix(); 
 }
 
@@ -212,30 +223,14 @@ function startTimer(seconds) {
     clearInterval(timerInterval); 
     timerInterval = setInterval(() => {
         timeLeft--;
-        
-        // If time runs out, send 'time_out' signal
         if (timeLeft <= 0) {
             endBlock('time_out'); 
         }
     }, 1000);
 }
 
-function updateTimerUI(seconds) {
-    let m = Math.floor(seconds / 60);
-    let s = seconds % 60;
-    const timeString = `${m}:${s < 10 ? '0' : ''}${s}`;
-    
-    // If you want to show the timer, uncomment in HTML or update here
-    if(document.getElementById('time-remaining')) {
-        document.getElementById('time-remaining').innerText = timeString;
-    }
-}
-
-// --- FEEDBACK UPDATE: STOP TEXT ---
 function stopEarly() {
-    // We ask for confirmation first
     if (confirm("If you stop now, you will not be able to return to this session. There is no penalty for stopping.")) {
-        // If they say YES, we end the block with 'manual' reason
         endBlock('manual');
     }
 }
@@ -243,18 +238,14 @@ function stopEarly() {
 function endBlock(reason) {
     clearInterval(timerInterval);
 
-    // --- LOGIC CHANGE: Only alert if time ran out ---
     if (reason === 'time_out') {
         alert("Time is up! Please complete the survey.");
     }
-    // If reason is 'manual', we simply proceed without an extra popup.
 
-    // 2. Handle Peer Earning Question Logic
     const currentConditionType = conditions[currentBlock].type;
     const recallContainer = document.getElementById('recall-container');
     const recallInput = document.getElementById('survey-recall');
 
-    // Safety check in case HTML is missing
     if (recallContainer && recallInput) {
         if (currentConditionType === 'Control') {
             recallContainer.style.display = 'none';
@@ -266,22 +257,20 @@ function endBlock(reason) {
         }
     }
 
-   // 3. Switch screen
     showScreen('screen-survey'); 
 }
-// --- SURVEY LOGIC ---
+
 function submitSurvey(event) {
     event.preventDefault(); 
     const sat = document.getElementById('survey-satisfaction').value;
     const bore = document.getElementById('survey-boredom').value;
-    // Get the recall value (will be empty if Control)
     const recall = document.getElementById('survey-recall').value;
 
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock + 1) {
             row.satisfaction = sat;
             row.boredom = bore;
-            row.recall_guess = recall || "N/A"; // Save 'N/A' if empty
+            row.recall_guess = recall || "N/A"; 
         }
     });
 
@@ -290,7 +279,6 @@ function submitSurvey(event) {
     setupBlockIntro();
 }
 
-// --- FINAL EXPORT ---
 function showFinalResults() {
     showScreen('screen-end');
 }
@@ -298,22 +286,26 @@ function showFinalResults() {
 function downloadCSV() {
     if (detailedLog.length === 0) { alert("No data"); return; }
     
-    // Added new demographic headers at the end
+    // --- UPDATED HEADERS ---
     const headers = [
         "Attempt_ID", "Block", "Condition", "Is_Correct", 
         "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
+        "Switch_Count", "Switch_History", // <--- 2 COLUMNS FOR SWITCHING
         "Satisfaction", "Boredom", "Peer_Recall_Guess", 
         "Timestamp",
-        // NEW COLUMNS
         "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study"
     ];
 
     const rows = detailedLog.map(row => [
         row.attempt_id, row.block_number, row.condition, row.is_correct, 
         row.user_guess, row.actual_answer, row.time_spent_seconds, 
+        
+        // Map the new data
+        row.tab_switches_count, 
+        row.switch_history,     
+        
         row.satisfaction || "N/A", row.boredom || "N/A",
         row.recall_guess || "N/A", row.timestamp,
-        // NEW DATA MAPPING
         row.final_importance, 
         row.final_distraction, 
         row.age, 
@@ -331,13 +323,3 @@ function downloadCSV() {
     link.click();
     document.body.removeChild(link);
 }
-// --- UTILITIES ---
-// Track focus switches (tab switching) if you still want that data?
-// I'll leave it out for now to keep the CSV clean based on your specific request for Attempt Data.
-// If you want it back, let me know!
-
-
-
-
-
-
