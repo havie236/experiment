@@ -23,7 +23,7 @@
         </ul>
 
         <br><br>
-        <p><i>You may stop working at any time.</i></p>
+        <p><i>You may stop working at any time. Once you stop, you cannot return to this session.</i></p>
         <button onclick="startExperiment()">Next</button>
     </div>
 
@@ -31,7 +31,7 @@
         <h2 id="block-title">BLOCK X</h2>
         <p>Time Limit: 10 minutes</p>
         <p id="social-reference-text" class="highlight-box"></p> 
-        <button onclick="startBlock()">Start Block</button>
+        <button onclick="startBlock()">Start Session</button>
     </div>
 
     <div id="screen-task" class="screen hidden">
@@ -47,8 +47,7 @@
         </div>
 
         <hr>
-        <p><i>You may stop working at any time. This decision is irreversible.</i></p>
-        <button onclick="switchToLeisure()" class="leisure-btn">Stop & Switch to Leisure</button>
+        <button onclick="switchToLeisure()" class="leisure-btn">Stop Working</button>
     </div>
 
     <div id="screen-survey" class="screen hidden">
@@ -71,6 +70,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
