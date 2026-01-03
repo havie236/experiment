@@ -48,8 +48,8 @@
             
             <div class="input-area">
                 <label>Count of Zeros:</label>
-                <input type="number" id="user-answer" placeholder="0">
-                <button class="submit-btn" onclick="checkAnswer()">Submit</button>
+                <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()">
+                <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="opacity: 0.5; cursor: not-allowed;">Submit</button>
             </div>
         </div>
 
@@ -141,3 +141,4 @@
     <script src="script.js"></script>
 </body>
 </html>
+
