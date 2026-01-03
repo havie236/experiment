@@ -93,16 +93,30 @@ function startExperiment() {
 }
 
 function setupBlockIntro() {
+    // 1. Check if experiment is done
     if (currentBlock >= TOTAL_BLOCKS) {
         showScreen('screen-final-survey'); 
         return;
     }
     
+    // 2. Set Session Title
     document.getElementById('block-title').innerText = `SESSION ${currentBlock + 1}`;
+    
+    // 3. Handle Condition Text & Visibility
     let condition = conditions[currentBlock]; 
-    let text = condition.type === 'Control' ? "" : condition.text;
-    document.getElementById('social-comparison-text').innerText = text;
+    const benchmarkBox = document.getElementById('social-comparison-text');
 
+    if (condition.type === 'Control') {
+        // HIDE the box completely for Control group
+        benchmarkBox.style.display = "none";
+        benchmarkBox.innerText = "";
+    } else {
+        // SHOW the box for High/Low groups
+        benchmarkBox.style.display = "block"; // This restores the element
+        benchmarkBox.innerText = condition.text;
+    }
+
+    // 4. Show the screen
     showScreen('screen-block-intro');
 }
 
@@ -366,3 +380,4 @@ function downloadCSV() {
     link.click();
     document.body.removeChild(link);
 }
+
