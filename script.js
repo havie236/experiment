@@ -225,9 +225,6 @@ function endBlock(reason) {
     // 3. Switch screen
     showScreen('screen-survey'); 
 }
-    // 3. Actually switch the screen
-    showScreen('screen-survey'); 
-}
 // --- SURVEY LOGIC ---
 function submitSurvey(event) {
     event.preventDefault(); 
@@ -300,6 +297,7 @@ function downloadCSV() {
 // Track focus switches (tab switching) if you still want that data?
 // I'll leave it out for now to keep the CSV clean based on your specific request for Attempt Data.
 // If you want it back, let me know!
+
 
 
 
