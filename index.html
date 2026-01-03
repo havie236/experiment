@@ -80,6 +80,58 @@
     </div>
 
     <div id="screen-end" class="screen hidden">
+        <div id="screen-final-survey" class="screen hidden">
+        <h2>Post-Experiment Survey</h2>
+        <form id="final-survey-form" onsubmit="submitFinalSurvey(event)">
+            
+            <label>1. How important is it to you to be the best at what you do?</label>
+            <p style="font-size: 14px; color: #666; margin-top: -5px;">(1 = Not important at all, 7 = Very important)</p>
+            <input type="number" min="1" max="7" id="final-importance" required>
+            <br><br>
+
+            <label>2. During the task, did you spend time doing other things on your laptop or phone?</label>
+            <select id="final-distraction" required>
+                <option value="">Select...</option>
+                <option value="Not at all">Not at all</option>
+                <option value="A little">A little</option>
+                <option value="A lot">A lot</option>
+            </select>
+            <br><br>
+
+            <label>Age:</label>
+            <input type="number" id="final-age" placeholder="Years old" required>
+            <br><br>
+
+            <label>Gender:</label>
+            <select id="final-gender" required>
+                <option value="">Select...</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Non-binary">Non-binary / Third gender</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+            <br><br>
+
+            <label>Major / Field of study:</label>
+            <input type="text" id="final-major" required>
+            <br><br>
+
+            <label>Year of study:</label>
+            <select id="final-year" onchange="toggleOtherYear(this)" required>
+                <option value="">Select...</option>
+                <option value="First year">First year</option>
+                <option value="Second year">Second year</option>
+                <option value="Third year">Third year</option>
+                <option value="Fourth year">Fourth year</option>
+                <option value="Other">Other (please specify)</option>
+            </select>
+            
+            <input type="text" id="final-year-other" placeholder="Specify year..." style="display:none; margin-top: 10px;">
+            <br><br>
+
+            <button type="submit">Finish Experiment</button>
+        </form>
+    </div>
         <h2>Experiment Complete</h2>
         <p>Thank you for your participation.</p>
         <button onclick="downloadCSV()">Download Data (CSV)</button>
@@ -88,6 +140,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
