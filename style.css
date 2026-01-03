@@ -1,15 +1,86 @@
-body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; text-align: center; }
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 900px; /* Slightly wider to fit the side-by-side view */
+    margin: auto;
+    text-align: center;
+    color: #333;
+    background-color: #fff;
+}
+
+/* --- Screen Visibility Logic --- */
 .screen { display: none; } /* Hide all screens by default */
 .active { display: block; } /* Show only active screen */
 .hidden { display: none; }
 
+/* --- Typography & Spacing --- */
+h1 {
+    color: #0056b3; /* Professional Blue */
+    margin-bottom: 10px;
+    margin-top: 0;
+    text-transform: uppercase;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+ul {
+    text-align: left;
+    display: inline-block;
+    max-width: 600px;
+    margin-top: 5px;
+}
+
+li {
+    margin-bottom: 5px;
+}
+
+/* --- Checkbox Styling --- */
+input[type="checkbox"] {
+    vertical-align: middle;
+    margin-right: 5px;
+    transform: scale(1.2); /* Make checkbox slightly bigger */
+}
+
+/* --- TASK SCREEN LAYOUT (Side-by-Side) --- */
+.task-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Aligns top of matrix with top of note */
+    gap: 40px; /* Space between the Note and the Matrix */
+    margin-top: 20px;
+}
+
+/* The Reference Note (Left Side) */
+.reference-sidebar {
+    width: 200px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: left;
+    font-size: 14px;
+    color: #444;
+    line-height: 1.4;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+}
+
+/* The Matrix Area (Right Side) */
+.matrix-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- THE MATRIX GRID (8x8) --- */
 #matrix-container {
     display: grid;
-    /* CHANGE: 8 columns, 35px wide */
+    /* 8 columns, 35px wide */
     grid-template-columns: repeat(8, 35px);
     gap: 4px;
     justify-content: center;
-    margin: 20px 0;
+    margin: 0 0 15px 0; /* Spacing below the grid */
     font-family: monospace;
     font-size: 16px;
 }
@@ -17,20 +88,23 @@ body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 
 .matrix-cell {
     background: #f0f0f0;
     border: 1px solid #ccc;
-    /* CHANGE: Match the column width */
+    /* Match the column width */
     width: 35px; 
     height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-weight: bold;
 }
-.highlight-box {
-    background-color: #e8f4fd;
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid #2196f3;
+
+/* --- Inputs & Buttons --- */
+.input-area {
+    margin-top: 10px;
 }
-.leisure-btn { background-color: #ffcccc; color: #cc0000; margin-top: 20px;}
 
+input[type="number"] {
+    padding: 5px;
+    width: 60px;
+}
 
-
+button {
