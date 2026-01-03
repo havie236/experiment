@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const BLOCK_DURATION_SEC = 10 * 60; // 10 minutes
-const PAY_PER_MATRIX = 1000;        // 1,000 VND per correct answer
+const PAY_PER_MATRIX = 1000;        // 1,000 VND
 const TOTAL_BLOCKS = 3; 
 
 // --- STATE VARIABLES ---
@@ -14,17 +14,16 @@ let matrixTimesList = [];
 let focusSwitches = 0;
 let currentZeros = 0;
 
-// --- CONDITIONS (Randomized) ---
+// --- CONDITIONS ---
 let conditions = [
     { type: 'High', text: "In a previous session, a Fulbright student completed 30 matrices and earned 30,000 VND in this same task." },
     { type: 'Low', text: "In a previous session, a Fulbright student completed 10 matrices and earned 10,000 VND in this same task." },
-    { type: 'Control', text: "" } // Control shows nothing
+    { type: 'Control', text: "" } 
 ];
 
-// Shuffle conditions once at the start
 conditions = conditions.sort(() => Math.random() - 0.5);
 
-// --- NAVIGATION & INTRO ---
+// --- NAVIGATION ---
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => {
         s.classList.remove('active');
@@ -46,10 +45,9 @@ function setupBlockIntro() {
         return;
     }
     
-    // 1. Set Block Title
-    document.getElementById('block-title').innerText = `BLOCK ${currentBlock + 1}`;
+    // Title and Text
+    document.getElementById('block-title').innerText = `SESSION ${currentBlock + 1}`;
     
-    // 2. Set Condition Text
     let condition = conditions[currentBlock]; 
     let text = condition.type === 'Control' ? "" : condition.text;
     document.getElementById('social-reference-text').innerText = text;
@@ -58,23 +56,14 @@ function setupBlockIntro() {
 }
 
 // --- TASK LOGIC ---
-
 function startBlock() {
     showScreen('screen-task');
     
-    // Reset Block Variables
+    // Reset Variables
     earnings = 0; 
     matricesSolvedInBlock = 0;
     focusSwitches = 0;
     matrixTimesList = []; 
-    
-    // --- SIDE NOTE LOGIC REMOVED ---
-    // We no longer need to update the side note because it was deleted from the UI.
-    
-    updateEarningsUI();
-    generateMatrix();
-    startTimer(BLOCK_DURATION_SEC);
-}
     
     updateEarningsUI();
     generateMatrix();
@@ -86,7 +75,6 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    // 8x8 Grid = 64 items
     for (let i = 0; i < 64; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
         if (val === 0) currentZeros++;
@@ -96,7 +84,6 @@ function generateMatrix() {
         cell.innerText = val;
         container.appendChild(cell);
     }
-
     matrixStartTime = Date.now();
 }
 
@@ -104,17 +91,14 @@ function submitMatrix() {
     let input = parseInt(document.getElementById('zero-input').value);
     
     if (input === currentZeros) {
-        // Record Time
         let timeNow = Date.now();
         let durationSeconds = (timeNow - matrixStartTime) / 1000;
         matrixTimesList.push(durationSeconds.toFixed(2));
         
-        // Add Earnings
         earnings += PAY_PER_MATRIX; 
         matricesSolvedInBlock++;
         updateEarningsUI();
         
-        // Reset Input & Next Matrix
         document.getElementById('zero-input').value = '';
         generateMatrix(); 
     } else {
@@ -129,7 +113,7 @@ function updateEarningsUI() {
 // --- TIMER ---
 function startTimer(seconds) {
     let timeLeft = seconds;
-    updateTimerUI(timeLeft); // Keep updating UI even if hidden
+    updateTimerUI(timeLeft);
     
     timerInterval = setInterval(() => {
         timeLeft--;
@@ -144,13 +128,12 @@ function startTimer(seconds) {
 function updateTimerUI(seconds) {
     let m = Math.floor(seconds / 60);
     let s = seconds % 60;
-    document.getElementById('time-remaining').innerText = 
-        `${m}:${s < 10 ? '0' : ''}${s}`;
+    document.getElementById('time-remaining').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
 }
 
-// --- ENDING A BLOCK ---
+// --- ENDING ---
 function switchToLeisure() {
-    if (confirm("Are you sure? You cannot return to the task in this block?")) {
+    if (confirm("Are you sure? You cannot return to the task in this session?")) {
         clearInterval(timerInterval);
         endBlock();
     }
@@ -162,7 +145,6 @@ function endBlock() {
 }
 
 function submitSurvey() {
-    // Save Data Row
     let row = {
         block: currentBlock + 1,
         condition: conditions[currentBlock].type,
@@ -177,17 +159,14 @@ function submitSurvey() {
     
     participantData.push(row);
 
-    // Clear Survey Inputs
     document.getElementById('survey-satisfaction').value = '';
     document.getElementById('survey-boredom').value = '';
     document.getElementById('survey-recall').value = '';
 
-    // Move to Next Block
     currentBlock++;
     setupBlockIntro();
 }
 
-// --- FINAL RESULTS ---
 function showFinalResults() {
     showScreen('screen-end');
 
@@ -200,7 +179,7 @@ function showFinalResults() {
     const endDiv = document.getElementById('screen-end');
     endDiv.innerHTML = `
         <h2>Experiment Complete</h2>
-        <p>Please copy the text below and send it to the researcher:</p>
+        <p>Please copy the text below:</p>
         <textarea id="data-box" style="width: 100%; height: 150px;">${csvContent}</textarea>
         <br><br>
         <button onclick="copyData()">Copy to Clipboard</button>
@@ -211,18 +190,17 @@ function copyData() {
     const copyText = document.getElementById("data-box");
     copyText.select();
     document.execCommand("copy");
-    alert("Data copied! Please paste it into a message.");
+    alert("Data copied!");
 }
 
 // --- UTILITIES ---
-// Track Distractions (Tab Switching)
 window.addEventListener('blur', () => {
     if (!document.getElementById('screen-task').classList.contains('hidden')) {
         focusSwitches++;
     }
 });
 
-// Consent Checkbox Logic
+// THIS IS THE FUNCTION THAT FIXES YOUR BUTTON
 function toggleStartButton() {
     const checkbox = document.getElementById('consent-checkbox');
     const btn = document.getElementById('start-btn');
@@ -237,4 +215,3 @@ function toggleStartButton() {
         btn.style.cursor = "not-allowed";
     }
 }
-
