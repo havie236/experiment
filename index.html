@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Matrix Task Experiment</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -21,7 +22,7 @@
             <li style="margin-bottom: 5px;">You may stop whenever you like. There is no penalty for stopping.</li>
         </ul>
         
-        <div style="margin: 10px 0; font-size: 18px;">
+        <div style="margin: 20px 0; font-size: 18px;">
             <input type="checkbox" id="consent-checkbox" onchange="toggleStartButton()">
             <label for="consent-checkbox">I confirm I understand the experiment</label>
         </div>
@@ -30,53 +31,54 @@
     </div>
     
     <div id="screen-block-intro" class="screen hidden">
-        <h2 id="block-title">BLOCK X</h2>
-        <p>Time Limit: 10 minutes</p>
-        <p id="social-reference-text" class="highlight-box"></p> 
-        <button onclick="startBlock()">Start Session</button>
+        <h2 id="block-title">SESSION X</h2>
+        
+        <p class="session-time-text">This round lasts up to 10 minutes.</p>
+        
+        <p id="social-comparison-text" class="benchmark-text"></p> 
+        
+        <button class="start-session-btn" onclick="startBlock()">Start Session</button>
     </div>
 
     <div id="screen-task" class="screen hidden">
-        <div id="timer-display" style="display: none;">Time Left: <span id="time-remaining">10:00</span></div>
-        
         <div id="score-display">Earnings: <span id="current-earnings">0</span> VND</div>
         
-        <div class="task-wrapper">
+        <div class="matrix-area">
+            <div id="matrix-container"></div>
             
-            <div id="task-side-note" class="reference-sidebar">
-                </div>
-
-            <div class="matrix-area">
-                <div id="matrix-container"></div>
-                
-                <div class="input-area">
-                    <label>Count of Zeros:</label>
-                    <input type="number" id="zero-input">
-                    <button onclick="submitMatrix()">Submit</button>
-                </div>
+            <div class="input-area">
+                <label>Count of Zeros:</label>
+                <input type="number" id="user-answer" placeholder="0">
+                <button class="submit-btn" onclick="checkAnswer()">Submit</button>
             </div>
         </div>
 
         <hr>
-        <button onclick="switchToLeisure()" class="leisure-btn">Stop Working</button>
+        <button onclick="stopEarly()" class="leisure-btn">Stop Working</button>
     </div>
 
     <div id="screen-survey" class="screen hidden">
         <h2>Block Survey</h2>
-        <label>1. Bạn có hài lòng với số kiềm bạn có không? (1-7)</label>
-        <input type="number" min="1" max="7" id="survey-satisfaction"><br><br>
+        <p>Please answer the following questions to complete this block.</p>
         
-        <label>2. Task này có chán/không thú vị không? (1-7)</label>
-        <input type="number" min="1" max="7" id="survey-boredom"><br><br>
+        <form id="post-survey-form" onsubmit="submitSurvey(event)">
+            <label>1. Are you satisfied with your earnings? (1-7)</label>
+            <input type="number" min="1" max="7" id="survey-satisfaction" required>
+            <br><br>
+            
+            <label>2. Was this task boring/uninteresting? (1-7)</label>
+            <input type="number" min="1" max="7" id="survey-boredom" required>
+            <br><br>
 
-        <label>3. Người bạn cấp hai lúc nãy bạn thấy kiếm được bao nhiêu? (VND):</label>
-        <input type="number" id="survey-recall"><br><br>
-
-        <button onclick="submitSurvey()">Submit Survey</button>
+            <button type="submit">Submit Survey</button>
+        </form>
     </div>
 
     <div id="screen-end" class="screen hidden">
-        </div>
+        <h2>Experiment Complete</h2>
+        <p>Thank you for your participation.</p>
+        <button onclick="downloadCSV()">Download Data (CSV)</button>
+    </div>
 
     <script src="script.js"></script>
 </body>
