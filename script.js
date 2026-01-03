@@ -12,6 +12,24 @@ let matrixStartTime = 0;
 let matrixTimesList = []; // Stores list like [12.5, 4.2, 5.5]
 let focusSwitches = 0;
 
+// --- Consent Logic ---
+function toggleStartButton() {
+    const checkbox = document.getElementById('consent-checkbox');
+    const btn = document.getElementById('start-btn');
+    
+    if (checkbox.checked) {
+        // Enable button
+        btn.disabled = false;
+        btn.style.opacity = "1";
+        btn.style.cursor = "pointer";
+    } else {
+        // Disable button
+        btn.disabled = true;
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+    }
+}
+
 // Social Reference Logic
 let conditions = [
     { type: 'High', text: "In a previous session, a Fulbright student completed 30 matrices and earned 15,000 VND in this same task." },
@@ -199,5 +217,6 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
+
 
 
