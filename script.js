@@ -58,20 +58,64 @@ function startExperiment() {
 }
 
 function setupBlockIntro() {
+    // CHANGE: If all blocks are done, go to FINAL SURVEY (not results yet)
     if (currentBlock >= TOTAL_BLOCKS) {
-        showFinalResults();
+        showScreen('screen-final-survey'); 
         return;
     }
     
-    // Title
+    // ... existing block intro code ...
     document.getElementById('block-title').innerText = `SESSION ${currentBlock + 1}`;
-    
-    // Condition Text
     let condition = conditions[currentBlock]; 
     let text = condition.type === 'Control' ? "" : condition.text;
     document.getElementById('social-comparison-text').innerText = text;
 
     showScreen('screen-block-intro');
+}
+
+// --- NEW FUNCTIONS FOR FINAL SURVEY ---
+
+function toggleOtherYear(selectObject) {
+    const otherInput = document.getElementById('final-year-other');
+    if (selectObject.value === "Other") {
+        otherInput.style.display = "block";
+        otherInput.required = true; // Make text compulsory if "Other" picked
+    } else {
+        otherInput.style.display = "none";
+        otherInput.required = false;
+        otherInput.value = "";
+    }
+}
+
+function submitFinalSurvey(event) {
+    event.preventDefault();
+
+    // 1. Gather Data
+    const importance = document.getElementById('final-importance').value;
+    const distraction = document.getElementById('final-distraction').value;
+    const age = document.getElementById('final-age').value;
+    const gender = document.getElementById('final-gender').value;
+    const major = document.getElementById('final-major').value;
+    
+    // Handle Year (Check if "Other" text box is used)
+    let year = document.getElementById('final-year').value;
+    if (year === "Other") {
+        year = "Other: " + document.getElementById('final-year-other').value;
+    }
+
+    // 2. Add this demographic info to EVERY ROW in the dataset
+    // This makes analysis in Excel much easier (you can filter by Gender/Age easily)
+    detailedLog.forEach(row => {
+        row.final_importance = importance;
+        row.final_distraction = distraction;
+        row.age = age;
+        row.gender = gender;
+        row.major = major;
+        row.year_of_study = year;
+    });
+
+    // 3. Now show the download screen
+    showFinalResults();
 }
 
 // --- TASK LOGIC ---
@@ -254,49 +298,44 @@ function showFinalResults() {
 function downloadCSV() {
     if (detailedLog.length === 0) { alert("No data"); return; }
     
-    // Added "Peer_Recall_Guess" to headers
+    // Added new demographic headers at the end
     const headers = [
-        "Attempt_ID", 
-        "Block", 
-        "Condition", 
-        "Is_Correct", 
-        "User_Guess", 
-        "Actual_Answer", 
-        "Time_Spent_Sec", 
-        "Satisfaction", 
-        "Boredom", 
-        "Peer_Recall_Guess", 
-        "Timestamp"
+        "Attempt_ID", "Block", "Condition", "Is_Correct", 
+        "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
+        "Satisfaction", "Boredom", "Peer_Recall_Guess", 
+        "Timestamp",
+        // NEW COLUMNS
+        "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study"
     ];
 
     const rows = detailedLog.map(row => [
-        row.attempt_id, 
-        row.block_number, 
-        row.condition, 
-        row.is_correct, 
-        row.user_guess, 
-        row.actual_answer, 
-        row.time_spent_seconds, 
-        row.satisfaction || "N/A", 
-        row.boredom || "N/A",
-        row.recall_guess || "N/A", // Added this column
-        row.timestamp
+        row.attempt_id, row.block_number, row.condition, row.is_correct, 
+        row.user_guess, row.actual_answer, row.time_spent_seconds, 
+        row.satisfaction || "N/A", row.boredom || "N/A",
+        row.recall_guess || "N/A", row.timestamp,
+        // NEW DATA MAPPING
+        row.final_importance, 
+        row.final_distraction, 
+        row.age, 
+        row.gender, 
+        row.major, 
+        row.year_of_study
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "experiment_data.csv");
+    link.setAttribute("download", "experiment_data_final.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 }
-
 // --- UTILITIES ---
 // Track focus switches (tab switching) if you still want that data?
 // I'll leave it out for now to keep the CSV clean based on your specific request for Attempt Data.
 // If you want it back, let me know!
+
 
 
 
