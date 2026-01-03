@@ -77,8 +77,8 @@ function generateMatrix() {
     container.innerHTML = '';
     currentZeros = 0;
     
-    // CHANGE: 12x12 = 144 items
-    for (let i = 0; i < 144; i++) {
+    // CHANGE: 8x8 = 64 items
+    for (let i = 0; i < 64; i++) {
         let val = Math.random() > 0.5 ? 1 : 0;
         if (val === 0) currentZeros++;
         
@@ -199,3 +199,4 @@ function copyData() {
     document.execCommand("copy");
     alert("Data copied! Please paste it into a message.");
 }
+
