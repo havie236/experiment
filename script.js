@@ -197,36 +197,43 @@ function stopEarly() {
 
 function endBlock() {
     clearInterval(timerInterval);
+    
+    // LOGIC: Handle Peer Earning Question Visibility
+    const currentConditionType = conditions[currentBlock].type;
+    const recallContainer = document.getElementById('recall-container');
+    const recallInput = document.getElementById('survey-recall');
+
+    if (currentConditionType === 'Control') {
+        // If Control: HIDE question, make NOT required
+        recallContainer.style.display = 'none';
+        recallInput.required = false;
+        recallInput.value = ""; // Clear any old value
+    } else {
+        // If High/Low: SHOW question, make REQUIRED
+        recallContainer.style.display = 'block';
+        recallInput.required = true;
+    }
+
     showScreen('screen-survey'); 
 }
 
 // --- SURVEY LOGIC ---
 function submitSurvey(event) {
-    event.preventDefault(); // Stop page reload
-
-    // Get values
+    event.preventDefault(); 
     const sat = document.getElementById('survey-satisfaction').value;
     const bore = document.getElementById('survey-boredom').value;
+    // Get the recall value (will be empty if Control)
+    const recall = document.getElementById('survey-recall').value;
 
-    // Store these temporarily to map them to the detailed log
-    currentBlockSurveyData = {
-        satisfaction: sat,
-        boredom: bore
-    };
-
-    // UPDATE LOGS: Go back through detailedLog and add survey data 
-    // to all rows belonging to this current block.
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock + 1) {
             row.satisfaction = sat;
             row.boredom = bore;
+            row.recall_guess = recall || "N/A"; // Save 'N/A' if empty
         }
     });
 
-    // Clear inputs
     document.getElementById('post-survey-form').reset();
-
-    // Move to next
     currentBlock++;
     setupBlockIntro();
 }
@@ -237,12 +244,9 @@ function showFinalResults() {
 }
 
 function downloadCSV() {
-    if (detailedLog.length === 0) {
-        alert("No data to save.");
-        return;
-    }
-
-    // Define Headers
+    if (detailedLog.length === 0) { alert("No data"); return; }
+    
+    // Added "Peer_Recall_Guess" to headers
     const headers = [
         "Attempt_ID", 
         "Block", 
@@ -253,33 +257,29 @@ function downloadCSV() {
         "Time_Spent_Sec", 
         "Satisfaction", 
         "Boredom", 
+        "Peer_Recall_Guess", 
         "Timestamp"
     ];
 
-    // Map the data to CSV format
     const rows = detailedLog.map(row => [
-        row.attempt_id,
-        row.block_number,
-        row.condition,
-        row.is_correct,
-        row.user_guess,
-        row.actual_answer,
-        row.time_spent_seconds,
-        row.satisfaction || "N/A", // Handle cases where they might stop before survey? (Unlikely with logic)
+        row.attempt_id, 
+        row.block_number, 
+        row.condition, 
+        row.is_correct, 
+        row.user_guess, 
+        row.actual_answer, 
+        row.time_spent_seconds, 
+        row.satisfaction || "N/A", 
         row.boredom || "N/A",
+        row.recall_guess || "N/A", // Added this column
         row.timestamp
     ]);
 
-    // Combine Headers and Rows
-    let csvContent = "data:text/csv;charset=utf-8," 
-        + headers.join(",") + "\n" 
-        + rows.map(e => e.join(",")).join("\n");
-
-    // Create Download Link
+    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "experiment_data_detailed.csv");
+    link.setAttribute("download", "experiment_data.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -289,3 +289,4 @@ function downloadCSV() {
 // Track focus switches (tab switching) if you still want that data?
 // I'll leave it out for now to keep the CSV clean based on your specific request for Attempt Data.
 // If you want it back, let me know!
+
