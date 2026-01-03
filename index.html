@@ -86,25 +86,29 @@
         <h2>Post-Experiment Survey</h2>
         <p style="margin-bottom: 20px;">Please answer the following demographic questions.</p>
 
+        <div id="screen-final-survey" class="screen hidden">
+        <h2>Post-Experiment Survey</h2>
+        <p style="margin-bottom: 20px;">Please answer the following demographic questions.</p>
+
         <form id="final-survey-form" onsubmit="submitFinalSurvey(event)">
             
-            <label>1. How important is it to you to be the best at what you do? <br>
+            <label for="final-importance">1. How important is it to you to be the best at what you do?
                 <span class="scale-text">(1 = Not important at all, 7 = Very important)</span>
             </label>
             <input type="number" min="1" max="7" id="final-importance" required>
 
-            <label>2. During the task, did you spend time doing other things on your laptop or phone?</label>
+            <label for="final-distraction">2. During the task, did you spend time doing other things on your laptop or phone?</label>
             <select id="final-distraction" required>
-                <option value="">Select...</option>
+                <option value="">Select an option...</option>
                 <option value="Not at all">Not at all</option>
                 <option value="A little">A little</option>
                 <option value="A lot">A lot</option>
             </select>
 
-            <label>Age:</label>
-            <input type="number" id="final-age" placeholder="Years old" required>
+            <label for="final-age">Age:</label>
+            <input type="number" id="final-age" placeholder="e.g., 20" required>
 
-            <label>Gender:</label>
+            <label for="final-gender">Gender:</label>
             <select id="final-gender" required>
                 <option value="">Select...</option>
                 <option value="Female">Female</option>
@@ -113,10 +117,10 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
 
-            <label>Major / Field of study:</label>
-            <input type="text" id="final-major" required>
+            <label for="final-major">Major / Field of study:</label>
+            <input type="text" id="final-major" placeholder="e.g., Computer Science" required>
 
-            <label>Year of study:</label>
+            <label for="final-year">Year of study:</label>
             <select id="final-year" onchange="toggleOtherYear(this)" required>
                 <option value="">Select...</option>
                 <option value="First year">First year</option>
@@ -126,7 +130,7 @@
                 <option value="Other">Other (please specify)</option>
             </select>
             
-            <input type="text" id="final-year-other" placeholder="Specify year..." style="display:none; margin-top: 10px;">
+            <input type="text" id="final-year-other" placeholder="Please specify your year..." style="display:none; margin-top: 10px;">
 
             <button type="submit">Finish Experiment</button>
         </form>
@@ -141,6 +145,7 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
 
