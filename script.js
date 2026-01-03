@@ -165,14 +165,13 @@ function updateEarningsUI() {
 // --- TIMER & STOP LOGIC ---
 function startTimer(seconds) {
     let timeLeft = seconds;
-    updateTimerUI(timeLeft);
-    
+    clearInterval(timerInterval); 
     timerInterval = setInterval(() => {
         timeLeft--;
-        updateTimerUI(timeLeft);
         
+        // If time runs out, send 'time_out' signal
         if (timeLeft <= 0) {
-            endBlock();
+            endBlock('time_out'); 
         }
     }, 1000);
 }
@@ -190,24 +189,28 @@ function updateTimerUI(seconds) {
 
 // --- FEEDBACK UPDATE: STOP TEXT ---
 function stopEarly() {
+    // We ask for confirmation first
     if (confirm("If you stop now, you will not be able to return to this session. There is no penalty for stopping.")) {
-        endBlock();
+        // If they say YES, we end the block with 'manual' reason
+        endBlock('manual');
     }
 }
 
-function endBlock() {
+function endBlock(reason) {
     clearInterval(timerInterval);
 
-    // 1. Show the Time Up Notification
-    alert("Time is up. Please complete the survey.");
+    // --- LOGIC CHANGE: Only alert if time ran out ---
+    if (reason === 'time_out') {
+        alert("Time is up! Please complete the survey.");
+    }
+    // If reason is 'manual', we simply proceed without an extra popup.
 
     // 2. Handle Peer Earning Question Logic
     const currentConditionType = conditions[currentBlock].type;
-    
-    // We use a safety check here just in case HTML is missing
     const recallContainer = document.getElementById('recall-container');
     const recallInput = document.getElementById('survey-recall');
 
+    // Safety check in case HTML is missing
     if (recallContainer && recallInput) {
         if (currentConditionType === 'Control') {
             recallContainer.style.display = 'none';
@@ -219,6 +222,9 @@ function endBlock() {
         }
     }
 
+    // 3. Switch screen
+    showScreen('screen-survey'); 
+}
     // 3. Actually switch the screen
     showScreen('screen-survey'); 
 }
@@ -294,5 +300,6 @@ function downloadCSV() {
 // Track focus switches (tab switching) if you still want that data?
 // I'll leave it out for now to keep the CSV clean based on your specific request for Attempt Data.
 // If you want it back, let me know!
+
 
 
