@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const BLOCK_DURATION_SEC = 10 * 60; // 10 minutes
-const PAY_PER_MATRIX = 1000;        // 1,000 VND
+const PAY_PER_MATRIX = 2000;        // 2,000 VND
 const TOTAL_BLOCKS = 3; 
 
 // --- STATE VARIABLES ---
@@ -24,8 +24,8 @@ let currentBlockSurveyData = {};
 
 // --- CONDITIONS ---
 let conditions = [
-    { type: 'High', text: "In a previous session, a Fulbright student completed 30 matrices and earned 30,000 VND in this same task." },
-    { type: 'Low', text: "In a previous session, a Fulbright student completed 10 matrices and earned 10,000 VND in this same task." },
+    { type: 'High', text: "In a previous session, a Fulbright student completed 14 matrices and earned 28,000 VND in this same task." },
+    { type: 'Low', text: "In a previous session, a Fulbright student completed 6 matrices and earned 12,000 VND in this same task." },
     { type: 'Control', text: "" } 
 ];
 conditions = conditions.sort(() => Math.random() - 0.5);
@@ -380,4 +380,5 @@ function downloadCSV() {
     link.click();
     document.body.removeChild(link);
 }
+
 
