@@ -7,7 +7,7 @@ body {
     text-align: center;
     color: #333;
     background-color: #fff;
-    line-height: 1.4; /* Reduced from 1.6/1.8 for tighter text */
+    line-height: 1.4;
 }
 
 /* --- SCREEN VISIBILITY --- */
@@ -39,12 +39,12 @@ ul {
 }
 
 li {
-    margin-bottom: 8px; /* Reduced spacing between bullets */
+    margin-bottom: 8px; 
     font-size: 16px;
 }
 
 p {
-    margin-bottom: 8px; /* Reduced spacing between paragraphs */
+    margin-bottom: 8px; 
 }
 
 /* --- SESSION INTRO SCREEN --- */
@@ -54,11 +54,13 @@ p {
     margin-bottom: 40px;
 }
 
+/* FEEDBACK UPDATE: Bigger font, more spacing */
 .benchmark-text {
-    font-size: 18px;
+    font-size: 1.2rem; /* Increased size */
     color: #333;
     max-width: 650px;
-    margin: 0 auto 50px auto;
+    margin: 0 auto 50px auto; /* Keeps spacing from top/bottom */
+    line-height: 1.5;
 }
 
 /* --- BUTTONS --- */
@@ -76,7 +78,7 @@ button {
     border: 1px solid #ccc;
     background-color: #f0f0f0;
     color: #333;
-    margin-top: 20px;
+    margin-top: 25px; /* Increased margin slightly */
 }
 .start-session-btn:hover, #start-btn:hover:enabled {
     background-color: #e0e0e0;
@@ -100,14 +102,22 @@ button {
     margin: 0 0 20px 0;
 }
 
+/* FEEDBACK UPDATE: Monospace & Sharp Corners */
 .matrix-cell {
     background: #f9f9f9;
-    border: 1px solid #ddd;
+    border: 1px solid #333; /* Slightly darker border for visibility */
     width: 35px; height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 500;
+    
+    /* Monospace Font */
+    font-family: "Courier New", Courier, monospace; 
+    font-weight: bold;
+    font-size: 20px;
+    
+    /* Sharp Corners */
+    border-radius: 0; 
 }
 
 /* --- INPUTS --- */
@@ -144,5 +154,3 @@ input[type="number"] {
 }
 .leisure-btn:hover {
     background-color: #f9f9f9;
-    color: #333;
-}
