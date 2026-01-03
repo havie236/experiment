@@ -62,16 +62,16 @@
         <p>Please answer the following questions to complete this block.</p>
         
         <form id="post-survey-form" onsubmit="submitSurvey(event)">
-            <label>1. Are you satisfied with your earnings? (1-7)</label>
+            <label>1. How satisfied are you with your earnings from this session? (1 = Not at all satisfied, 7 = Very satisfied) </label>
             <input type="number" min="1" max="7" id="survey-satisfaction" required>
             <br><br>
             
-            <label>2. Was this task boring/uninteresting? (1-7)</label>
+            <label>2. 2. How interesting did you find this task? (1 = Very uninteresting, 7 = Very interesting) </label>
             <input type="number" min="1" max="7" id="survey-boredom" required>
             <br><br>
 
             <div id="recall-container" style="display: none;">
-                <label>3. How much did the Fulbright student earn? (VND):</label>
+                <label>3. Earlier, you were shown information about another participant’s earnings. Approximately how much did that participant earn? (VND)::</label>
                 <input type="number" id="survey-recall">
                 <br><br>
             </div>
@@ -88,5 +88,6 @@
     <script src="script.js"></script>
 </body>
 </html>
+
 
 
