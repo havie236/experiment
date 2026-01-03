@@ -215,3 +215,4 @@ function toggleStartButton() {
         btn.style.cursor = "not-allowed";
     }
 }
+
