@@ -18,7 +18,7 @@
             <li style="margin-bottom: 5px;">Your task is to count how many zeros appear in each matrix.</li>
             <li style="margin-bottom: 5px;">You earn <strong>1,000 VND</strong> for each correct answer.</li>
             <li style="margin-bottom: 5px;">Each session lasts up to <strong>10 minutes</strong>.</li>
-            <li style="margin-bottom: 5px;">You may stop whenever you like. There is no penalty for stopping. </strong>.</li>
+            <li style="margin-bottom: 5px;">You may stop whenever you like. There is no penalty for stopping.</li>
         </ul>
         
         <div style="margin: 10px 0; font-size: 18px;">
@@ -30,12 +30,11 @@
     </div>
     
     <div id="screen-block-intro" class="screen hidden">
-        <h2 id="block-title">Session X</h2>
-        <p>This round lasts up to 10 minutes.</p>
-        <p id="social-comparison-text">
-        In a previous session, a Fulbright student completed 30 matrices and earned 30,000 VND in this same task.
-        </p> 
+        <h2 id="block-title">BLOCK X</h2>
+        <p>Time Limit: 10 minutes</p>
+        <p id="social-reference-text" class="highlight-box"></p> 
         <button onclick="startBlock()">Start Session</button>
+    </div>
 
     <div id="screen-task" class="screen hidden">
         <div id="timer-display" style="display: none;">Time Left: <span id="time-remaining">10:00</span></div>
@@ -82,16 +81,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
