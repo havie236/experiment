@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Count 0 Task Experiment</title>
+    <title>Matrix Task Experiment</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,10 +14,9 @@
         
         <ul style="text-align: left; display: inline-block; max-width: 600px; margin-top: 5px;">
             <li style="margin-bottom: 15px;">You will see matrices on the screen:
-                <img src="matrix-example.png" alt="Example Table" style="max-width: 280px; border: 1px solid #ccc; margin: 10px 0; display: block;">
+                <img src="matrix-example.png" alt="Example Matrix" style="max-width: 280px; border: 1px solid #ccc; margin: 10px 0; display: block;">
             </li>
-            <li style="margin-bottom: 5px;">Your task is to count how many zeros appear in each table</li>
-            <li style="margin-bottom: 5px;">You will receive a show-up fee of 25,000 VND for participating in the experiment.</li>
+            <li style="margin-bottom: 5px;">Your task is to count specific items (e.g., Zeros, Letters, or Shapes).</li>
             <li style="margin-bottom: 5px;">You earn <strong>2,000 VND</strong> for each correct answer.</li>
             <li style="margin-bottom: 5px;">Each session lasts up to <strong>10 minutes</strong>.</li>
             <li style="margin-bottom: 5px;">You may stop whenever you like. There is no penalty for stopping.</li>
@@ -29,6 +28,21 @@
         </div>
 
         <button id="start-btn" onclick="startExperiment()" disabled style="opacity: 0.5; cursor: not-allowed;">Next</button>
+    </div>
+
+    <div id="screen-practice-intro" class="screen hidden">
+        <h2>Practice Round</h2>
+        <p style="font-size: 18px; margin-bottom: 20px;">Before the real experiment begins, let's try a quick practice.</p>
+        
+        <ul style="text-align: left; display: inline-block; max-width: 600px;">
+            <li>This allows you to get familiar with the interface.</li>
+            <li>Your answers in this round <strong>DO NOT</strong> count toward your earnings.</li>
+            <li>You will count <strong>Zeros (0)</strong> for this practice.</li>
+            <li>When you feel comfortable, click the green "I'm Ready" button to start the real experiment.</li>
+        </ul>
+
+        <br><br>
+        <button onclick="startPractice()">Start Practice</button>
     </div>
     
     <div id="screen-block-intro" class="screen hidden">
@@ -42,20 +56,26 @@
     </div>
 
     <div id="screen-task" class="screen hidden">
+        <h2 id="practice-indicator" style="color: #d9534f; display: none; margin-top:0;">PRACTICE MODE (No Earnings)</h2>
+
         <div id="score-display">Earnings: <span id="current-earnings">0</span> VND</div>
+        
+        <h3 id="task-instruction-label" style="margin: 10px 0; color: #333;"></h3>
         
         <div class="matrix-area">
             <div id="matrix-container"></div>
             
             <div class="input-area">
-                <label>Count of Zeros:</label>
+                <label>Count:</label>
                 <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()">
                 <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="opacity: 0.5; cursor: not-allowed;">Submit</button>
             </div>
         </div>
 
         <hr>
-        <button onclick="stopEarly()" class="leisure-btn">Stop Working</button>
+        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn">Stop Working</button>
+        
+        <button id="btn-end-practice" onclick="endPractice()" class="leisure-btn" style="display: none; background-color: #28a745; color: white; border: 1px solid #28a745; font-weight: bold;">I'm Ready to Start Real Experiment</button>
     </div>
 
     <div id="screen-survey" class="screen hidden">
@@ -82,8 +102,21 @@
             <button type="submit">Submit Survey</button>
         </form>
     </div>
+
+    <div id="screen-break" class="screen hidden">
+        <h2>Rest Break</h2>
+        <p style="font-size: 18px; margin-bottom: 20px;">Please take a short break before the next session begins.</p>
+        
+        <div style="font-size: 48px; font-weight: bold; color: #555; margin: 30px 0;">
+            <span id="break-timer">02:00</span>
+        </div>
+        
+        <p style="color: #888;">The "Next" button will appear when the break is over.</p>
+        
+        <button id="btn-end-break" onclick="endBreak()" disabled style="opacity: 0; pointer-events: none; transition: opacity 0.5s;">Start Next Session</button>
+    </div>
     
-       <div id="screen-final-survey" class="screen hidden">
+    <div id="screen-final-survey" class="screen hidden">
         <h2>Post-Experiment Survey</h2>
         <p style="margin-bottom: 20px;">Please answer the following demographic questions.</p>
 
@@ -151,8 +184,6 @@
             <p>The purpose of this experiment is to understand how information about other people’s performance affects the amount of effort individuals choose to put into a task. In particular, we are interested in whether seeing information about how many tasks other participants completed influences how long people work, how many tasks they complete, and how quickly they work.</p>
             
             <p>During the experiment, you may have seen information about the average number of tasks completed by previous participants, or you may not have seen any such information. This information was intentionally varied across different parts of the experiment so that we could study how different reference points (higher, lower, or no benchmark) affect work behavior.</p>
-
-            <p>The benchmark values shown in the study were constructed based on pilot testing and prior sessions to ensure that the numbers were realistic and appropriate for the tasks. Pilot data were used solely to calibrate task difficulty and benchmark ranges and are not included in the analysis of the main study.<p>
             
             <p>It is important to note that:</p>
             <ul style="margin-top: 5px; margin-bottom: 15px; display: block; max-width: 100%;">
@@ -170,13 +201,7 @@
             <p style="font-weight: bold; margin-top: 20px;">Thank you again for your time and contribution to this research.</p>
         </div>
         </div>
+
     <script src="script.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
