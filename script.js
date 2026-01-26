@@ -5,7 +5,6 @@ const PAY_PER_MATRIX = 2000;        // 2,000 VND
 const TOTAL_BLOCKS = 3; 
 
 // --- EXPANDED WORD LIST (200+ Words) ---
-// Mixed Targets (Starts with S) and Distractors
 const WORD_POOL = [
     // --- TARGETS (Start with S) ---
     "SAC", "SAD", "SAG", "SAP", "SAT", "SAW", "SAY", "SEA", "SEE", "SET", 
@@ -99,11 +98,9 @@ const TASK_TYPES = [
         generator: (isTarget) => {
             let word;
             if (isTarget) {
-                // Filter targets dynamically from the pool
                 const targets = WORD_POOL.filter(w => w.startsWith('S'));
                 word = targets[Math.floor(Math.random() * targets.length)];
             } else {
-                // Filter distractors
                 const distractors = WORD_POOL.filter(w => !w.startsWith('S'));
                 word = distractors[Math.floor(Math.random() * distractors.length)];
             }
@@ -203,7 +200,6 @@ function loadPracticeMatrix() {
     document.getElementById('practice-indicator').innerText = `PRACTICE ROUND ${practiceStep + 1}/3 (No Earnings)`;
     document.getElementById('task-instruction-label').innerText = task.instruction;
     
-    // Generate Matrix (Logic handles 5x5 vs 8x8 inside)
     generateMatrix(task);
 }
 
@@ -331,12 +327,12 @@ function generateMatrix(forcedTask = null) {
         if (task.id === 'shapes') {
             cell.style.fontSize = '24px'; 
         } else if (task.id === 'words') {
-            // NEW: Use modern Sans-Serif font for words
+            // Use modern Sans-Serif font for words
             cell.style.fontSize = '15px'; 
             cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; 
             cell.style.letterSpacing = '0.5px';
         } else {
-            // Keep monospace for Numbers to ensure 0/1 alignment
+            // Keep monospace for Numbers
             cell.style.fontSize = '20px';
         }
 
@@ -361,20 +357,17 @@ function checkAnswer() {
 
     // --- PRACTICE MODE LOGIC ---
     if (isPracticeMode) {
-        // 1. Give Feedback
         if (isCorrect) {
             alert(`Correct! That was practice task ${practiceStep + 1} of 3.`);
         } else {
             alert(`Incorrect. The correct answer was ${currentTargetCount}. Moving to next practice.`);
         }
 
-        // 2. Move to Next Step
         practiceStep++;
         
         if (practiceStep < 3) {
             loadPracticeMatrix();
         } else {
-            // All 3 done
             document.getElementById('practice-indicator').innerText = "PRACTICE COMPLETE";
             document.getElementById('matrix-container').innerHTML = "<h3 style='grid-column: span 1; white-space:nowrap; color: green;'>Great job! Practice complete.</h3>";
             document.getElementById('task-instruction-label').innerText = "";
@@ -472,22 +465,7 @@ function endBlock(reason) {
     if (reason === 'time_out') {
         alert("Time is up! Please complete the survey.");
     }
-
-    const currentConditionType = conditions[currentBlock].type;
-    const recallContainer = document.getElementById('recall-container');
-    const recallInput = document.getElementById('survey-recall');
-
-    if (recallContainer && recallInput) {
-        if (currentConditionType === 'Control') {
-            recallContainer.style.display = 'none';
-            recallInput.required = false;
-            recallInput.value = ""; 
-        } else {
-            recallContainer.style.display = 'block';
-            recallInput.required = true;
-        }
-    }
-
+    
     showScreen('screen-survey'); 
 }
 
@@ -530,15 +508,13 @@ function submitSurvey(event) {
     event.preventDefault(); 
     const sat = document.getElementById('survey-satisfaction').value;
     const bore = document.getElementById('survey-boredom').value;
-    const recall = document.getElementById('survey-recall').value;
-
+    
     totalEarningsGlobal += blockEarnings;
 
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock + 1) {
             row.satisfaction = sat;
             row.boredom = bore;
-            row.recall_guess = recall || "N/A"; 
             row.block_total_duration = finalBlockDuration.toFixed(2);
         }
     });
@@ -556,6 +532,72 @@ function submitSurvey(event) {
 function submitFinalSurvey(event) {
     event.preventDefault();
 
-    const importance = document.getElementById('final-importance').value;
+    // REMOVED 'importance' variable here
     const distraction = document.getElementById('final-distraction').value;
-    const age = document.getElementById('final
+    const age = document.getElementById('final-age').value;
+    const gender = document.getElementById('final-gender').value;
+    const major = document.getElementById('final-major').value;
+    
+    let year = document.getElementById('final-year').value;
+    if (year === "Other") {
+        year = "Other: " + document.getElementById('final-year-other').value;
+    }
+
+    detailedLog.forEach(row => {
+        // REMOVED row.final_importance
+        row.final_distraction = distraction;
+        row.age = age;
+        row.gender = gender;
+        row.major = major;
+        row.year_of_study = year;
+        row.grand_total_earnings = totalEarningsGlobal;
+    });
+
+    showFinalResults();
+}
+
+function showFinalResults() {
+    showScreen('screen-end');
+    document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
+}
+
+function downloadCSV() {
+    if (detailedLog.length === 0) { alert("No data"); return; }
+    
+    const headers = [
+        "Attempt_ID", "Block", "Condition", "Task_Type", 
+        "Is_Correct", "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
+        "Switch_Count", "Switch_History", 
+        "Block_Duration_Total", "Note",
+        "Satisfaction", "Boredom", 
+        "Timestamp",
+        "Distraction_Level", "Age", "Gender", "Major", "Year_Study", // REMOVED Importance_Best
+        "GRAND_TOTAL_EARNINGS"
+    ];
+
+    const rows = detailedLog.map(row => [
+        row.attempt_id, row.block_number, row.condition, row.task_type, 
+        row.is_correct, row.user_guess, row.actual_answer, row.time_spent_seconds, 
+        row.tab_switches_count, 
+        row.switch_history,     
+        row.block_total_duration, 
+        row.note || "",
+        row.satisfaction || "N/A", row.boredom || "N/A", 
+        row.timestamp,
+        row.final_distraction, // REMOVED row.final_importance
+        row.age, 
+        row.gender, 
+        row.major, 
+        row.year_of_study,
+        row.grand_total_earnings
+    ]);
+
+    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "experiment_data_final.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
