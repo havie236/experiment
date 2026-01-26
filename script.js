@@ -1,16 +1,21 @@
 // --- CONFIGURATION ---
 const BLOCK_DURATION_SEC = 10 * 60; // 10 minutes
+const BREAK_DURATION_SEC = 2 * 60;  // 2 minutes break
 const PAY_PER_MATRIX = 2000;        // 2,000 VND
 const TOTAL_BLOCKS = 3; 
 
 // --- STATE VARIABLES ---
 let currentBlock = 0;
 let blockEarnings = 0;
-let totalEarningsGlobal = 0; // <--- NEW: Tracks total across all blocks
+let totalEarningsGlobal = 0; 
 let timerInterval;
+let breakInterval;
 let matrixStartTime = 0;
-let currentZeros = 0;
+let currentTargetCount = 0; 
 let attemptGlobalCounter = 0; 
+
+// --- PRACTICE STATE ---
+let isPracticeMode = false;
 
 // --- TIME & SWITCH TRACKING ---
 let blockStartTime = 0;       
@@ -22,7 +27,7 @@ let matrixSwitchHistory = [];
 let detailedLog = []; 
 let currentBlockSurveyData = {}; 
 
-// --- CONDITIONS ---
+// --- CONDITIONS (Social Comparison) ---
 let conditions = [
     { type: 'High', text: "In a previous session, a Fulbright student completed 14 matrices and earned 28,000 VND in this same task." },
     { type: 'Low', text: "In a previous session, a Fulbright student completed 6 matrices and earned 12,000 VND in this same task." },
@@ -30,10 +35,42 @@ let conditions = [
 ];
 conditions = conditions.sort(() => Math.random() - 0.5);
 
+// --- TASKS DEFINITIONS ---
+let tasks = [
+    { 
+        id: 'numbers', 
+        name: 'Counting Zeros',
+        instruction: "Count the number of Zeros (0).", 
+        target: 0, 
+        distractorGenerator: () => 1 
+    },
+    { 
+        id: 'letters', 
+        name: 'Counting Letters',
+        instruction: "Count the number of letters that are 'F'.", 
+        target: 'F', 
+        distractorGenerator: () => {
+            const chars = "EGHITL"; 
+            return chars[Math.floor(Math.random() * chars.length)];
+        }
+    },
+    { 
+        id: 'shapes', 
+        name: 'Counting Shapes',
+        instruction: "Count the TRIANGLES (▲).", 
+        target: '▲', 
+        distractorGenerator: () => '●' 
+    }
+];
+tasks = tasks.sort(() => Math.random() - 0.5);
+
 // --- VISIBILITY LISTENER ---
 document.addEventListener("visibilitychange", () => {
     const taskScreen = document.getElementById('screen-task');
     if (!taskScreen || taskScreen.classList.contains('hidden')) return;
+    
+    // Don't log switches during practice
+    if (isPracticeMode) return;
 
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-GB'); 
@@ -86,37 +123,84 @@ function toggleSubmitButton() {
 }
 
 function startExperiment() {
+    // START: Go to Practice Intro first
+    showScreen('screen-practice-intro');
+}
+
+// --- PRACTICE LOGIC ---
+function startPractice() {
+    isPracticeMode = true;
+    showScreen('screen-task');
+    
+    // Update UI for Practice
+    document.getElementById('practice-indicator').style.display = 'block';
+    document.getElementById('btn-stop-working').style.display = 'none';
+    document.getElementById('btn-end-practice').style.display = 'inline-block';
+    document.getElementById('score-display').style.visibility = 'hidden'; 
+    
+    // Use the "Numbers" task for practice
+    const practiceTask = {
+        instruction: "Count the number of Zeros (0).", 
+        target: 0, 
+        distractorGenerator: () => 1
+    };
+    
+    document.getElementById('task-instruction-label').innerText = practiceTask.instruction;
+    generateMatrix(practiceTask);
+}
+
+function endPractice() {
+    isPracticeMode = false;
+    
+    // Reset UI for Real Experiment
+    document.getElementById('practice-indicator').style.display = 'none';
+    document.getElementById('btn-stop-working').style.display = 'inline-block';
+    document.getElementById('btn-end-practice').style.display = 'none';
+    document.getElementById('score-display').style.visibility = 'visible';
+    
+    // Start Real Experiment
     currentBlock = 0;
-    totalEarningsGlobal = 0; // Reset total on new experiment
+    totalEarningsGlobal = 0; 
     detailedLog = []; 
     setupBlockIntro();
 }
 
+// --- MAIN EXPERIMENT FLOW ---
 function setupBlockIntro() {
-    // 1. Check if experiment is done
     if (currentBlock >= TOTAL_BLOCKS) {
         showScreen('screen-final-survey'); 
         return;
     }
     
-    // 2. Set Session Title
     document.getElementById('block-title').innerText = `SESSION ${currentBlock + 1}`;
     
-    // 3. Handle Condition Text & Visibility
+    // 1. Social Comparison Text
     let condition = conditions[currentBlock]; 
     const benchmarkBox = document.getElementById('social-comparison-text');
 
     if (condition.type === 'Control') {
-        // HIDE the box completely for Control group
         benchmarkBox.style.display = "none";
         benchmarkBox.innerText = "";
     } else {
-        // SHOW the box for High/Low groups
-        benchmarkBox.style.display = "block"; // This restores the element
+        benchmarkBox.style.display = "block";
         benchmarkBox.innerText = condition.text;
     }
 
-    // 4. Show the screen
+    // 2. Task Instruction
+    const task = tasks[currentBlock];
+    let introDiv = document.getElementById('screen-block-intro');
+    
+    let taskMsg = document.getElementById('block-task-instruction');
+    if (!taskMsg) {
+        taskMsg = document.createElement('h3');
+        taskMsg.id = 'block-task-instruction';
+        taskMsg.style.color = "#333";
+        taskMsg.style.marginTop = "20px";
+        let startBtn = document.querySelector('.start-session-btn');
+        introDiv.insertBefore(taskMsg, startBtn);
+    }
+    taskMsg.innerHTML = `YOUR TASK: <span style="color:#d9534f">${task.instruction}</span>`;
+
     showScreen('screen-block-intro');
 }
 
@@ -132,63 +216,54 @@ function toggleOtherYear(selectObject) {
     }
 }
 
-function submitFinalSurvey(event) {
-    event.preventDefault();
-
-    const importance = document.getElementById('final-importance').value;
-    const distraction = document.getElementById('final-distraction').value;
-    const age = document.getElementById('final-age').value;
-    const gender = document.getElementById('final-gender').value;
-    const major = document.getElementById('final-major').value;
-    
-    let year = document.getElementById('final-year').value;
-    if (year === "Other") {
-        year = "Other: " + document.getElementById('final-year-other').value;
-    }
-
-    // Save demographic data to all rows
-    detailedLog.forEach(row => {
-        row.final_importance = importance;
-        row.final_distraction = distraction;
-        row.age = age;
-        row.gender = gender;
-        row.major = major;
-        row.year_of_study = year;
-        
-        // Save the Grand Total to every row too (optional but helpful)
-        row.grand_total_earnings = totalEarningsGlobal;
-    });
-
-    showFinalResults();
-}
-
 // --- TASK LOGIC ---
 function startBlock() {
     showScreen('screen-task');
     blockEarnings = 0; 
     currentBlockSurveyData = {}; 
+    
+    const task = tasks[currentBlock];
+    document.getElementById('task-instruction-label').innerText = task.instruction;
+
     updateEarningsUI();
-    generateMatrix();
+    generateMatrix(task); // Pass the real task
     
     blockStartTime = Date.now(); 
     startTimer(BLOCK_DURATION_SEC);
 }
 
-function generateMatrix() {
+function generateMatrix(forcedTask = null) {
     const container = document.getElementById('matrix-container');
     container.innerHTML = '';
-    currentZeros = 0;
+    currentTargetCount = 0; 
     
     matrixTabSwitches = 0; 
     matrixSwitchHistory = []; 
     
+    // Use forcedTask (for practice) OR current session task
+    const task = forcedTask || tasks[currentBlock];
+
     for (let i = 0; i < 64; i++) {
-        let val = Math.random() > 0.5 ? 1 : 0;
-        if (val === 0) currentZeros++;
+        let isTarget = Math.random() > 0.5; 
+        let val;
+
+        if (isTarget) {
+            val = task.target;
+            currentTargetCount++;
+        } else {
+            val = task.distractorGenerator();
+        }
         
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
         cell.innerText = val;
+        
+        if (task.id === 'shapes') {
+            cell.style.fontSize = '24px'; 
+        } else {
+            cell.style.fontSize = '20px';
+        }
+
         container.appendChild(cell);
     }
     
@@ -206,9 +281,26 @@ function checkAnswer() {
 
     if (isNaN(userInput)) return;
 
+    const isCorrect = (userInput === currentTargetCount);
+
+    // PRACTICE MODE CHECK
+    if (isPracticeMode) {
+        if (isCorrect) {
+            alert("Correct! You are doing great.");
+        } else {
+            alert(`Incorrect. The answer was ${currentTargetCount}. Try the next one.`);
+        }
+        generateMatrix({
+            instruction: "Count the number of Zeros (0).", 
+            target: 0, 
+            distractorGenerator: () => 1
+        });
+        return; 
+    }
+    
+    // REAL EXPERIMENT CHECK
     const timeNow = Date.now();
     const durationSeconds = (timeNow - matrixStartTime) / 1000;
-    const isCorrect = (userInput === currentZeros);
     
     attemptGlobalCounter++;
 
@@ -218,13 +310,14 @@ function checkAnswer() {
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock + 1,
         condition: conditions[currentBlock].type,
+        task_type: tasks[currentBlock].id, 
         user_guess: userInput,
-        actual_answer: currentZeros,
+        actual_answer: currentTargetCount,
         is_correct: isCorrect,
         time_spent_seconds: durationSeconds.toFixed(3),
         tab_switches_count: matrixTabSwitches,
         switch_history: historyString, 
-        earnings_at_attempt: blockEarnings, // Earnings BEFORE this add
+        earnings_at_attempt: blockEarnings, 
         timestamp: new Date().toISOString()
     });
 
@@ -269,8 +362,9 @@ function logAbandonedAttempt(reason) {
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock + 1,
         condition: conditions[currentBlock].type,
+        task_type: tasks[currentBlock].id,
         user_guess: "ABANDONED", 
-        actual_answer: currentZeros,
+        actual_answer: currentTargetCount,
         is_correct: "FALSE", 
         time_spent_seconds: durationSeconds.toFixed(3),
         tab_switches_count: matrixTabSwitches,
@@ -310,13 +404,48 @@ function endBlock(reason) {
     showScreen('screen-survey'); 
 }
 
+// --- BREAK LOGIC ---
+function startBreak() {
+    showScreen('screen-break');
+    let timeLeft = BREAK_DURATION_SEC;
+    const timerDisplay = document.getElementById('break-timer');
+    const nextBtn = document.getElementById('btn-end-break');
+    
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = "0";
+
+    clearInterval(breakInterval);
+    
+    let m = Math.floor(timeLeft / 60);
+    let s = timeLeft % 60;
+    timerDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+    breakInterval = setInterval(() => {
+        timeLeft--;
+        m = Math.floor(timeLeft / 60);
+        s = timeLeft % 60;
+        timerDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(breakInterval);
+            timerDisplay.innerText = "Break Over";
+            nextBtn.disabled = false;
+            nextBtn.style.opacity = "1";
+            nextBtn.style.pointerEvents = "auto";
+        }
+    }, 1000);
+}
+
+function endBreak() {
+    setupBlockIntro();
+}
+
 function submitSurvey(event) {
     event.preventDefault(); 
     const sat = document.getElementById('survey-satisfaction').value;
     const bore = document.getElementById('survey-boredom').value;
     const recall = document.getElementById('survey-recall').value;
 
-    // --- NEW: ADD BLOCK EARNINGS TO GRAND TOTAL ---
     totalEarningsGlobal += blockEarnings;
 
     detailedLog.forEach(row => {
@@ -330,12 +459,44 @@ function submitSurvey(event) {
 
     document.getElementById('post-survey-form').reset();
     currentBlock++;
-    setupBlockIntro();
+
+    // CHECK FLOW: Break or Finish?
+    if (currentBlock < TOTAL_BLOCKS) {
+        startBreak(); 
+    } else {
+        setupBlockIntro(); 
+    }
+}
+
+function submitFinalSurvey(event) {
+    event.preventDefault();
+
+    const importance = document.getElementById('final-importance').value;
+    const distraction = document.getElementById('final-distraction').value;
+    const age = document.getElementById('final-age').value;
+    const gender = document.getElementById('final-gender').value;
+    const major = document.getElementById('final-major').value;
+    
+    let year = document.getElementById('final-year').value;
+    if (year === "Other") {
+        year = "Other: " + document.getElementById('final-year-other').value;
+    }
+
+    detailedLog.forEach(row => {
+        row.final_importance = importance;
+        row.final_distraction = distraction;
+        row.age = age;
+        row.gender = gender;
+        row.major = major;
+        row.year_of_study = year;
+        row.grand_total_earnings = totalEarningsGlobal;
+    });
+
+    showFinalResults();
 }
 
 function showFinalResults() {
     showScreen('screen-end');
-    // --- NEW: UPDATE THE HTML WITH THE TOTAL ---
     document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
 }
 
@@ -343,19 +504,19 @@ function downloadCSV() {
     if (detailedLog.length === 0) { alert("No data"); return; }
     
     const headers = [
-        "Attempt_ID", "Block", "Condition", "Is_Correct", 
-        "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
+        "Attempt_ID", "Block", "Condition", "Task_Type", 
+        "Is_Correct", "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
         "Switch_Count", "Switch_History", 
         "Block_Duration_Total", "Note",
         "Satisfaction", "Boredom", "Peer_Recall_Guess", 
         "Timestamp",
         "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study",
-        "GRAND_TOTAL_EARNINGS" // <-- Added to CSV as well
+        "GRAND_TOTAL_EARNINGS"
     ];
 
     const rows = detailedLog.map(row => [
-        row.attempt_id, row.block_number, row.condition, row.is_correct, 
-        row.user_guess, row.actual_answer, row.time_spent_seconds, 
+        row.attempt_id, row.block_number, row.condition, row.task_type, 
+        row.is_correct, row.user_guess, row.actual_answer, row.time_spent_seconds, 
         row.tab_switches_count, 
         row.switch_history,     
         row.block_total_duration, 
@@ -368,7 +529,7 @@ function downloadCSV() {
         row.gender, 
         row.major, 
         row.year_of_study,
-        row.grand_total_earnings // <-- Added here
+        row.grand_total_earnings
     ]);
 
     let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
@@ -380,5 +541,3 @@ function downloadCSV() {
     link.click();
     document.body.removeChild(link);
 }
-
-
