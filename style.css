@@ -2,7 +2,7 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     padding: 20px;
-    max-width: 800px;
+    max-width: 900px; /* Increased width slightly for word grid */
     margin: auto;
     text-align: center;
     color: #333;
@@ -15,21 +15,20 @@ body {
 .active { display: block; }
 .hidden { display: none; }
 
-/* --- INTRO SCREEN (Blue Title) --- */
+/* --- HEADINGS --- */
 h1 {
-    color: #0056b3 !important; /* Force Blue */
+    color: #0056b3 !important;
     margin-bottom: 10px;
     margin-top: 0;
     text-transform: uppercase;
     font-weight: 700;
 }
-
 h2 {
     color: #222;
     margin-bottom: 15px;
 }
 
-/* --- TIGHTER LISTS --- */
+/* --- LISTS --- */
 ul {
     text-align: left;
     display: inline-block;
@@ -37,31 +36,34 @@ ul {
     margin-top: 10px;
     padding-left: 20px;
 }
-
 li {
     margin-bottom: 8px; 
     font-size: 16px;
 }
 
-p {
-    margin-bottom: 8px; 
+/* --- BENCHMARK BOX (BLUE) --- */
+.benchmark-text {
+    font-size: 1.35rem;       
+    font-weight: 600;         
+    line-height: 1.6;
+    text-align: center;
+    color: #004085;           
+    background-color: #cce5ff;
+    border: 2px solid #b8daff;
+    max-width: 700px;
+    margin: 30px auto 50px auto; 
+    padding: 25px;            
+    border-radius: 8px;       
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
 }
 
-/* --- SESSION INTRO SCREEN --- */
-.session-time-text {
-    font-size: 15px;
-    color: #888;
-    margin-bottom: 40px;
-}
-
-/* --- IMPROVED SURVEY STYLING (For BOTH forms) --- */
+/* --- FORMS --- */
 #post-survey-form, #final-survey-form {
     max-width: 550px;
     margin: 0 auto;
     text-align: left;
     padding: 10px;
 }
-
 #post-survey-form label, #final-survey-form label {
     display: block;
     margin-top: 25px;
@@ -70,12 +72,7 @@ p {
     color: #333;
     line-height: 1.5;
 }
-
-/* Style Numbers, Text, and Dropdowns consistently */
-#post-survey-form input[type="number"], 
-#final-survey-form input[type="number"],
-#final-survey-form input[type="text"],
-#final-survey-form select {
+input, select {
     display: block;
     width: 100%;
     padding: 12px;
@@ -86,61 +83,11 @@ p {
     background-color: #fcfcfc;
 }
 
-#post-survey-form button, #final-survey-form button {
-    width: 100%;
-    margin-top: 35px;
-    padding: 14px;
-    background-color: #0056b3;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-#post-survey-form button:hover, #final-survey-form button:hover {
-    background-color: #004494;
-}
-
-/* Helper text inside labels */
-.scale-text {
-    font-weight: normal;
-    color: #666;
-    font-size: 0.9em;
-}
-
-/* --- SALIENT BENCHMARK BOX (BLUE BOX) --- */
-.benchmark-text {
-    /* 1. Make text bigger and bolder */
-    font-size: 1.35rem;       
-    font-weight: 600;         
-    line-height: 1.6;
-    text-align: center;
-    
-    /* 2. Blue Box Styling */
-    color: #004085;           /* Dark blue text */
-    background-color: #cce5ff;/* Light blue background */
-    border: 2px solid #b8daff;/* Slightly darker blue border */
-    
-    /* 3. Spacing & Shape */
-    max-width: 700px;
-    margin: 30px auto 50px auto; 
-    padding: 25px;            
-    border-radius: 8px;       
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-}
-
 /* --- BUTTONS --- */
 button {
     font-family: inherit;
     cursor: pointer;
     transition: all 0.2s ease;
-}
-
-/* Start & Next Buttons */
-.start-session-btn, #start-btn {
     font-size: 16px;
     padding: 10px 30px;
     border-radius: 6px;
@@ -149,12 +96,20 @@ button {
     color: #333;
     margin-top: 25px;
 }
-.start-session-btn:hover, #start-btn:hover:enabled {
+button:hover:enabled {
     background-color: #e0e0e0;
-    border-color: #bbb;
+}
+#post-survey-form button, #final-survey-form button {
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    width: 100%;
+}
+#post-survey-form button:hover, #final-survey-form button:hover {
+    background-color: #004494;
 }
 
-/* --- TASK SCREEN --- */
+/* --- TASK AREA --- */
 .matrix-area {
     display: flex;
     flex-direction: column;
@@ -163,26 +118,30 @@ button {
     margin-top: 30px;
 }
 
+/* UPDATED GRID FOR WORDS */
 #matrix-container {
     display: grid;
-    grid-template-columns: repeat(8, 35px);
-    gap: 5px;
+    /* Changed from fixed pixels to fluid/wider columns */
+    grid-template-columns: repeat(8, 80px); 
+    gap: 8px;
     justify-content: center;
     margin: 0 0 20px 0;
 }
 
-/* MATRIX CELLS */
+/* UPDATED CELLS */
 .matrix-cell {
     background: #f9f9f9;
     border: 1px solid #333;
-    width: 35px; height: 35px;
+    width: 80px;      /* Wider */
+    height: 40px;     /* Taller */
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: "Courier New", Courier, monospace; 
     font-weight: bold;
-    font-size: 20px;
-    border-radius: 0; 
+    font-size: 14px;  /* Smaller font for words */
+    border-radius: 4px;
+    overflow: hidden; /* Hide if word is too long */
 }
 
 /* --- INPUTS --- */
@@ -192,22 +151,10 @@ button {
     justify-content: center;
     gap: 10px;
 }
-
 .input-area input[type="number"] {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 80px;
+    width: 100px;
     text-align: center;
 }
-
-.submit-btn {
-    padding: 8px 16px;
-    border-radius: 4px;
-    border: 1px solid #bbb;
-    background: #fff;
-}
-
 .leisure-btn { 
     background-color: transparent; 
     color: #777; 
