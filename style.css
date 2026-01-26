@@ -110,7 +110,8 @@ p {
     color: #666;
     font-size: 0.9em;
 }
-/* --- SALIENT BENCHMARK BOX --- */
+
+/* --- SALIENT BENCHMARK BOX (BLUE BOX) --- */
 .benchmark-text {
     /* 1. Make text bigger and bolder */
     font-size: 1.35rem;       
@@ -119,16 +120,16 @@ p {
     text-align: center;
     
     /* 2. Blue Box Styling */
-    color: #004085;           /* Dark blue text for readability */
+    color: #004085;           /* Dark blue text */
     background-color: #cce5ff;/* Light blue background */
     border: 2px solid #b8daff;/* Slightly darker blue border */
     
     /* 3. Spacing & Shape */
     max-width: 700px;
-    margin: 30px auto 50px auto; /* Centers the box with space around it */
-    padding: 25px;            /* Adds breathing room inside the box */
-    border-radius: 8px;       /* Rounds the corners */
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Adds a subtle shadow for "pop" */
+    margin: 30px auto 50px auto; 
+    padding: 25px;            
+    border-radius: 8px;       
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
 }
 
 /* --- BUTTONS --- */
@@ -219,4 +220,3 @@ button {
 .leisure-btn:hover {
     background-color: #f9f9f9;
 }
-
