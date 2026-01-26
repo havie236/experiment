@@ -37,8 +37,8 @@
         <ul style="text-align: left; display: inline-block; max-width: 600px;">
             <li>This allows you to get familiar with the interface.</li>
             <li>Your answers in this round <strong>DO NOT</strong> count toward your earnings.</li>
-            <li>You will count <strong>Zeros (0)</strong> for this practice.</li>
-            <li>When you feel comfortable, click the green "I'm Ready" button to start the real experiment.</li>
+            <li>You will practice all 3 task types (Numbers, Words, Shapes).</li>
+            <li>When you finish practicing, you can start the real experiment.</li>
         </ul>
 
         <br><br>
@@ -56,7 +56,7 @@
     </div>
 
     <div id="screen-task" class="screen hidden">
-        <h2 id="practice-indicator" style="color: #d9534f; display: none; margin-top:0;">PRACTICE MODE (No Earnings)</h2>
+        <h2 id="practice-indicator" style="color: #d9534f; display: none; margin-top:0;">PRACTICE ROUND (No Earnings)</h2>
 
         <div id="score-display">Earnings: <span id="current-earnings">0</span> VND</div>
         
@@ -93,11 +93,6 @@
                 <span class="scale-text">(1 = Very uninteresting, 7 = Very interesting)</span>
             </label>
             <input type="number" min="1" max="7" id="survey-boredom" required>
-
-            <div id="recall-container" style="display: none;">
-                <label>3. Earlier, you were shown information about another participant's earnings. Approximately how much did that participant earn? (VND)</label>
-                <input type="number" id="survey-recall">
-            </div>
 
             <button type="submit">Submit Survey</button>
         </form>
@@ -205,4 +200,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
