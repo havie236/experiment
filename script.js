@@ -4,6 +4,13 @@ const BREAK_DURATION_SEC = 2 * 60;  // 2 minutes break
 const PAY_PER_MATRIX = 2000;        // 2,000 VND
 const TOTAL_BLOCKS = 3; 
 
+// --- WORD LIST FOR TASK 2 ---
+const WORD_POOL = [
+    "SUN", "SKY", "SEA", "BAT", "CAT", "DOG", "HAT", "MAP", "NUT", "PEN", "RED",
+    "BOX", "FOX", "JAM", "LIP", "MUG", "PIG", "RAT", "VAN", "WIG", "ANT", "BUS",
+    "CAR", "EGG", "FAN", "HEN", "ICE", "JET", "KEY", "LOG", "MAN", "NET", "OWL"
+];
+
 // --- STATE VARIABLES ---
 let currentBlock = 0;
 let blockEarnings = 0;
@@ -16,6 +23,7 @@ let attemptGlobalCounter = 0;
 
 // --- PRACTICE STATE ---
 let isPracticeMode = false;
+let practiceStep = 0; // 0=Numbers, 1=Words, 2=Shapes
 
 // --- TIME & SWITCH TRACKING ---
 let blockStartTime = 0;       
@@ -36,41 +44,49 @@ let conditions = [
 conditions = conditions.sort(() => Math.random() - 0.5);
 
 // --- TASKS DEFINITIONS ---
-let tasks = [
+// We define the 3 types. We will randomize them for the sessions, 
+// but use a fixed order for practice.
+const TASK_TYPES = [
     { 
         id: 'numbers', 
-        name: 'Counting Zeros',
         instruction: "Count the number of Zeros (0).", 
         target: 0, 
-        distractorGenerator: () => 1 
+        generator: (isTarget) => isTarget ? 0 : 1
     },
     { 
-        id: 'letters', 
-        name: 'Counting Letters',
-        instruction: "Count the number of letters that are 'F'.", 
-        target: 'F', 
-        distractorGenerator: () => {
-            const chars = "EGHITL"; 
-            return chars[Math.floor(Math.random() * chars.length)];
+        id: 'words', 
+        instruction: "Count the words that start with 'S'.", 
+        target: 'S', 
+        generator: (isTarget) => {
+            // Pick a word starting with S, or NOT starting with S
+            let word;
+            if (isTarget) {
+                const targets = WORD_POOL.filter(w => w.startsWith('S'));
+                word = targets[Math.floor(Math.random() * targets.length)];
+            } else {
+                const distractors = WORD_POOL.filter(w => !w.startsWith('S'));
+                word = distractors[Math.floor(Math.random() * distractors.length)];
+            }
+            return word;
         }
     },
     { 
         id: 'shapes', 
-        name: 'Counting Shapes',
         instruction: "Count the TRIANGLES (▲).", 
         target: '▲', 
-        distractorGenerator: () => '●' 
+        generator: (isTarget) => isTarget ? '▲' : '●'
     }
 ];
-tasks = tasks.sort(() => Math.random() - 0.5);
+
+// Create the randomized list for the 3 actual sessions
+let sessionTasks = [...TASK_TYPES].sort(() => Math.random() - 0.5);
+
 
 // --- VISIBILITY LISTENER ---
 document.addEventListener("visibilitychange", () => {
     const taskScreen = document.getElementById('screen-task');
     if (!taskScreen || taskScreen.classList.contains('hidden')) return;
-    
-    // Don't log switches during practice
-    if (isPracticeMode) return;
+    if (isPracticeMode) return; // Ignore practice
 
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-GB'); 
@@ -123,30 +139,34 @@ function toggleSubmitButton() {
 }
 
 function startExperiment() {
-    // START: Go to Practice Intro first
     showScreen('screen-practice-intro');
 }
 
-// --- PRACTICE LOGIC ---
+// --- PRACTICE LOGIC (3 ROUNDS) ---
 function startPractice() {
     isPracticeMode = true;
+    practiceStep = 0; // Start with first task type
     showScreen('screen-task');
     
     // Update UI for Practice
+    document.getElementById('practice-indicator').innerText = "PRACTICE ROUND 1/3 (No Earnings)";
     document.getElementById('practice-indicator').style.display = 'block';
+    
     document.getElementById('btn-stop-working').style.display = 'none';
-    document.getElementById('btn-end-practice').style.display = 'inline-block';
+    document.getElementById('btn-end-practice').style.display = 'none'; // Only show at end
     document.getElementById('score-display').style.visibility = 'hidden'; 
     
-    // Use the "Numbers" task for practice
-    const practiceTask = {
-        instruction: "Count the number of Zeros (0).", 
-        target: 0, 
-        distractorGenerator: () => 1
-    };
+    loadPracticeMatrix();
+}
+
+function loadPracticeMatrix() {
+    // We cycle through TASK_TYPES: 0=Numbers, 1=Words, 2=Shapes
+    const task = TASK_TYPES[practiceStep];
     
-    document.getElementById('task-instruction-label').innerText = practiceTask.instruction;
-    generateMatrix(practiceTask);
+    document.getElementById('practice-indicator').innerText = `PRACTICE ROUND ${practiceStep + 1}/3 (No Earnings)`;
+    document.getElementById('task-instruction-label').innerText = task.instruction;
+    
+    generateMatrix(task);
 }
 
 function endPractice() {
@@ -174,7 +194,6 @@ function setupBlockIntro() {
     
     document.getElementById('block-title').innerText = `SESSION ${currentBlock + 1}`;
     
-    // 1. Social Comparison Text
     let condition = conditions[currentBlock]; 
     const benchmarkBox = document.getElementById('social-comparison-text');
 
@@ -186,8 +205,7 @@ function setupBlockIntro() {
         benchmarkBox.innerText = condition.text;
     }
 
-    // 2. Task Instruction
-    const task = tasks[currentBlock];
+    const task = sessionTasks[currentBlock];
     let introDiv = document.getElementById('screen-block-intro');
     
     let taskMsg = document.getElementById('block-task-instruction');
@@ -222,11 +240,11 @@ function startBlock() {
     blockEarnings = 0; 
     currentBlockSurveyData = {}; 
     
-    const task = tasks[currentBlock];
+    const task = sessionTasks[currentBlock];
     document.getElementById('task-instruction-label').innerText = task.instruction;
 
     updateEarningsUI();
-    generateMatrix(task); // Pass the real task
+    generateMatrix(task); 
     
     blockStartTime = Date.now(); 
     startTimer(BLOCK_DURATION_SEC);
@@ -241,25 +259,25 @@ function generateMatrix(forcedTask = null) {
     matrixSwitchHistory = []; 
     
     // Use forcedTask (for practice) OR current session task
-    const task = forcedTask || tasks[currentBlock];
+    const task = forcedTask || sessionTasks[currentBlock];
 
     for (let i = 0; i < 64; i++) {
-        let isTarget = Math.random() > 0.5; 
-        let val;
+        let isTarget = Math.random() > 0.5; // 50/50 chance
+        let val = task.generator(isTarget);
 
         if (isTarget) {
-            val = task.target;
             currentTargetCount++;
-        } else {
-            val = task.distractorGenerator();
         }
         
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
         cell.innerText = val;
         
+        // Styles based on task
         if (task.id === 'shapes') {
             cell.style.fontSize = '24px'; 
+        } else if (task.id === 'words') {
+            cell.style.fontSize = '14px'; // Smaller for words
         } else {
             cell.style.fontSize = '20px';
         }
@@ -283,22 +301,38 @@ function checkAnswer() {
 
     const isCorrect = (userInput === currentTargetCount);
 
-    // PRACTICE MODE CHECK
+    // --- PRACTICE MODE LOGIC ---
     if (isPracticeMode) {
         if (isCorrect) {
-            alert("Correct! You are doing great.");
+            alert(`Correct! That was practice task ${practiceStep + 1} of 3.`);
+            
+            // Advance to next practice task
+            practiceStep++;
+            
+            if (practiceStep < 3) {
+                // Next round
+                loadPracticeMatrix();
+            } else {
+                // All 3 done
+                document.getElementById('practice-indicator').innerText = "PRACTICE COMPLETE";
+                document.getElementById('matrix-container').innerHTML = "<h3 style='grid-column: span 8; color: green;'>Great job! You have practiced all 3 task types.</h3>";
+                document.getElementById('task-instruction-label').innerText = "";
+                document.querySelector('.input-area').style.display = 'none'; // Hide input
+                document.getElementById('btn-end-practice').style.display = 'inline-block';
+            }
         } else {
-            alert(`Incorrect. The answer was ${currentTargetCount}. Try the next one.`);
+            alert(`Incorrect. The answer was ${currentTargetCount}. Try counting again.`);
+            // Don't change the matrix, let them try again? Or generate new?
+            // Let's generate a NEW matrix of the SAME type so they practice until they get it.
+            loadPracticeMatrix();
         }
-        generateMatrix({
-            instruction: "Count the number of Zeros (0).", 
-            target: 0, 
-            distractorGenerator: () => 1
-        });
         return; 
     }
     
-    // REAL EXPERIMENT CHECK
+    // --- REAL EXPERIMENT LOGIC ---
+    // Restore input area if it was hidden by practice (safety)
+    document.querySelector('.input-area').style.display = 'flex';
+
     const timeNow = Date.now();
     const durationSeconds = (timeNow - matrixStartTime) / 1000;
     
@@ -310,7 +344,7 @@ function checkAnswer() {
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock + 1,
         condition: conditions[currentBlock].type,
-        task_type: tasks[currentBlock].id, 
+        task_type: sessionTasks[currentBlock].id, 
         user_guess: userInput,
         actual_answer: currentTargetCount,
         is_correct: isCorrect,
@@ -362,7 +396,7 @@ function logAbandonedAttempt(reason) {
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock + 1,
         condition: conditions[currentBlock].type,
-        task_type: tasks[currentBlock].id,
+        task_type: sessionTasks[currentBlock].id,
         user_guess: "ABANDONED", 
         actual_answer: currentTargetCount,
         is_correct: "FALSE", 
@@ -404,7 +438,6 @@ function endBlock(reason) {
     showScreen('screen-survey'); 
 }
 
-// --- BREAK LOGIC ---
 function startBreak() {
     showScreen('screen-break');
     let timeLeft = BREAK_DURATION_SEC;
@@ -460,7 +493,6 @@ function submitSurvey(event) {
     document.getElementById('post-survey-form').reset();
     currentBlock++;
 
-    // CHECK FLOW: Break or Finish?
     if (currentBlock < TOTAL_BLOCKS) {
         startBreak(); 
     } else {
