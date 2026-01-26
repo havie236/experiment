@@ -4,11 +4,52 @@ const BREAK_DURATION_SEC = 2 * 60;  // 2 minutes break
 const PAY_PER_MATRIX = 2000;        // 2,000 VND
 const TOTAL_BLOCKS = 3; 
 
-// --- WORD LIST FOR TASK 2 ---
+// --- EXPANDED WORD LIST (200+ Words) ---
+// Mixed Targets (Starts with S) and Distractors
 const WORD_POOL = [
-    "SUN", "SKY", "SEA", "BAT", "CAT", "DOG", "HAT", "MAP", "NUT", "PEN", "RED",
-    "BOX", "FOX", "JAM", "LIP", "MUG", "PIG", "RAT", "VAN", "WIG", "ANT", "BUS",
-    "CAR", "EGG", "FAN", "HEN", "ICE", "JET", "KEY", "LOG", "MAN", "NET", "OWL"
+    // --- TARGETS (Start with S) ---
+    "SAC", "SAD", "SAG", "SAP", "SAT", "SAW", "SAY", "SEA", "SEE", "SET", 
+    "SEW", "SHE", "SHY", "SIN", "SIP", "SIR", "SIS", "SIT", "SIX", "SKI", 
+    "SKY", "SLY", "SOB", "SOD", "SON", "SOP", "SOW", "SOY", "SPA", "SPY", 
+    "SUB", "SUE", "SUM", "SUN", 
+
+    // --- DISTRACTORS (Do NOT start with S) ---
+    "ACT", "ADD", "AGE", "AIM", "AIR", "ANT", "APE", "ARC", "ARM", "ART", "ASH", "ASK", "AWE", "AXE",
+    "BAD", "BAG", "BAN", "BAR", "BAT", "BAY", "BED", "BEE", "BEG", "BET", "BIB", "BID", "BIG", "BIN", 
+    "BIT", "BOA", "BOB", "BOG", "BOW", "BOX", "BOY", "BUD", "BUG", "BUN", "BUS", "BUT", "BUY", "BYE",
+    "CAB", "CAM", "CAN", "CAP", "CAR", "CAT", "COB", "COD", "COG", "CON", "COO", "COP", "COT", "COW", 
+    "COY", "CRY", "CUB", "CUE", "CUP", "CUT",
+    "DAD", "DAM", "DAY", "DEN", "DEW", "DID", "DIG", "DIM", "DIN", "DIP", "DOC", "DOE", "DOG", "DOT", 
+    "DRY", "DUB", "DUD", "DUE", "DUG", "DYE",
+    "EAR", "EAT", "EBB", "EEL", "EGG", "EGO", "ELK", "ELM", "END", "ERA", "EVE", "EWE", "EYE",
+    "FAN", "FAR", "FAT", "FED", "FEE", "FEW", "FIB", "FIG", "FIN", "FIT", "FIX", "FLU", "FLY", "FOB", 
+    "FOE", "FOG", "FOR", "FOX", "FRY", "FUN", "FUR",
+    "GAG", "GAP", "GAS", "GEL", "GEM", "GET", "GIG", "GIN", "GNU", "GOA", "GOB", "GOD", "GOO", "GOT", 
+    "GUM", "GUN", "GUT", "GYM",
+    "HAD", "HAG", "HAM", "HAS", "HAT", "HAY", "HEM", "HEN", "HER", "HEW", "HEY", "HID", "HIM", "HIP", 
+    "HIS", "HIT", "HOE", "HOG", "HOP", "HOT", "HOW", "HUB", "HUE", "HUG", "HUM", "HUT",
+    "ICE", "ICY", "ILL", "INK", "INN", "ION", "IRE", "IVY",
+    "JAB", "JAM", "JAR", "JAW", "JAY", "JET", "JIG", "JOB", "JOG", "JOY", "JUG", "JUT",
+    "KEG", "KEY", "KID", "KIN", "KIT", "KOI",
+    "LAB", "LAD", "LAG", "LAP", "LAW", "LAX", "LAY", "LEA", "LED", "LEE", "LEG", "LET", "LID", "LIE", 
+    "LIP", "LIT", "LOB", "LOG", "LOT", "LOW", "LUG", "LUX",
+    "MAD", "MAN", "MAP", "MAT", "MAW", "MAX", "MAY", "MEN", "MET", "MEW", "MID", "MIX", "MOB", "MOD", 
+    "MOM", "MOO", "MOP", "MOW", "MUD", "MUG", "MUM",
+    "NAB", "NAG", "NAP", "NAY", "NET", "NEW", "NIL", "NIP", "NOD", "NON", "NOR", "NOT", "NOW", "NUN", "NUT",
+    "OAF", "OAK", "OAR", "OAT", "ODD", "ODE", "OFF", "OIL", "OLD", "ONE", "OPT", "ORB", "ORE", "OUR", 
+    "OUT", "OWL", "OWN",
+    "PAD", "PAL", "PAN", "PAR", "PAT", "PAW", "PAY", "PEA", "PEG", "PEN", "PEP", "PET", "PEW", "PIE", 
+    "PIG", "PIN", "PIP", "PIT", "PLY", "POD", "POP", "POT", "PRO", "PRY", "PUB", "PUG", "PUN", "PUP", "PUT",
+    "RAG", "RAM", "RAN", "RAP", "RAT", "RAW", "RAY", "RED", "RIB", "RID", "RIG", "RIM", "RIP", "ROB", 
+    "ROD", "ROT", "ROW", "RUB", "RUG", "RUM", "RUN", "RUT", "RYE",
+    "TAB", "TAG", "TAN", "TAP", "TAR", "TEA", "TED", "TEE", "TEN", "THE", "TIE", "TIN", "TIP", "TOE", 
+    "TOG", "TON", "TOO", "TOP", "TOT", "TOW", "TOY", "TRY", "TUB", "TUG", "TWO",
+    "URN", "USE",
+    "VAN", "VAT", "VET", "VEX", "VIA", "VIM", "VOW",
+    "WAG", "WAR", "WAX", "WAY", "WEB", "WED", "WEE", "WET", "WHO", "WHY", "WIG", "WIN", "WIT", "WOE", 
+    "WON", "WOW", "WRY",
+    "YAK", "YAM", "YAP", "YEA", "YES", "YET", "YEW", "YIP", "YOU",
+    "ZAP", "ZEN", "ZIG", "ZIP", "ZOO"
 ];
 
 // --- STATE VARIABLES ---
@@ -58,9 +99,11 @@ const TASK_TYPES = [
         generator: (isTarget) => {
             let word;
             if (isTarget) {
+                // Filter targets dynamically from the pool
                 const targets = WORD_POOL.filter(w => w.startsWith('S'));
                 word = targets[Math.floor(Math.random() * targets.length)];
             } else {
+                // Filter distractors
                 const distractors = WORD_POOL.filter(w => !w.startsWith('S'));
                 word = distractors[Math.floor(Math.random() * distractors.length)];
             }
@@ -284,12 +327,16 @@ function generateMatrix(forcedTask = null) {
         cell.style.width = cellWidth;
         cell.style.height = cellHeight;
         
-        // Font sizes
+        // --- UPDATED FONT STYLING ---
         if (task.id === 'shapes') {
             cell.style.fontSize = '24px'; 
         } else if (task.id === 'words') {
-            cell.style.fontSize = '16px'; 
+            // NEW: Use modern Sans-Serif font for words
+            cell.style.fontSize = '15px'; 
+            cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; 
+            cell.style.letterSpacing = '0.5px';
         } else {
+            // Keep monospace for Numbers to ensure 0/1 alignment
             cell.style.fontSize = '20px';
         }
 
@@ -312,13 +359,12 @@ function checkAnswer() {
 
     const isCorrect = (userInput === currentTargetCount);
 
-    // --- PRACTICE MODE LOGIC (Updated) ---
+    // --- PRACTICE MODE LOGIC ---
     if (isPracticeMode) {
         // 1. Give Feedback
         if (isCorrect) {
             alert(`Correct! That was practice task ${practiceStep + 1} of 3.`);
         } else {
-            // DO NOT force retry. Just show answer.
             alert(`Incorrect. The correct answer was ${currentTargetCount}. Moving to next practice.`);
         }
 
@@ -512,71 +558,4 @@ function submitFinalSurvey(event) {
 
     const importance = document.getElementById('final-importance').value;
     const distraction = document.getElementById('final-distraction').value;
-    const age = document.getElementById('final-age').value;
-    const gender = document.getElementById('final-gender').value;
-    const major = document.getElementById('final-major').value;
-    
-    let year = document.getElementById('final-year').value;
-    if (year === "Other") {
-        year = "Other: " + document.getElementById('final-year-other').value;
-    }
-
-    detailedLog.forEach(row => {
-        row.final_importance = importance;
-        row.final_distraction = distraction;
-        row.age = age;
-        row.gender = gender;
-        row.major = major;
-        row.year_of_study = year;
-        row.grand_total_earnings = totalEarningsGlobal;
-    });
-
-    showFinalResults();
-}
-
-function showFinalResults() {
-    showScreen('screen-end');
-    document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
-}
-
-function downloadCSV() {
-    if (detailedLog.length === 0) { alert("No data"); return; }
-    
-    const headers = [
-        "Attempt_ID", "Block", "Condition", "Task_Type", 
-        "Is_Correct", "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
-        "Switch_Count", "Switch_History", 
-        "Block_Duration_Total", "Note",
-        "Satisfaction", "Boredom", "Peer_Recall_Guess", 
-        "Timestamp",
-        "Importance_Best", "Distraction_Level", "Age", "Gender", "Major", "Year_Study",
-        "GRAND_TOTAL_EARNINGS"
-    ];
-
-    const rows = detailedLog.map(row => [
-        row.attempt_id, row.block_number, row.condition, row.task_type, 
-        row.is_correct, row.user_guess, row.actual_answer, row.time_spent_seconds, 
-        row.tab_switches_count, 
-        row.switch_history,     
-        row.block_total_duration, 
-        row.note || "",
-        row.satisfaction || "N/A", row.boredom || "N/A",
-        row.recall_guess || "N/A", row.timestamp,
-        row.final_importance, 
-        row.final_distraction, 
-        row.age, 
-        row.gender, 
-        row.major, 
-        row.year_of_study,
-        row.grand_total_earnings
-    ]);
-
-    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "experiment_data_final.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
+    const age = document.getElementById('final
