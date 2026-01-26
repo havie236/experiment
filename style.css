@@ -2,7 +2,7 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     padding: 20px;
-    max-width: 900px; /* Increased width slightly for word grid */
+    max-width: 900px;
     margin: auto;
     text-align: center;
     color: #333;
@@ -118,30 +118,25 @@ button:hover:enabled {
     margin-top: 30px;
 }
 
-/* UPDATED GRID FOR WORDS */
+/* The container grid columns are now set via JS */
 #matrix-container {
     display: grid;
-    /* Changed from fixed pixels to fluid/wider columns */
-    grid-template-columns: repeat(8, 80px); 
-    gap: 8px;
+    gap: 6px; /* Small gap between cells */
     justify-content: center;
     margin: 0 0 20px 0;
 }
 
-/* UPDATED CELLS */
+/* STANDARD CELLS (Numbers/Shapes) */
 .matrix-cell {
     background: #f9f9f9;
     border: 1px solid #333;
-    width: 80px;      /* Wider */
-    height: 40px;     /* Taller */
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: "Courier New", Courier, monospace; 
     font-weight: bold;
-    font-size: 14px;  /* Smaller font for words */
     border-radius: 4px;
-    overflow: hidden; /* Hide if word is too long */
+    user-select: none;
 }
 
 /* --- INPUTS --- */
