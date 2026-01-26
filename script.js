@@ -273,6 +273,9 @@ function startBlock() {
     blockEarnings = 0; 
     currentBlockSurveyData = {}; 
     
+    // --- FIX: FORCE INPUT AREA VISIBLE FOR REAL SESSION ---
+    document.querySelector('.input-area').style.display = 'flex';
+    
     const task = sessionTasks[currentBlock];
     document.getElementById('task-instruction-label').innerText = task.instruction;
 
@@ -401,9 +404,10 @@ function checkAnswer() {
         timestamp: new Date().toISOString()
     });
 
+    // --- CONTINUOUS EARNINGS UPDATE ---
     if (isCorrect) {
         blockEarnings += PAY_PER_MATRIX; 
-        updateEarningsUI();
+        updateEarningsUI(); // Updates the UI instantly
     } 
 
     generateMatrix(); 
@@ -483,121 +487,3 @@ function startBreak() {
     let m = Math.floor(timeLeft / 60);
     let s = timeLeft % 60;
     timerDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-
-    breakInterval = setInterval(() => {
-        timeLeft--;
-        m = Math.floor(timeLeft / 60);
-        s = timeLeft % 60;
-        timerDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-
-        if (timeLeft <= 0) {
-            clearInterval(breakInterval);
-            timerDisplay.innerText = "Break Over";
-            nextBtn.disabled = false;
-            nextBtn.style.opacity = "1";
-            nextBtn.style.pointerEvents = "auto";
-        }
-    }, 1000);
-}
-
-function endBreak() {
-    setupBlockIntro();
-}
-
-function submitSurvey(event) {
-    event.preventDefault(); 
-    const sat = document.getElementById('survey-satisfaction').value;
-    const bore = document.getElementById('survey-boredom').value;
-    
-    totalEarningsGlobal += blockEarnings;
-
-    detailedLog.forEach(row => {
-        if (row.block_number === currentBlock + 1) {
-            row.satisfaction = sat;
-            row.boredom = bore;
-            row.block_total_duration = finalBlockDuration.toFixed(2);
-        }
-    });
-
-    document.getElementById('post-survey-form').reset();
-    currentBlock++;
-
-    if (currentBlock < TOTAL_BLOCKS) {
-        startBreak(); 
-    } else {
-        setupBlockIntro(); 
-    }
-}
-
-function submitFinalSurvey(event) {
-    event.preventDefault();
-
-    // REMOVED 'importance' variable here
-    const distraction = document.getElementById('final-distraction').value;
-    const age = document.getElementById('final-age').value;
-    const gender = document.getElementById('final-gender').value;
-    const major = document.getElementById('final-major').value;
-    
-    let year = document.getElementById('final-year').value;
-    if (year === "Other") {
-        year = "Other: " + document.getElementById('final-year-other').value;
-    }
-
-    detailedLog.forEach(row => {
-        // REMOVED row.final_importance
-        row.final_distraction = distraction;
-        row.age = age;
-        row.gender = gender;
-        row.major = major;
-        row.year_of_study = year;
-        row.grand_total_earnings = totalEarningsGlobal;
-    });
-
-    showFinalResults();
-}
-
-function showFinalResults() {
-    showScreen('screen-end');
-    document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
-}
-
-function downloadCSV() {
-    if (detailedLog.length === 0) { alert("No data"); return; }
-    
-    const headers = [
-        "Attempt_ID", "Block", "Condition", "Task_Type", 
-        "Is_Correct", "User_Guess", "Actual_Answer", "Time_Spent_Sec", 
-        "Switch_Count", "Switch_History", 
-        "Block_Duration_Total", "Note",
-        "Satisfaction", "Boredom", 
-        "Timestamp",
-        "Distraction_Level", "Age", "Gender", "Major", "Year_Study", // REMOVED Importance_Best
-        "GRAND_TOTAL_EARNINGS"
-    ];
-
-    const rows = detailedLog.map(row => [
-        row.attempt_id, row.block_number, row.condition, row.task_type, 
-        row.is_correct, row.user_guess, row.actual_answer, row.time_spent_seconds, 
-        row.tab_switches_count, 
-        row.switch_history,     
-        row.block_total_duration, 
-        row.note || "",
-        row.satisfaction || "N/A", row.boredom || "N/A", 
-        row.timestamp,
-        row.final_distraction, // REMOVED row.final_importance
-        row.age, 
-        row.gender, 
-        row.major, 
-        row.year_of_study,
-        row.grand_total_earnings
-    ]);
-
-    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "experiment_data_final.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
