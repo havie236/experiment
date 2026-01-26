@@ -35,7 +35,7 @@ let matrixSwitchHistory = [];
 let detailedLog = []; 
 let currentBlockSurveyData = {}; 
 
-// --- CONDITIONS (Social Comparison) ---
+// --- CONDITIONS ---
 let conditions = [
     { type: 'High', text: "In a previous session, a Fulbright student completed 14 matrices and earned 28,000 VND in this same task." },
     { type: 'Low', text: "In a previous session, a Fulbright student completed 6 matrices and earned 12,000 VND in this same task." },
@@ -44,8 +44,6 @@ let conditions = [
 conditions = conditions.sort(() => Math.random() - 0.5);
 
 // --- TASKS DEFINITIONS ---
-// We define the 3 types. We will randomize them for the sessions, 
-// but use a fixed order for practice.
 const TASK_TYPES = [
     { 
         id: 'numbers', 
@@ -58,7 +56,6 @@ const TASK_TYPES = [
         instruction: "Count the words that start with 'S'.", 
         target: 'S', 
         generator: (isTarget) => {
-            // Pick a word starting with S, or NOT starting with S
             let word;
             if (isTarget) {
                 const targets = WORD_POOL.filter(w => w.startsWith('S'));
@@ -78,7 +75,7 @@ const TASK_TYPES = [
     }
 ];
 
-// Create the randomized list for the 3 actual sessions
+// Randomize for sessions
 let sessionTasks = [...TASK_TYPES].sort(() => Math.random() - 0.5);
 
 
@@ -86,7 +83,7 @@ let sessionTasks = [...TASK_TYPES].sort(() => Math.random() - 0.5);
 document.addEventListener("visibilitychange", () => {
     const taskScreen = document.getElementById('screen-task');
     if (!taskScreen || taskScreen.classList.contains('hidden')) return;
-    if (isPracticeMode) return; // Ignore practice
+    if (isPracticeMode) return; 
 
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-GB'); 
@@ -142,30 +139,28 @@ function startExperiment() {
     showScreen('screen-practice-intro');
 }
 
-// --- PRACTICE LOGIC (3 ROUNDS) ---
+// --- PRACTICE LOGIC ---
 function startPractice() {
     isPracticeMode = true;
-    practiceStep = 0; // Start with first task type
+    practiceStep = 0; 
     showScreen('screen-task');
     
-    // Update UI for Practice
-    document.getElementById('practice-indicator').innerText = "PRACTICE ROUND 1/3 (No Earnings)";
+    // UI Update for Practice
     document.getElementById('practice-indicator').style.display = 'block';
-    
     document.getElementById('btn-stop-working').style.display = 'none';
-    document.getElementById('btn-end-practice').style.display = 'none'; // Only show at end
+    document.getElementById('btn-end-practice').style.display = 'none'; 
     document.getElementById('score-display').style.visibility = 'hidden'; 
     
     loadPracticeMatrix();
 }
 
 function loadPracticeMatrix() {
-    // We cycle through TASK_TYPES: 0=Numbers, 1=Words, 2=Shapes
     const task = TASK_TYPES[practiceStep];
     
     document.getElementById('practice-indicator').innerText = `PRACTICE ROUND ${practiceStep + 1}/3 (No Earnings)`;
     document.getElementById('task-instruction-label').innerText = task.instruction;
     
+    // Generate Matrix (Logic handles 5x5 vs 8x8 inside)
     generateMatrix(task);
 }
 
@@ -178,14 +173,13 @@ function endPractice() {
     document.getElementById('btn-end-practice').style.display = 'none';
     document.getElementById('score-display').style.visibility = 'visible';
     
-    // Start Real Experiment
     currentBlock = 0;
     totalEarningsGlobal = 0; 
     detailedLog = []; 
     setupBlockIntro();
 }
 
-// --- MAIN EXPERIMENT FLOW ---
+// --- MAIN FLOW ---
 function setupBlockIntro() {
     if (currentBlock >= TOTAL_BLOCKS) {
         showScreen('screen-final-survey'); 
@@ -258,11 +252,24 @@ function generateMatrix(forcedTask = null) {
     matrixTabSwitches = 0; 
     matrixSwitchHistory = []; 
     
-    // Use forcedTask (for practice) OR current session task
     const task = forcedTask || sessionTasks[currentBlock];
 
-    for (let i = 0; i < 64; i++) {
-        let isTarget = Math.random() > 0.5; // 50/50 chance
+    // --- GRID SIZE LOGIC ---
+    // Practice: 5x5 (25 cells)
+    // Real: 8x8 (64 cells)
+    const gridSize = isPracticeMode ? 5 : 8;
+    const totalCells = gridSize * gridSize;
+
+    // --- DYNAMIC STYLING FOR WORDS ---
+    // If it's a word task, cells are 55px wide. If others, 40px wide.
+    let cellWidth = (task.id === 'words') ? '55px' : '40px';
+    let cellHeight = '40px';
+    
+    // Update CSS Grid Layout
+    container.style.gridTemplateColumns = `repeat(${gridSize}, ${cellWidth})`;
+
+    for (let i = 0; i < totalCells; i++) {
+        let isTarget = Math.random() > 0.5;
         let val = task.generator(isTarget);
 
         if (isTarget) {
@@ -273,11 +280,15 @@ function generateMatrix(forcedTask = null) {
         cell.className = 'matrix-cell';
         cell.innerText = val;
         
-        // Styles based on task
+        // Apply dimensions
+        cell.style.width = cellWidth;
+        cell.style.height = cellHeight;
+        
+        // Font sizes
         if (task.id === 'shapes') {
             cell.style.fontSize = '24px'; 
         } else if (task.id === 'words') {
-            cell.style.fontSize = '14px'; // Smaller for words
+            cell.style.fontSize = '16px'; 
         } else {
             cell.style.fontSize = '20px';
         }
@@ -301,43 +312,39 @@ function checkAnswer() {
 
     const isCorrect = (userInput === currentTargetCount);
 
-    // --- PRACTICE MODE LOGIC ---
+    // --- PRACTICE MODE LOGIC (Updated) ---
     if (isPracticeMode) {
+        // 1. Give Feedback
         if (isCorrect) {
             alert(`Correct! That was practice task ${practiceStep + 1} of 3.`);
-            
-            // Advance to next practice task
-            practiceStep++;
-            
-            if (practiceStep < 3) {
-                // Next round
-                loadPracticeMatrix();
-            } else {
-                // All 3 done
-                document.getElementById('practice-indicator').innerText = "PRACTICE COMPLETE";
-                document.getElementById('matrix-container').innerHTML = "<h3 style='grid-column: span 8; color: green;'>Great job! You have practiced all 3 task types.</h3>";
-                document.getElementById('task-instruction-label').innerText = "";
-                document.querySelector('.input-area').style.display = 'none'; // Hide input
-                document.getElementById('btn-end-practice').style.display = 'inline-block';
-            }
         } else {
-            alert(`Incorrect. The answer was ${currentTargetCount}. Try counting again.`);
-            // Don't change the matrix, let them try again? Or generate new?
-            // Let's generate a NEW matrix of the SAME type so they practice until they get it.
+            // DO NOT force retry. Just show answer.
+            alert(`Incorrect. The correct answer was ${currentTargetCount}. Moving to next practice.`);
+        }
+
+        // 2. Move to Next Step
+        practiceStep++;
+        
+        if (practiceStep < 3) {
             loadPracticeMatrix();
+        } else {
+            // All 3 done
+            document.getElementById('practice-indicator').innerText = "PRACTICE COMPLETE";
+            document.getElementById('matrix-container').innerHTML = "<h3 style='grid-column: span 1; white-space:nowrap; color: green;'>Great job! Practice complete.</h3>";
+            document.getElementById('task-instruction-label').innerText = "";
+            document.querySelector('.input-area').style.display = 'none'; // Hide input
+            document.getElementById('btn-end-practice').style.display = 'inline-block';
         }
         return; 
     }
     
     // --- REAL EXPERIMENT LOGIC ---
-    // Restore input area if it was hidden by practice (safety)
     document.querySelector('.input-area').style.display = 'flex';
 
     const timeNow = Date.now();
     const durationSeconds = (timeNow - matrixStartTime) / 1000;
     
     attemptGlobalCounter++;
-
     const historyString = matrixSwitchHistory.join(" | ");
 
     detailedLog.push({
