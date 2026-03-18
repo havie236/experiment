@@ -3,33 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Task - Baseline Data</title>
+    <title>Matrix Task - Full Experiment</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="screen-intro" class="screen active">
-        <h1>Welcome</h1>
-        <p style="margin-bottom: 5px;">Thank you for participating. There will be <strong>1 session</strong> in this experiment:</p>
+        <h1 style="text-transform: uppercase;">Instructions</h1>
         
-        <ul style="text-align: left; display: inline-block; max-width: 600px; margin-top: 5px;">
-            <li style="margin-bottom: 15px;">You will see matrices on the screen:
-                <img src="matrix-example.png" alt="Example Matrix" style="max-width: 280px; border: 1px solid #ccc; margin: 10px 0; display: block;">
-            </li>
-            <li style="margin-bottom: 5px;">Your task is to count specific items (e.g., Zeros, Letters, or Shapes).</li>
-            <li style="margin-bottom: 5px;">You will receive a <strong>25,000 VND</strong> fixed show-up fee + <strong>2,000 VND</strong> per correct task.</li>
-            <li style="margin-bottom: 5px;">The session lasts up to <strong>10 minutes</strong>.</li>
-            <li style="margin-bottom: 5px;">You may stop whenever you like. There is no penalty for stopping.</li>
-        </ul>
+        <div style="text-align: left; max-width: 750px; margin: 0 auto; font-size: 16px;">
+            <p>Thank you for participating in this experiment.</p>
+            <p>In this task, you will be asked to count specific items. You may be asked to:</p>
+            
+            <ul style="margin-bottom: 20px;">
+                <li style="margin-bottom: 5px;">Count the number of zeros (0) in a table containing 1s and 0s</li>
+                <li style="margin-bottom: 5px;">Count the number of letter “E” in a table containing E and F</li>
+                <li style="margin-bottom: 5px;">Count the number of triangles in a table containing triangles and circles</li>
+            </ul>
+
+            <div style="display: flex; justify-content: space-between; gap: 15px; margin: 20px 0;">
+                <div style="flex: 1; text-align: center;">
+                    <img src="hinh-1.png" alt="Table with 0s" style="width: 100%; max-width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <img src="hinh-2.png" alt="Table with Letters" style="width: 100%; max-width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+                <div style="flex: 1; text-align: center;">
+                    <img src="hinh-3.png" alt="Table with Shapes" style="width: 100%; max-width: 200px; border: 1px solid #ccc; border-radius: 4px;">
+                </div>
+            </div>
+
+            <p>You will complete <strong>3 sessions</strong> of this task.</p>
+            <p>You will receive <strong>2,000 VND</strong> for each correct answer.</p>
+            <p>Each session will take up to <strong>10 minutes</strong>. You may stop at any time without penalty.</p>
+        </div>
         
-        <br><br>
+        <br>
         <button id="start-btn" onclick="startExperiment()">Start Experiment</button>
     </div>
     
     <div id="screen-block-intro" class="screen hidden">
-        <h2 id="block-title">EXPERIMENT SESSION</h2>
-        <p class="session-time-text">This round lasts up to 10 minutes.</p>
-        
+        <h2 id="block-title">SESSION 1 of 3</h2>
         <button class="start-session-btn" onclick="startBlock()">Start Session</button>
     </div>
 
@@ -49,18 +63,71 @@
         </div>
 
         <hr>
-        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn">Stop Working</button>
+        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn">End Experiment & Next Step</button>
+    </div>
+
+    <div id="screen-post-block-survey" class="screen hidden">
+        <h2>Session Complete!</h2>
+        <p>Please answer a few quick questions about the session you just finished:</p>
+        
+        <div style="text-align: left; max-width: 500px; margin: 20px auto;">
+            <label style="display: block; margin-top: 15px; font-weight: bold;">1. How satisfied are you with your performance in this session? (1 = Not at all, 7 = Very satisfied)</label>
+            <input type="number" id="survey-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
+
+            <label style="display: block; margin-top: 15px; font-weight: bold;">2. How bored did you feel during this session? (1 = Not at all, 7 = Very bored)</label>
+            <input type="number" id="survey-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
+        </div>
+        
+        <button onclick="submitPostBlockSurvey()">Continue</button>
+    </div>
+
+    <div id="screen-break" class="screen hidden">
+        <h2>Break Time</h2>
+        <p>You have finished the session. Take a short break to rest your eyes.</p>
+        <p>Click the button below when you are ready to start the next session.</p>
+        <br>
+        <button onclick="endBreak()">Continue to Next Session</button>
+    </div>
+
+    <div id="screen-exit-survey" class="screen hidden">
+        <h2>Final Questionnaire</h2>
+        <p>Almost done! Please fill out your basic information before submitting your data.</p>
+        
+        <div style="text-align: left; max-width: 500px; margin: 20px auto;">
+            <label style="display: block; margin-top: 10px; font-weight: bold;">How distracted were you during the overall experiment? (1 = Not at all, 7 = Very distracted)</label>
+            <input type="number" id="survey-distraction" min="1" max="7" style="width: 100%; padding: 8px;">
+
+            <label style="display: block; margin-top: 10px; font-weight: bold;">Age:</label>
+            <input type="number" id="survey-age" style="width: 100%; padding: 8px;">
+
+            <label style="display: block; margin-top: 10px; font-weight: bold;">Gender:</label>
+            <select id="survey-gender" style="width: 100%; padding: 8px;">
+                <option value="">--Select--</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+
+            <label style="display: block; margin-top: 10px; font-weight: bold;">Major / Field of Study:</label>
+            <input type="text" id="survey-major" style="width: 100%; padding: 8px;">
+
+            <label style="display: block; margin-top: 10px; font-weight: bold;">Year of Study:</label>
+            <input type="text" id="survey-year" style="width: 100%; padding: 8px;">
+        </div>
+        
+        <button onclick="submitExitSurvey()">Finish Experiment</button>
     </div>
 
     <div id="screen-end" class="screen hidden">
         <h2>Experiment Complete</h2>
-        <p>Thank you for your participation.</p>
+        <p>Thank you for your participation. Please submit your results to see your final earnings.</p>
         
-        <h3 style="color: #0056b3; margin: 20px 0;">
+        <h3 id="earnings-display-area" style="color: #0056b3; margin: 20px 0; display: none;">
             Total Earnings: <span id="final-total-earnings">0</span> VND
         </h3>
         
-        <button id="save-data-btn" onclick="saveDataToCloud()" style="margin-bottom: 10px; padding: 15px 30px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Submit My Results</button>
+        <button id="save-data-btn" onclick="saveDataToCloud()" style="margin-bottom: 10px; padding: 15px 30px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Submit Result & Reveal Earnings</button>
         <button id="backup-download-btn" onclick="downloadCSV()" style="display: none; background-color: #6c757d; color: white; margin-bottom: 40px; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;">Backup: Download CSV</button>
         
         <p id="save-status-msg" style="color: #28a745; font-weight: bold; display: none; margin-bottom: 40px; font-size: 18px;">✅ Data saved successfully! You may close this tab.</p>
