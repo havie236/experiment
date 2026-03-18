@@ -39,7 +39,15 @@
         </div>
         
         <br>
-        <button id="start-btn" onclick="startExperiment()">Start Experiment</button>
+        <button id="start-btn" onclick="startExperiment()">Next</button>
+    </div>
+
+    <div id="screen-treatment" class="screen hidden">
+        <h2>Important Information</h2>
+        <div style="max-width: 600px; margin: 30px auto; padding: 20px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; font-size: 18px;">
+            <p id="treatment-message"></p>
+        </div>
+        <button onclick="setupBlockIntro()">Proceed to Experiment</button>
     </div>
     
     <div id="screen-block-intro" class="screen hidden">
@@ -63,44 +71,38 @@
         </div>
 
         <hr>
-        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn">End Experiment & Next Step</button>
-    </div>
-
-    <div id="screen-post-block-survey" class="screen hidden">
-        <h2>Session Complete!</h2>
-        <p>Please answer a few quick questions about the session you just finished:</p>
-        
-        <div style="text-align: left; max-width: 500px; margin: 20px auto;">
-            <label style="display: block; margin-top: 15px; font-weight: bold;">1. How satisfied are you with your performance in this session? (1 = Not at all, 7 = Very satisfied)</label>
-            <input type="number" id="survey-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
-
-            <label style="display: block; margin-top: 15px; font-weight: bold;">2. How bored did you feel during this session? (1 = Not at all, 7 = Very bored)</label>
-            <input type="number" id="survey-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
-        </div>
-        
-        <button onclick="submitPostBlockSurvey()">Continue</button>
+        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn">Stop this session & next step</button>
     </div>
 
     <div id="screen-break" class="screen hidden">
         <h2>Break Time</h2>
-        <p>You have finished the session. Take a short break to rest your eyes.</p>
-        <p>Click the button below when you are ready to start the next session.</p>
+        <p>You have finished the session. Please take a short mandatory break to rest your eyes.</p>
+        
+        <h3 id="break-timer-display" style="font-size: 32px; color: #d9534f; margin: 20px 0;">01:00</h3>
+        
+        <p>You can proceed to the next session when the timer finishes.</p>
         <br>
-        <button onclick="endBreak()">Continue to Next Session</button>
+        <button id="end-break-btn" onclick="endBreak()" disabled style="opacity: 0.5; cursor: not-allowed;">Wait...</button>
     </div>
 
     <div id="screen-exit-survey" class="screen hidden">
         <h2>Final Questionnaire</h2>
-        <p>Almost done! Please fill out your basic information before submitting your data.</p>
+        <p>You have finished all 3 sessions! Please answer these final questions before submitting your data.</p>
         
         <div style="text-align: left; max-width: 500px; margin: 20px auto;">
-            <label style="display: block; margin-top: 10px; font-weight: bold;">How distracted were you during the overall experiment? (1 = Not at all, 7 = Very distracted)</label>
-            <input type="number" id="survey-distraction" min="1" max="7" style="width: 100%; padding: 8px;">
+            <label style="display: block; margin-top: 15px; font-weight: bold;">1. How satisfied are you with your performance in this experiment? (1 = Not at all, 7 = Very satisfied)</label>
+            <input type="number" id="survey-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
 
-            <label style="display: block; margin-top: 10px; font-weight: bold;">Age:</label>
+            <label style="display: block; margin-top: 15px; font-weight: bold;">2. How bored did you feel during this experiment? (1 = Not at all, 7 = Very bored)</label>
+            <input type="number" id="survey-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <label style="display: block; margin-top: 15px; font-weight: bold;">3. How distracted were you during the overall experiment? (1 = Not at all, 7 = Very distracted)</label>
+            <input type="number" id="survey-distraction" min="1" max="7" style="width: 100%; padding: 8px; margin-top: 5px;">
+
+            <label style="display: block; margin-top: 15px; font-weight: bold;">Age:</label>
             <input type="number" id="survey-age" style="width: 100%; padding: 8px;">
 
-            <label style="display: block; margin-top: 10px; font-weight: bold;">Gender:</label>
+            <label style="display: block; margin-top: 15px; font-weight: bold;">Gender:</label>
             <select id="survey-gender" style="width: 100%; padding: 8px;">
                 <option value="">--Select--</option>
                 <option value="Male">Male</option>
@@ -109,10 +111,10 @@
                 <option value="Prefer not to say">Prefer not to say</option>
             </select>
 
-            <label style="display: block; margin-top: 10px; font-weight: bold;">Major / Field of Study:</label>
+            <label style="display: block; margin-top: 15px; font-weight: bold;">Major / Field of Study:</label>
             <input type="text" id="survey-major" style="width: 100%; padding: 8px;">
 
-            <label style="display: block; margin-top: 10px; font-weight: bold;">Year of Study:</label>
+            <label style="display: block; margin-top: 15px; font-weight: bold;">Year of Study:</label>
             <input type="text" id="survey-year" style="width: 100%; padding: 8px;">
         </div>
         
