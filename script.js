@@ -1,15 +1,18 @@
 // --- CONFIGURATION ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSxCBpVQ1vBXkCJJjr2vKq5xtmFm8WwkHLI8uHMLFiVwdL8MSD496Znv_9JVGnvVLi3A/exec"; // <--- PASTE YOUR NEW GOOGLE SCRIPT URL HERE
+const GOOGLE_SCRIPT_URL = "YOUR_WEB_APP_URL_HERE"; // <--- PASTE YOUR GOOGLE SCRIPT URL HERE
 const BLOCK_DURATION_SEC = 10 * 60; // 10 minutes per block
 const MAX_BLOCKS = 3;               // 3 Total sessions
-const PAY_PER_MATRIX = 2000;        // 2,000 VND per correct answer
+const BREAK_DURATION_SEC = 120;      // 120 second mandatory break between sessions
+const PAY_PER_MATRIX = 2000;        
 
 // --- STATE VARIABLES ---
 let participantId = ""; 
+let assignedCondition = ""; // 'High', 'Low', or 'Baseline'
 let currentBlock = 1;
 let blockEarnings = 0;
 let totalEarningsGlobal = 0; 
 let timerInterval;
+let breakTimerInterval;
 let matrixStartTime = 0;
 let currentTargetCount = 0; 
 let attemptGlobalCounter = 0; 
@@ -72,7 +75,22 @@ function startExperiment() {
     detailedLog = []; 
     participantId = "P_" + Math.random().toString(36).substr(2, 6).toUpperCase();
     activeTask = TASK_TYPES[Math.floor(Math.random() * TASK_TYPES.length)];
-    setupBlockIntro();
+    
+    // RANDOMLY ASSIGN CONDITION
+    const conditionsList = ['High', 'Low', 'Baseline'];
+    assignedCondition = conditionsList[Math.floor(Math.random() * conditionsList.length)];
+
+    // SHOW TREATMENT OR SKIP TO BLOCK INTRO
+    if (assignedCondition === 'High') {
+        document.getElementById('treatment-message').innerHTML = "On average, Fulbright students complete <strong>15 matrices</strong> and earn around <strong>30,000 VND</strong>.";
+        showScreen('screen-treatment');
+    } else if (assignedCondition === 'Low') {
+        document.getElementById('treatment-message').innerHTML = "On average, Fulbright students complete <strong>6 matrices</strong> and earn around <strong>14,000 VND</strong>.";
+        showScreen('screen-treatment');
+    } else {
+        // Baseline: Show nothing, skip straight to the first session
+        setupBlockIntro();
+    }
 }
 
 function setupBlockIntro() {
@@ -154,7 +172,7 @@ function checkAnswer() {
         participant_id: participantId,
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock, 
-        condition: 'Multi-Block', 
+        condition: assignedCondition, // SAVES THEIR RANDOM ASSIGNMENT
         task_type: activeTask.id, 
         user_guess: userInput,
         actual_answer: currentTargetCount,
@@ -191,7 +209,7 @@ function startTimer(seconds) {
 }
 
 function stopEarly() {
-    if (confirm("If you stop now, you will finish the entire experiment. Are you sure?")) {
+    if (confirm("Are you sure you want to stop this session early? You will move to the next step.")) {
         endBlock('manual');
     }
 }
@@ -199,14 +217,14 @@ function stopEarly() {
 function endBlock(reason) {
     clearInterval(timerInterval);
     
-    // Log final attempt as abandoned if necessary
+    // Log final attempt as abandoned
     const durationSeconds = (Date.now() - matrixStartTime) / 1000;
     attemptGlobalCounter++;
     detailedLog.push({
         participant_id: participantId,
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock,
-        condition: 'Multi-Block',
+        condition: assignedCondition,
         task_type: activeTask.id,
         user_guess: "ABANDONED", 
         actual_answer: currentTargetCount,
@@ -222,7 +240,6 @@ function endBlock(reason) {
     let finalBlockDuration = (Date.now() - blockStartTime) / 1000;
     totalEarningsGlobal += blockEarnings;
 
-    // Attach block duration to all attempts in this block
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock) {
             row.block_total_duration = finalBlockDuration.toFixed(2);
@@ -231,52 +248,63 @@ function endBlock(reason) {
 
     if (reason === 'time_out') alert("Time is up for this session!");
     
-    // Always clear survey fields before showing
-    document.getElementById('survey-satisfaction').value = '';
-    document.getElementById('survey-boredom').value = '';
-    
-    if (reason === 'manual') {
-        // If they quit early, force them straight to the exit survey
-        currentBlock = MAX_BLOCKS; 
-    }
-    
-    showScreen('screen-post-block-survey');
-}
-
-// --- SURVEY & FLOW LOGIC ---
-function submitPostBlockSurvey() {
-    let sat = document.getElementById('survey-satisfaction').value || "N/A";
-    let bor = document.getElementById('survey-boredom').value || "N/A";
-
-    // Save answers to all rows in the CURRENT block
-    detailedLog.forEach(row => {
-        if (row.block_number === currentBlock) {
-            row.satisfaction = sat;
-            row.boredom = bor;
-        }
-    });
-
+    // Proceed to Break OR Exit Survey
     if (currentBlock < MAX_BLOCKS) {
         currentBlock++;
-        showScreen('screen-break');
+        startBreak(); // Triggers the mandatory break timer
     } else {
         showScreen('screen-exit-survey');
     }
+}
+
+// --- BREAK TIMER LOGIC ---
+function startBreak() {
+    showScreen('screen-break');
+    let timeLeft = BREAK_DURATION_SEC;
+    
+    const display = document.getElementById('break-timer-display');
+    const btn = document.getElementById('end-break-btn');
+    
+    btn.disabled = true;
+    btn.style.opacity = "0.5";
+    btn.style.cursor = "not-allowed";
+    btn.innerText = `Wait...`;
+
+    clearInterval(breakTimerInterval);
+    breakTimerInterval = setInterval(() => {
+        // Format seconds as MM:SS
+        let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        let s = (timeLeft % 60).toString().padStart(2, '0');
+        display.innerText = `${m}:${s}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(breakTimerInterval);
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+            btn.innerText = "Continue to Next Session";
+        }
+        timeLeft--;
+    }, 1000);
 }
 
 function endBreak() {
     setupBlockIntro();
 }
 
+// --- FINAL SURVEY LOGIC ---
 function submitExitSurvey() {
+    let sat = document.getElementById('survey-satisfaction').value || "N/A";
+    let bor = document.getElementById('survey-boredom').value || "N/A";
     let dist = document.getElementById('survey-distraction').value || "N/A";
     let age = document.getElementById('survey-age').value || "N/A";
     let gen = document.getElementById('survey-gender').value || "N/A";
     let maj = document.getElementById('survey-major').value || "N/A";
     let yr = document.getElementById('survey-year').value || "N/A";
 
-    // Save final demographics to EVERY row in the log
     detailedLog.forEach(row => {
+        row.satisfaction = sat;
+        row.boredom = bor;
         row.final_distraction = dist;
         row.age = age;
         row.gender = gen;
