@@ -129,7 +129,8 @@ function generateMatrix() {
     const gridSize = 8;
     
     // Đổi số này thành 42px cho khớp với CSS
-    container.style.gridTemplateColumns = `repeat(${gridSize}, 42px)`; 
+    const cellSize = 40;
+    container.style.gridTemplateColumns = `repeat(${gridSize}, ${cellSize}px)`;
 
     for (let i = 0; i < 64; i++) {
         let isT = Math.random() > 0.5;
