@@ -127,7 +127,9 @@ function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
     const gridSize = 8;
-    container.style.gridTemplateColumns = `repeat(${gridSize}, 45px)`; // Cập nhật size
+    
+    // Ép cứng cột rộng 50px cho khớp với giao diện CSS mới
+    container.style.gridTemplateColumns = `repeat(${gridSize}, 50px)`; 
 
     for (let i = 0; i < 64; i++) {
         let isT = Math.random() > 0.5;
@@ -136,10 +138,6 @@ function generateMatrix() {
         cell.className = 'matrix-cell';
         cell.innerText = activeTask.generator(isT);
         
-        if (activeTask.id === 'shapes') cell.style.fontSize = '20px'; 
-        else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
-        else cell.style.fontSize = '22px';
-
         container.appendChild(cell);
     }
     matrixStartTime = Date.now();
