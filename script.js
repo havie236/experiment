@@ -125,19 +125,32 @@ function startBlock() {
 // --- TASK LOGIC ---
 function generateMatrix() {
     const container = document.getElementById('matrix-container');
-    container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
-    const gridSize = 8;
-    
-    // Đổi số này thành 42px cho khớp với CSS
-    container.style.gridTemplateColumns = `repeat(${gridSize}, 42px)`; 
+    container.innerHTML = '';
+    currentTargetCount = 0; 
+    matrixTabSwitches = 0; 
+    matrixSwitchHistory = []; 
 
-    for (let i = 0; i < 64; i++) {
-        let isT = Math.random() > 0.5;
-        if (isT) currentTargetCount++;
+    const gridSize = 8;
+    const totalCells = gridSize * gridSize;
+    let cellWidth = '40px';
+    let cellHeight = '40px';
+    container.style.gridTemplateColumns = `repeat(${gridSize}, ${cellWidth})`;
+
+    for (let i = 0; i < totalCells; i++) {
+        let isTarget = Math.random() > 0.5;
+        let val = activeTask.generator(isTarget);
+        if (isTarget) currentTargetCount++;
+        
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
-        cell.innerText = activeTask.generator(isT);
+        cell.innerText = val;
+        cell.style.width = cellWidth;
+        cell.style.height = cellHeight;
         
+        if (activeTask.id === 'shapes') cell.style.fontSize = '24px'; 
+        else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
+        else cell.style.fontSize = '20px';
+
         container.appendChild(cell);
     }
     matrixStartTime = Date.now();
