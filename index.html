@@ -6,7 +6,7 @@
     <title>Counting Task Experiment</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Ensures screens hide properly and the tracker stays in bottom right */
+        /* UI and Screen Management */
         .hidden { display: none !important; }
         .active { display: block; }
         
@@ -17,6 +17,7 @@
             flex-direction: column;
             align-items: center;
         }
+        
         .session-tracker {
             position: absolute;
             bottom: 20px;
@@ -28,6 +29,28 @@
             padding: 8px 15px;
             border-radius: 5px;
             border: 1px solid #ddd;
+        }
+
+        /* Solid Grid CSS for the Matrix */
+        #matrix-container {
+            display: grid;
+            gap: 0; 
+            border: 2px solid #333; 
+            margin: 0 auto;
+            width: fit-content;
+            background-color: #fff;
+        }
+
+        .matrix-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border: 1px solid #ccc; 
+            box-sizing: border-box;
+            border-radius: 0 !important; 
+            margin: 0 !important; 
         }
     </style>
 </head>
@@ -64,7 +87,9 @@
                 </div>
             </div>
         </div>
-    </div> <div id="screen-treatment" class="screen hidden">
+    </div> 
+
+    <div id="screen-treatment" class="screen hidden">
         <h2>Important Information</h2>
         <div style="max-width: 600px; margin: 30px auto; padding: 30px; background-color: #fff; border: 2px solid #28a745; border-radius: 8px; font-size: 20px; line-height: 1.6;">
             <p id="treatment-message"></p>
@@ -100,6 +125,24 @@
         </div>
     </div>
 
+    <div id="screen-post-block" class="screen hidden">
+        <h2>Session Complete!</h2>
+        <p>Before moving on, please answer 3 quick questions about the session you just finished:</p>
+        
+        <div style="text-align: left; max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">1. How satisfied are you with your performance in this session? (1-7):</label>
+            <input type="number" id="block-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">2. How bored did you feel during this session? (1-7):</label>
+            <input type="number" id="block-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">3. How distracted were you during this session? (1-7):</label>
+            <input type="number" id="block-distraction" min="1" max="7" style="width: 100%; padding: 8px;">
+        </div>
+        
+        <button onclick="submitPostBlockSurvey()" style="background-color: #007bff; color: white; padding: 12px 40px; font-size: 18px; border: none; border-radius: 4px; cursor: pointer;">Submit & Continue</button>
+    </div>
+
     <div id="screen-break" class="screen hidden">
         <h2>Break Time</h2>
         <p>Please take a 2-minute mandatory break to rest your eyes.</p>
@@ -109,17 +152,8 @@
 
     <div id="screen-exit-survey" class="screen hidden">
         <h2>Final Questionnaire</h2>
-        <p>Please provide your feedback and info to finalize the experiment.</p>
+        <p>Please provide your basic info to finalize the experiment.</p>
         <div style="text-align: left; max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">1. Performance Satisfaction (1-7):</label>
-            <input type="number" id="survey-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
-
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">2. Boredom Level (1-7):</label>
-            <input type="number" id="survey-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
-            
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">3. Overall Distraction (1-7):</label>
-            <input type="number" id="survey-distraction" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
-
             <label style="display:block; margin-bottom: 5px; font-weight:bold;">Age:</label>
             <input type="number" id="survey-age" style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
