@@ -32,32 +32,31 @@
         }
 
         /* Solid Grid CSS for the Matrix */
-        #matrix-container {
-            display: grid;
-            gap: 8px; /* Tạo khoảng trống giữa các ô (floating boxes) */
-            justify-content: center;
-            margin: 0 auto 20px auto;
-            border: none !important; /* CHẮC CHẮN XOÁ KHUNG VIỀN ĐEN NGOÀI CÙNG */
-            background-color: transparent;
-        }
+       #matrix-container {
+    display: grid;
+    gap: 0; /* ❗ bỏ khoảng cách giữa các ô */
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    border: 2px solid #000; /* ❗ tạo viền ngoài giống bảng */
+}
 
-        .matrix-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;  /* Cho ô vuông to ra tí nhìn cho thoáng */
-            height: 50px;
-            border: 1px solid #777; /* Chỉ giữ viền xám cho từng ô lẻ */
-            border-radius: 6px !important; /* Bo góc tròn như ảnh */
-            background-color: #fff;
-            font-family: "Courier New", Courier, monospace; /* Font chữ xịn */
-            font-weight: bold;
-            font-size: 24px;
-            color: #333;
-            margin: 0 !important;
-            box-sizing: border-box;
-            user-select: none; /* Chống bôi đen text */
-        }
+.matrix-cell {
+    width: 40px;   /* nhỏ lại cho compact */
+    height: 40px;
+    border: 1px solid #000; /* ❗ border đen rõ */
+    border-radius: 0; /* ❗ bỏ bo góc */
+    background-color: #fff;
+
+    font-family: Arial, sans-serif; /* đơn giản, dễ đọc */
+    font-size: 18px;
+    font-weight: normal;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+}
     </style>
 </head>
 <body>
