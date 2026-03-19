@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Task Experiment</title>
+    <title>Counting Task Experiment</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Ensuring the layout supports the bottom-right tracker */
+        /* Ensures screens hide properly and the tracker stays in bottom right */
+        .hidden { display: none !important; }
+        .active { display: block; }
+        
         #screen-task {
             position: relative;
             min-height: 80vh;
@@ -21,9 +24,10 @@
             font-size: 20px;
             color: #888;
             font-weight: bold;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 15px;
             border-radius: 5px;
+            border: 1px solid #ddd;
         }
     </style>
 </head>
@@ -48,24 +52,24 @@
                 <div style="flex: 1; text-align: center;"><img src="hinh-3.png" alt="Shapes" style="width: 100%; max-width: 200px; border: 1px solid #ccc; border-radius: 4px;"></div>
             </div>
 
-            <p>You will complete <strong>3 sessions</strong>. You receive <strong>2,000 VND</strong> for each correct answer.</p>
+            <p>You will complete <strong>3 sessions</strong>. You receive <strong>2,000 VND</strong> for each correct count.</p>
             <p>Each session lasts <strong>20 minutes</strong>. You may stop at any time.</p>
 
-            <div style="margin: 40px auto; padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-align: center; max-width: 280px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 12px; font-size: 14px; color: #495057;">Enter your Experiment Code:</label>
-                <input type="text" id="user-code-input" placeholder="e.g. 1" style="padding: 10px; width: 120px; text-align: center; font-size: 18px; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 20px; display: block; margin-left: auto; margin-right: auto;">
+            <div style="margin: 40px auto; padding: 25px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-align: center; max-width: 400px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 15px; font-size: 16px; color: #495057;">Enter your Experiment Code:</label>
                 
-                <button id="start-btn" onclick="startExperiment()" style="background-color: #28a745; color: white; border: none; padding: 12px 60px; font-size: 18px; border-radius: 4px; cursor: pointer; transition: background 0.2s;">Next</button>
+                <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                    <input type="text" id="user-code-input" placeholder="e.g. 1" style="padding: 10px; width: 100px; text-align: center; font-size: 18px; border: 2px solid #ced4da; border-radius: 4px; margin: 0;">
+                    <button id="start-btn" onclick="startExperiment()" style="background-color: #28a745; color: white; border: none; padding: 12px 30px; font-size: 18px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0;">Next</button>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div id="screen-treatment" class="screen hidden">
+    </div> <div id="screen-treatment" class="screen hidden">
         <h2>Important Information</h2>
         <div style="max-width: 600px; margin: 30px auto; padding: 30px; background-color: #fff; border: 2px solid #28a745; border-radius: 8px; font-size: 20px; line-height: 1.6;">
             <p id="treatment-message"></p>
         </div>
-        <button onclick="setupBlockIntro()" style="background-color: #28a745; color: white; padding: 10px 30px; border: none; border-radius: 4px; cursor: pointer;">Proceed to Experiment</button>
+        <button onclick="setupBlockIntro()" style="background-color: #28a745; color: white; padding: 12px 30px; font-size: 18px; border: none; border-radius: 4px; cursor: pointer;">Proceed to Experiment</button>
     </div>
     
     <div id="screen-block-intro" class="screen hidden">
@@ -80,18 +84,19 @@
         
         <div class="matrix-area">
             <div id="matrix-container"></div>
-            <div class="input-area" style="margin-top: 20px;">
-                <label style="font-size: 18px; font-weight: bold;">Count:</label>
-                <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 8px; width: 80px;">
-                <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="opacity: 0.5; padding: 10px 25px;">Submit</button>
+            
+            <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
+                <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
+                <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed;">Submit</button>
             </div>
         </div>
         
         <hr style="width: 80%; margin: 30px 0;">
-        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn" style="background: none; border: 1px solid #999; color: #666; cursor: pointer;">Stop this session & next step</button>
+        <button id="btn-stop-working" onclick="stopEarly()" class="leisure-btn" style="background: none; border: 1px solid #999; color: #666; cursor: pointer; padding: 10px 20px;">Stop this session & next step</button>
 
         <div class="session-tracker">
-            Session: <span id="block-progress">1/3</span>
+            <span id="block-progress">1/3</span>
         </div>
     </div>
 
@@ -99,26 +104,26 @@
         <h2>Break Time</h2>
         <p>Please take a 2-minute mandatory break to rest your eyes.</p>
         <h3 id="break-timer-display" style="font-size: 48px; color: #d9534f; margin: 30px 0;">02:00</h3>
-        <button id="end-break-btn" onclick="endBreak()" disabled style="opacity: 0.5; padding: 12px 30px;">Wait for timer...</button>
+        <button id="end-break-btn" onclick="endBreak()" disabled style="opacity: 0.5; padding: 12px 30px; font-size: 18px;">Wait for timer...</button>
     </div>
 
     <div id="screen-exit-survey" class="screen hidden">
         <h2>Final Questionnaire</h2>
         <p>Please provide your feedback and info to finalize the experiment.</p>
         <div style="text-align: left; max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-            <label style="display:block; margin-bottom: 5px;">1. Performance Satisfaction (1-7):</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">1. Performance Satisfaction (1-7):</label>
             <input type="number" id="survey-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
-            <label style="display:block; margin-bottom: 5px;">2. Boredom Level (1-7):</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">2. Boredom Level (1-7):</label>
             <input type="number" id="survey-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
             
-            <label style="display:block; margin-bottom: 5px;">3. Overall Distraction (1-7):</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">3. Overall Distraction (1-7):</label>
             <input type="number" id="survey-distraction" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
-            <label style="display:block; margin-bottom: 5px;">Age:</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Age:</label>
             <input type="number" id="survey-age" style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
-            <label style="display:block; margin-bottom: 5px;">Gender:</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Gender:</label>
             <select id="survey-gender" style="width: 100%; padding: 8px; margin-bottom: 15px;">
                 <option value="">--Select--</option>
                 <option value="Male">Male</option>
@@ -126,13 +131,13 @@
                 <option value="Other">Other</option>
             </select>
 
-            <label style="display:block; margin-bottom: 5px;">Major:</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Major:</label>
             <input type="text" id="survey-major" style="width: 100%; padding: 8px; margin-bottom: 15px;">
 
-            <label style="display:block; margin-bottom: 5px;">Year of Study:</label>
+            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Year of Study:</label>
             <input type="text" id="survey-year" style="width: 100%; padding: 8px;">
         </div>
-        <button onclick="submitExitSurvey()" style="background-color: #007bff; color: white; padding: 12px 40px; border: none; border-radius: 4px; cursor: pointer;">Finish Experiment</button>
+        <button onclick="submitExitSurvey()" style="background-color: #007bff; color: white; padding: 12px 40px; font-size: 18px; border: none; border-radius: 4px; cursor: pointer;">Finish Experiment</button>
     </div>
 
     <div id="screen-end" class="screen hidden">
@@ -142,7 +147,7 @@
         
         <button id="save-data-btn" onclick="saveDataToCloud()" style="background-color: #28a745; color: white; padding: 15px 40px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer;">Submit Result & Reveal Earnings</button>
         
-        <p id="save-status-msg" style="display: none; color: #28a745; font-weight: bold; margin-top: 20px;">✅ Data saved successfully! You may close this tab.</p>
+        <p id="save-status-msg" style="display: none; color: #28a745; font-weight: bold; margin-top: 20px; font-size: 18px;">✅ Data saved successfully! You may close this tab.</p>
     </div>
 
     <script src="script.js"></script>
