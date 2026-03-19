@@ -118,26 +118,32 @@ button:hover:enabled {
             margin-top: 30px;
         }
 
+       /* --- BẢNG MATRIX MỚI (Thu nhỏ lại cho đẹp) --- */
         #matrix-container {
             display: grid;
-            gap: 6px; /* Cập nhật gap nhỏ gọn lại theo ý bạn */
+            gap: 6px; /* Thu nhỏ khoảng cách giữa các ô */
             justify-content: center;
-            margin: 0 0 20px 0;
+            margin: 0 auto 20px auto;
+            border: none !important; 
+            background-color: transparent;
         }
 
-        /* STANDARD CELLS (Numbers/Shapes) */
         .matrix-cell {
-            background: #f9f9f9;
-            border: 1px solid #333; /* Viền đen đậm nét hơn */
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 45px;  /* Giữ lại width để các ô vuông vắn */
-            height: 45px; /* Giữ lại height để các ô vuông vắn */
-            font-family: "Courier New", Courier, monospace; /* Font chữ xịn xò */
+            width: 42px;  /* Thu nhỏ từ 50px xuống 42px */
+            height: 42px; /* Thu nhỏ từ 50px xuống 42px */
+            border: 1px solid #777; 
+            border-radius: 6px !important; 
+            background-color: #fff;
+            font-family: "Courier New", Courier, monospace; 
             font-weight: bold;
-            border-radius: 4px;
-            user-select: none; /* Chống bôi đen text (Quá hay!) */
+            font-size: 20px; /* Thu nhỏ font chữ từ 24px xuống 20px */
+            color: #333;
+            margin: 0 !important;
+            box-sizing: border-box;
+            user-select: none; 
         }
 
 /* --- INPUTS --- */
