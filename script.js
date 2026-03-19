@@ -125,7 +125,15 @@ function startBlock() {
 // --- TASK LOGIC ---
 function generateMatrix() {
     const container = document.getElementById('matrix-container');
-    container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
+    container.innerHTML = '';
+    currentTargetCount = 0; 
+    matrixTabSwitches = 0; 
+    matrixSwitchHistory = []; 
+
+    const gridSize = 8;
+    const totalCells = gridSize * gridSize;
+    let cellWidth = '40px';
+    let cellHeight = '40px';
 
     for (let i = 0; i < 64; i++) {
         let isT = Math.random() > 0.5;
