@@ -109,7 +109,7 @@ button:hover:enabled {
     background-color: #004494;
 }
 
-/* --- TASK AREA --- */
+/* --- TASK SCREEN --- */
 .matrix-area {
     display: flex;
     flex-direction: column;
@@ -118,26 +118,28 @@ button:hover:enabled {
     margin-top: 30px;
 }
 
-/* The container grid columns are now set via JS */
 #matrix-container {
     display: grid;
-    gap: 6px; /* Small gap between cells */
+    grid-template-columns: repeat(8, 35px);
+    gap: 5px;
     justify-content: center;
     margin: 0 0 20px 0;
 }
 
-/* STANDARD CELLS (Numbers/Shapes) */
+/* MATRIX CELLS */
 .matrix-cell {
     background: #f9f9f9;
     border: 1px solid #333;
+    width: 35px; height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: "Courier New", Courier, monospace; 
     font-weight: bold;
-    border-radius: 4px;
-    user-select: none;
+    font-size: 20px;
+    border-radius: 0; 
 }
+
 
 /* --- INPUTS --- */
 .input-area {
