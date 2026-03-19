@@ -110,37 +110,35 @@ button:hover:enabled {
 }
 
 /* --- TASK AREA --- */
-        .matrix-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-top: 30px;
-        }
-
-    /* --- KHÔI PHỤC CHUẨN DESIGN THỨ 4 --- */
-#matrix-container {
-    display: grid;
-    gap: 6px; /* Khoảng cách nhỏ giữa các ô */
+.matrix-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    margin: 0 0 20px 0;
-    border: none !important; /* Xoá cái khung viền to bên ngoài */
+    margin-top: 30px;
 }
 
+/* The container grid columns are now set via JS */
+#matrix-container {
+    display: grid;
+    gap: 6px; /* Small gap between cells */
+    justify-content: center;
+    margin: 0 0 20px 0;
+}
+
+/* STANDARD CELLS (Numbers/Shapes) */
 .matrix-cell {
     background: #f9f9f9;
     border: 1px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 42px;  /* Độ rộng ô chuẩn bản cũ */
-    height: 42px; /* Độ cao ô chuẩn bản cũ */
     font-family: "Courier New", Courier, monospace; 
     font-weight: bold;
-    font-size: 20px;
-    border-radius: 4px; /* Bo góc nhẹ 4px đúng bài */
+    border-radius: 4px;
     user-select: none;
 }
+
 /* --- INPUTS --- */
 .input-area {
     display: flex;
