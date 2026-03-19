@@ -123,64 +123,26 @@ function startBlock() {
 }
 
 // --- TASK LOGIC ---
-function generateMatrix(forcedTask = null) {
+function generateMatrix() {
     const container = document.getElementById('matrix-container');
-    container.innerHTML = '';
-    currentTargetCount = 0; 
-    
-    matrixTabSwitches = 0; 
-    matrixSwitchHistory = []; 
-    
-    const task = forcedTask || sessionTasks[currentBlock];
+    container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
+    const gridSize = 8;
+    container.style.gridTemplateColumns = `repeat(${gridSize}, 45px)`; // Cập nhật size
 
-    // --- GRID SIZE LOGIC ---
-    // Practice: 5x5 (25 cells)
-    // Real: 8x8 (64 cells)
-    const gridSize = isPracticeMode ? 5 : 8;
-    const totalCells = gridSize * gridSize;
-
-    // --- DYNAMIC STYLING FOR WORDS ---
-    // If it's a word task, cells are 55px wide. If others, 40px wide.
-    let cellWidth = (task.id === 'words') ? '55px' : '40px';
-    let cellHeight = '40px';
-    
-    // Update CSS Grid Layout
-    container.style.gridTemplateColumns = `repeat(${gridSize}, ${cellWidth})`;
-
-    for (let i = 0; i < totalCells; i++) {
-        let isTarget = Math.random() > 0.5;
-        let val = task.generator(isTarget);
-
-        if (isTarget) {
-            currentTargetCount++;
-        }
-        
+    for (let i = 0; i < 64; i++) {
+        let isT = Math.random() > 0.5;
+        if (isT) currentTargetCount++;
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
-        cell.innerText = val;
+        cell.innerText = activeTask.generator(isT);
         
-        // Apply dimensions
-        cell.style.width = cellWidth;
-        cell.style.height = cellHeight;
-        
-        // --- UPDATED FONT STYLING ---
-        if (task.id === 'shapes') {
-            cell.style.fontSize = '24px'; 
-        } else if (task.id === 'words') {
-            // Use modern Sans-Serif font for words
-            cell.style.fontSize = '15px'; 
-            cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; 
-            cell.style.letterSpacing = '0.5px';
-        } else {
-            // Keep monospace for Numbers
-            cell.style.fontSize = '20px';
-        }
+        if (activeTask.id === 'shapes') cell.style.fontSize = '20px'; 
+        else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
+        else cell.style.fontSize = '22px';
 
         container.appendChild(cell);
     }
-    
     matrixStartTime = Date.now();
-    
     const input = document.getElementById('user-answer');
     input.value = '';
     input.focus();
