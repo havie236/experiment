@@ -28,6 +28,7 @@ let matrixStartTime = 0, blockStartTime = 0;
 let currentTargetCount = 0, attemptGlobalCounter = 0; 
 let matrixTabSwitches = 0, matrixSwitchHistory = [];
 let detailedLog = [], activeTask = null;
+let isExperimentFinished = false; // Used for "The Shield"
 
 const TASKS = {
     'numbers': { id: 'numbers', instruction: "Count the Zeros (0).", generator: (isT) => isT ? 0 : 1 },
@@ -92,7 +93,6 @@ function handleSessionTransition() {
     activeTask = TASKS[session.t];
     assignedCondition = session.c;
 
-    // TREATMENT MESSAGES
     if (assignedCondition === 'High') {
         document.getElementById('treatment-message').innerHTML = 
             "On average, Fulbright students completed <strong>15 correct counts</strong> and earned around <strong>30,000 VND</strong>.";
@@ -102,7 +102,6 @@ function handleSessionTransition() {
             "On average, Fulbright students completed <strong>6 correct counts</strong> and earned around <strong>14,000 VND</strong>.";
         showScreen('screen-treatment');
     } else {
-        // Baseline: skip treatment screen
         setupBlockIntro();
     }
 }
@@ -136,6 +135,12 @@ function generateMatrix() {
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
         cell.innerText = activeTask.generator(isT);
+        
+        // Ensure shapes and letters are sized properly in the new grid
+        if (activeTask.id === 'shapes') cell.style.fontSize = '20px'; 
+        else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
+        else cell.style.fontSize = '20px';
+
         container.appendChild(cell);
     }
     matrixStartTime = Date.now();
@@ -157,7 +162,7 @@ function checkAnswer() {
         participant_id: participantId,
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock,
-        condition: assignedCondition, // <--- FIXED: NOW SAVES HIGH, LOW, OR BASELINE
+        condition: assignedCondition,
         task_type: activeTask.id,
         user_guess: val,
         actual_answer: currentTargetCount,
@@ -197,14 +202,13 @@ function stopEarly() {
 function endBlock(reason) {
     clearInterval(timerInterval);
     
-    // Log final attempt as abandoned
     const duration = (Date.now() - matrixStartTime) / 1000;
     attemptGlobalCounter++;
     detailedLog.push({
         participant_id: participantId,
         attempt_id: attemptGlobalCounter,
         block_number: currentBlock,
-        condition: assignedCondition, // <--- FIXED HERE TOO
+        condition: assignedCondition, 
         task_type: activeTask.id,
         user_guess: "ABANDONED",
         actual_answer: currentTargetCount,
@@ -226,8 +230,29 @@ function endBlock(reason) {
 
     if (reason === 'time_out') alert("Time is up for this session!");
 
+    // Proceed to mini-survey
+    showScreen('screen-post-block');
+}
+
+// --- SURVEYS & BREAKS ---
+function submitPostBlockSurvey() {
+    let sat = document.getElementById('block-satisfaction').value || "N/A";
+    let bor = document.getElementById('block-boredom').value || "N/A";
+    let dist = document.getElementById('block-distraction').value || "N/A";
+
+    detailedLog.forEach(row => {
+        if (row.block_number === currentBlock) {
+            row.satisfaction = sat;
+            row.boredom = bor;
+            row.distraction = dist; 
+        }
+    });
+
+    document.getElementById('block-satisfaction').value = "";
+    document.getElementById('block-boredom').value = "";
+    document.getElementById('block-distraction').value = "";
+
     if (currentBlock < MAX_BLOCKS) { 
-        currentBlock++; 
         startBreak(); 
     } else { 
         showScreen('screen-exit-survey'); 
@@ -262,15 +287,12 @@ function startBreak() {
 }
 
 function endBreak() { 
+    currentBlock++;
     handleSessionTransition(); 
 }
 
-// --- DATA SUBMISSION ---
 function submitExitSurvey() {
     const surveyData = {
-        satisfaction: document.getElementById('survey-satisfaction').value || "N/A",
-        boredom: document.getElementById('survey-boredom').value || "N/A",
-        distraction: document.getElementById('survey-distraction').value || "N/A",
         age: document.getElementById('survey-age').value || "N/A",
         gender: document.getElementById('survey-gender').value || "N/A",
         major: document.getElementById('survey-major').value || "N/A",
@@ -286,7 +308,10 @@ function submitExitSurvey() {
     document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
 }
 
+// --- DATA SUBMISSION ---
 function saveDataToCloud() {
+    isExperimentFinished = true; // Turns off the accidental exit warning
+    
     const saveBtn = document.getElementById('save-data-btn');
     saveBtn.innerText = "Saving, please wait...";
     saveBtn.disabled = true;
@@ -303,8 +328,17 @@ function saveDataToCloud() {
     })
     .catch(err => {
         console.error(err);
-        alert("Error saving to cloud. Please download the CSV backup if available.");
+        alert("Error saving to cloud. Please contact the researcher.");
         saveBtn.innerText = "Error - Try Again";
         saveBtn.disabled = false;
+        isExperimentFinished = false; // Turn the shield back on if save fails
     });
 }
+
+// --- ACCIDENTAL EXIT PREVENTION (THE SHIELD) ---
+window.addEventListener("beforeunload", function (e) {
+    if (!isExperimentFinished && detailedLog.length > 0) {
+        e.preventDefault();
+        e.returnValue = "Wait! Your experiment data is not saved yet. Are you sure you want to leave?";
+    }
+});
