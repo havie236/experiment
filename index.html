@@ -34,23 +34,29 @@
         /* Solid Grid CSS for the Matrix */
         #matrix-container {
             display: grid;
-            gap: 0; 
-            border: 2px solid #333; 
-            margin: 0 auto;
-            width: fit-content;
-            background-color: #fff;
+            gap: 8px; /* Tạo khoảng trống giữa các ô (floating boxes) */
+            justify-content: center;
+            margin: 0 auto 20px auto;
+            border: none !important; /* CHẮC CHẮN XOÁ KHUNG VIỀN ĐEN NGOÀI CÙNG */
+            background-color: transparent;
         }
 
         .matrix-cell {
             display: flex;
-            justify-content: center;
             align-items: center;
-            width: 40px;
-            height: 40px;
-            border: 1px solid #ccc; 
+            justify-content: center;
+            width: 50px;  /* Cho ô vuông to ra tí nhìn cho thoáng */
+            height: 50px;
+            border: 1px solid #777; /* Chỉ giữ viền xám cho từng ô lẻ */
+            border-radius: 6px !important; /* Bo góc tròn như ảnh */
+            background-color: #fff;
+            font-family: "Courier New", Courier, monospace; /* Font chữ xịn */
+            font-weight: bold;
+            font-size: 24px;
+            color: #333;
+            margin: 0 !important;
             box-sizing: border-box;
-            border-radius: 0 !important; 
-            margin: 0 !important; 
+            user-select: none; /* Chống bôi đen text */
         }
     </style>
 </head>
