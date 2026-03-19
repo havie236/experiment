@@ -128,8 +128,8 @@ function generateMatrix() {
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
     const gridSize = 8;
     
-    // Ép cứng cột rộng 50px cho khớp với giao diện CSS mới
-    container.style.gridTemplateColumns = `repeat(${gridSize}, 50px)`; 
+    // Đổi số này thành 42px cho khớp với CSS
+    container.style.gridTemplateColumns = `repeat(${gridSize}, 42px)`; 
 
     for (let i = 0; i < 64; i++) {
         let isT = Math.random() > 0.5;
