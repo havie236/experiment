@@ -121,22 +121,23 @@ button:hover:enabled {
 /* The container grid columns are now set via JS */
 #matrix-container {
     display: grid;
-    gap: 6px; /* Small gap between cells */
-    justify-content: center;
-    margin: 0 0 20px 0;
+    gap: 0; /* Xóa khoảng trống giữa các ô */
+    border: 2px solid #333; /* Viền ngoài đậm cho ra dáng cái bảng */
+    margin: 0 auto;
+    width: fit-content;
+    background-color: #fff;
 }
 
-/* STANDARD CELLS (Numbers/Shapes) */
 .matrix-cell {
-    background: #f9f9f9;
-    border: 1px solid #333;
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-family: "Courier New", Courier, monospace; 
-    font-weight: bold;
-    border-radius: 4px;
-    user-select: none;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc; /* Viền mỏng bên trong */
+    box-sizing: border-box;
+    border-radius: 0 !important; /* Ép bỏ góc bo tròn */
+    margin: 0 !important; /* Ép bỏ khoảng cách */
 }
 
 /* --- INPUTS --- */
