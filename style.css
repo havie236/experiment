@@ -110,35 +110,34 @@ button:hover:enabled {
 }
 
 /* --- TASK AREA --- */
-.matrix-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 30px;
-}
-
-/* Rounded Grid CSS cho Matrix (Giống ảnh bạn gửi) */
-        #matrix-container {
-            display: grid;
-            gap: 8px; /* Tạo khoảng trống giữa các ô */
-            margin: 0 auto;
-            width: fit-content;
-            background-color: transparent;
-            border: none; /* Xóa viền đen to bên ngoài */
+        .matrix-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 30px;
         }
 
-        .matrix-cell {
-            display: flex;
+        #matrix-container {
+            display: grid;
+            gap: 6px; /* Cập nhật gap nhỏ gọn lại theo ý bạn */
             justify-content: center;
+            margin: 0 0 20px 0;
+        }
+
+        /* STANDARD CELLS (Numbers/Shapes) */
+        .matrix-cell {
+            background: #f9f9f9;
+            border: 1px solid #333; /* Viền đen đậm nét hơn */
+            display: flex;
             align-items: center;
-            width: 45px;
-            height: 45px;
-            border: 1px solid #888; 
-            box-sizing: border-box;
-            border-radius: 6px !important; /* Bo góc tròn tròn */
-            margin: 0 !important; 
-            background-color: #fafafa;
+            justify-content: center;
+            width: 45px;  /* Giữ lại width để các ô vuông vắn */
+            height: 45px; /* Giữ lại height để các ô vuông vắn */
+            font-family: "Courier New", Courier, monospace; /* Font chữ xịn xò */
+            font-weight: bold;
+            border-radius: 4px;
+            user-select: none; /* Chống bôi đen text (Quá hay!) */
         }
 
 /* --- INPUTS --- */
