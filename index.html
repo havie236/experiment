@@ -75,8 +75,8 @@
                 <div style="flex: 1; text-align: center;"><img src="hinh-3.png" alt="Shapes" style="width: 100%; max-width: 200px; border: 1px solid #ccc; border-radius: 4px;"></div>
             </div>
 
-            <p>You will complete <strong>3 sessions</strong>. You receive <strong>2,000 VND</strong> for each correct count.</p>
-            <p>Each session lasts <strong>20 minutes</strong>. You may stop at any time.</p>
+            <p>You will complete <strong>3 sessions</strong>. Each session lasts up to <strong>20 minutes</strong>, but you may stop a session and proceed to the next one at any time.</p>
+            <p>You will receive <strong>2,000 VND</strong> for each correct count.</p>
 
             <div style="margin: 40px auto; padding: 25px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-align: center; max-width: 400px;">
                 <label style="font-weight: bold; display: block; margin-bottom: 15px; font-size: 16px; color: #495057;">Enter your Experiment Code:</label>
@@ -126,21 +126,18 @@
     </div>
 
     <div id="screen-post-block" class="screen hidden">
-        <h2>Session Complete!</h2>
-        <p>Before moving on, please answer 3 quick questions about the session you just finished:</p>
-        
-        <div style="text-align: left; max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">1. How satisfied are you with your performance in this session? (1-7):</label>
-            <input type="number" id="block-satisfaction" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
-
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">2. How bored did you feel during this session? (1-7):</label>
-            <input type="number" id="block-boredom" min="1" max="7" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+        <div style="text-align: left; max-width: 600px; margin: 40px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
             
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">3. How distracted were you during this session? (1-7):</label>
-            <input type="number" id="block-distraction" min="1" max="7" style="width: 100%; padding: 8px;">
+            <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">1. How satisfied are you with your earnings from this session?</label>
+            <div style="margin-bottom: 15px; font-size: 16px; color: #333; font-weight: bold;">(1 = Not at all satisfied, 7 = Very satisfied)</div>
+            <input type="number" id="block-earnings-satisfaction" min="1" max="7" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+            <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">2. How interesting did you find this task?</label>
+            <div style="margin-bottom: 15px; font-size: 16px; color: #333; font-weight: bold;">(1 = Very uninteresting, 7 = Very interesting)</div>
+            <input type="number" id="block-interest" min="1" max="7" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            
+            <button onclick="submitPostBlockSurvey()" style="background-color: #2557a7; color: white; width: 100%; padding: 15px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Submit Survey</button>
         </div>
-        
-        <button onclick="submitPostBlockSurvey()" style="background-color: #007bff; color: white; padding: 12px 40px; font-size: 18px; border: none; border-radius: 4px; cursor: pointer;">Submit & Continue</button>
     </div>
 
     <div id="screen-break" class="screen hidden">
@@ -151,37 +148,85 @@
     </div>
 
     <div id="screen-exit-survey" class="screen hidden">
-        <h2>Final Questionnaire</h2>
-        <p>Please provide your basic info to finalize the experiment.</p>
-        <div style="text-align: left; max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Age:</label>
-            <input type="number" id="survey-age" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+        <div style="text-align: left; max-width: 600px; margin: 40px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+            
+            <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">1. Competitiveness</label>
+            <div style="margin-bottom: 15px; font-size: 16px; color: #333; font-weight: bold;">On a scale from 1 to 7, how competitive do you consider yourself?<br>(1 = Not competitive at all, 7 = Very competitive)</div>
+            <input type="number" id="survey-competitiveness" min="1" max="7" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
 
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Gender:</label>
-            <select id="survey-gender" style="width: 100%; padding: 8px; margin-bottom: 15px;">
-                <option value="">--Select--</option>
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 18px;">2. We are checking how clearly the instructions were understood.</label>
+            <div style="margin-bottom: 8px; font-size: 16px; color: #333;">During the experiment, you may have seen information about a previous participant’s performance.</div>
+            <div style="margin-bottom: 8px; font-size: 16px; color: #333; font-weight: bold;">Approximately how much did that participant earn?</div>
+            <div style="margin-bottom: 15px; font-size: 14px; color: #555;">(If you saw this information more than once, please choose one amount and report the one you remember most clearly. If you are not sure, please give your best estimate.)</div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 35px;">
+                <input type="number" id="survey-remembered-earnings" placeholder="______" style="width: 150px; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
+                <span style="font-size: 16px; font-weight: bold;">VND</span>
+            </div>
+
+            <hr style="margin-bottom: 25px; border: none; border-top: 1px solid #eee;">
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Age:</label>
+            <input type="number" id="survey-age" placeholder="e.g., 20" style="width: 100%; padding: 12px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Gender:</label>
+            <select id="survey-gender" style="width: 100%; padding: 12px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <option value="">Select...</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
                 <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
             </select>
 
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Major:</label>
-            <input type="text" id="survey-major" style="width: 100%; padding: 8px; margin-bottom: 15px;">
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Major / Field of study:</label>
+            <input type="text" id="survey-major" placeholder="e.g., Computer Science" style="width: 100%; padding: 12px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
 
-            <label style="display:block; margin-bottom: 5px; font-weight:bold;">Year of Study:</label>
-            <input type="text" id="survey-year" style="width: 100%; padding: 8px;">
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Year of study:</label>
+            <select id="survey-year" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <option value="">Select...</option>
+                <option value="Freshman (Year 1)">Freshman (Year 1)</option>
+                <option value="Sophomore (Year 2)">Sophomore (Year 2)</option>
+                <option value="Junior (Year 3)">Junior (Year 3)</option>
+                <option value="Senior (Year 4)">Senior (Year 4)</option>
+                <option value="Graduate">Graduate</option>
+            </select>
+
+            <button onclick="submitExitSurvey()" style="background-color: #2557a7; color: white; width: 100%; padding: 15px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Finish Experiment</button>
         </div>
-        <button onclick="submitExitSurvey()" style="background-color: #007bff; color: white; padding: 12px 40px; font-size: 18px; border: none; border-radius: 4px; cursor: pointer;">Finish Experiment</button>
     </div>
 
     <div id="screen-end" class="screen hidden">
         <h2>Experiment Complete</h2>
-        <p>Click below to submit your results and see your final payment.</p>
-        <h3 id="earnings-display-area" style="display: none; color: #28a745; margin: 25px 0; font-size: 24px;">Total Earnings: <span id="final-total-earnings">0</span> VND</h3>
+        <p>Click below to submit your results, reveal your final payment, and read the debriefing information.</p>
         
-        <button id="save-data-btn" onclick="saveDataToCloud()" style="background-color: #28a745; color: white; padding: 15px 40px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer;">Submit Result & Reveal Earnings</button>
+        <h3 id="earnings-display-area" style="display: none; color: #28a745; margin: 25px 0; font-size: 26px;">Total Earnings: <span id="final-total-earnings">0</span> VND</h3>
         
-        <p id="save-status-msg" style="display: none; color: #28a745; font-weight: bold; margin-top: 20px; font-size: 18px;">✅ Data saved successfully! You may close this tab.</p>
+        <button id="save-data-btn" onclick="saveDataToCloud()" style="background-color: #28a745; color: white; padding: 15px 40px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Submit Result & Reveal Earnings</button>
+        
+        <p id="save-status-msg" style="display: none; color: #28a745; font-weight: bold; margin-top: 20px; font-size: 18px;">✅ Data saved successfully! Please read the final statement below before closing this tab.</p>
+
+        <div style="text-align: left; max-width: 800px; margin: 40px auto; padding: 40px; border: 1px solid #ddd; border-radius: 8px; background: #fdfdfd; font-size: 16px; line-height: 1.6; color: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Debriefing Statement</h3>
+            
+            <p>Thank you for participating in this study.</p>
+            
+            <p>The purpose of this experiment is to understand how information about other people's performance affects the amount of effort individuals choose to put into a task. In particular, we are interested in whether seeing information about how many tasks other participants completed influences how long people work, how many tasks they complete, and how quickly they work.</p>
+            
+            <p>During the experiment, you may have seen information about the average number of tasks completed by previous participants, or you may not have seen any such information. This information was intentionally varied across different parts of the experiment so that we could study how different reference points (higher, lower, or no benchmark) affect work behavior.</p>
+            
+            <p>It is important to note that:</p>
+            <ul style="margin-bottom: 20px; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">The benchmark information did not affect your payment rate.</li>
+                <li style="margin-bottom: 8px;">There is no expected, correct, or "ideal" level of performance in this study.</li>
+                <li style="margin-bottom: 8px;">The benchmark numbers are used only for research purposes and are not a judgment of your ability or effort.</li>
+                <li style="margin-bottom: 8px;">You were free to stop working at any time, and your decisions about how long to continue working are a key part of what we are studying.</li>
+            </ul>
+            
+            <p>All data collected in this study are anonymous and will be analyzed only in aggregate. Your participation will not affect your academic standing in any way.</p>
+            
+            <p>If you experienced any frustration or fatigue during the task, this is completely normal. If you have any concerns or questions about the study, you may contact the researcher or the faculty advisor using the information provided in the consent form.</p>
+            
+            <p style="margin-top: 25px; font-weight: bold; font-size: 18px;">Thank you again for your time and contribution to this research.</p>
+        </div>
     </div>
 
     <script src="script.js"></script>
