@@ -1,5 +1,5 @@
 // --- CONFIGURATION ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSxCBpVQ1vBXkCJJjr2vKq5xtmFm8WwkHLI8uHMLFiVwdL8MSD496Znv_9JVGnvVLi3A/exec"; // <--- PASTE YOUR URL HERE
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx0l8Ce2U6qaRI_bgKu97nWOa3yW2TEETgG4JYU1lK_q4FrHoJZRQvkQ3Q/exec"; 
 const BLOCK_DURATION_SEC = 20 * 60; // 20 minutes per session
 const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
@@ -28,7 +28,7 @@ let matrixStartTime = 0, blockStartTime = 0;
 let currentTargetCount = 0, attemptGlobalCounter = 0; 
 let matrixTabSwitches = 0, matrixSwitchHistory = [];
 let detailedLog = [], activeTask = null;
-let isExperimentFinished = false; // Used for "The Shield"
+let isExperimentFinished = false; 
 
 const TASKS = {
     'numbers': { id: 'numbers', instruction: "Count the Zeros (0).", generator: (isT) => isT ? 0 : 1 },
@@ -136,7 +136,6 @@ function generateMatrix() {
         cell.className = 'matrix-cell';
         cell.innerText = activeTask.generator(isT);
         
-        // Ensure shapes and letters are sized properly in the new grid
         if (activeTask.id === 'shapes') cell.style.fontSize = '20px'; 
         else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
         else cell.style.fontSize = '20px';
@@ -230,27 +229,23 @@ function endBlock(reason) {
 
     if (reason === 'time_out') alert("Time is up for this session!");
 
-    // Proceed to mini-survey
     showScreen('screen-post-block');
 }
 
 // --- SURVEYS & BREAKS ---
 function submitPostBlockSurvey() {
-    let sat = document.getElementById('block-satisfaction').value || "N/A";
-    let bor = document.getElementById('block-boredom').value || "N/A";
-    let dist = document.getElementById('block-distraction').value || "N/A";
+    let earnSat = document.getElementById('block-earnings-satisfaction').value || "N/A";
+    let interest = document.getElementById('block-interest').value || "N/A";
 
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock) {
-            row.satisfaction = sat;
-            row.boredom = bor;
-            row.distraction = dist; 
+            row.earnings_satisfaction = earnSat;
+            row.task_interest = interest;
         }
     });
 
-    document.getElementById('block-satisfaction').value = "";
-    document.getElementById('block-boredom').value = "";
-    document.getElementById('block-distraction').value = "";
+    document.getElementById('block-earnings-satisfaction').value = "";
+    document.getElementById('block-interest').value = "";
 
     if (currentBlock < MAX_BLOCKS) { 
         startBreak(); 
@@ -293,6 +288,8 @@ function endBreak() {
 
 function submitExitSurvey() {
     const surveyData = {
+        competitiveness: document.getElementById('survey-competitiveness').value || "N/A",
+        remembered_earnings: document.getElementById('survey-remembered-earnings').value || "N/A", // NEW DATA HERE
         age: document.getElementById('survey-age').value || "N/A",
         gender: document.getElementById('survey-gender').value || "N/A",
         major: document.getElementById('survey-major').value || "N/A",
@@ -310,7 +307,7 @@ function submitExitSurvey() {
 
 // --- DATA SUBMISSION ---
 function saveDataToCloud() {
-    isExperimentFinished = true; // Turns off the accidental exit warning
+    isExperimentFinished = true; 
     
     const saveBtn = document.getElementById('save-data-btn');
     saveBtn.innerText = "Saving, please wait...";
@@ -331,7 +328,7 @@ function saveDataToCloud() {
         alert("Error saving to cloud. Please contact the researcher.");
         saveBtn.innerText = "Error - Try Again";
         saveBtn.disabled = false;
-        isExperimentFinished = false; // Turn the shield back on if save fails
+        isExperimentFinished = false; 
     });
 }
 
