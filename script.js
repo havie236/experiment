@@ -138,6 +138,8 @@ function generateMatrix() {
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
         cell.innerText = activeTask.generator(isT);
+        cell.style.width = "42px";
+        cell.style.height = "42px";
         
         container.appendChild(cell);
     }
