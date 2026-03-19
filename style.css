@@ -121,31 +121,26 @@ button:hover:enabled {
        /* --- BẢNG MATRIX MỚI (Thu nhỏ lại cho đẹp) --- */
 #matrix-container {
     display: grid;
-    gap: 0; /* ❗ đổi từ 6px → 0 */
+    gap: 6px;                  /* This creates the space between boxes */
     justify-content: center;
     margin: 0 auto 25px auto;
-    border: 2px solid black; /* ❗ thêm viền ngoài */
-    background-color: white;
+    border: none !important;    /* This removes the big outer border */
+    background-color: transparent;
 }
 
 .matrix-cell {
     display: flex;
     align-items: center;
     justify-content: center;
-
-    width: 42px;
+    width: 42px;                /* Match this with your JS below */
     height: 42px;
-
-    border: 1px solid black;
-    border-radius: 0; /* ❗ bỏ bo góc */
-
-    background: white;
-
-    font-family: Arial, sans-serif;
-    font-size: 18px;
-    font-weight: normal;
-
-    user-select: none;
+    border: 1px solid #333;     /* The 1px border for each box */
+    border-radius: 4px;         /* The slight rounding */
+    background: #f9f9f9;
+    font-family: "Courier New", Courier, monospace; /* The font you wanted */
+    font-weight: bold;
+    font-size: 20px;
+    user-select: none;          /* Prevents participants from highlighting text */
 }
 /* --- INPUTS --- */
 .input-area {
