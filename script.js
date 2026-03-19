@@ -31,9 +31,9 @@ let detailedLog = [], activeTask = null;
 let isExperimentFinished = false; 
 
 const TASKS = {
-    'numbers': { id: 'numbers', instruction: "Count the Zeros (0).", generator: (isT) => isT ? 0 : 1 },
-    'letters': { id: 'letters', instruction: "Count the letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
-    'shapes': { id: 'shapes', instruction: "Count the TRIANGLES (▲).", generator: (isT) => isT ? '▲' : '●' }
+    'numbers': { id: 'numbers', instruction: "Count the number of Zeros (0).", generator: (isT) => isT ? 0 : 1 },
+    'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
+    'shapes': { id: 'shapes', instruction: "Count the number of TRIANGLES (▲).", generator: (isT) => isT ? '▲' : '●' }
 };
 
 // --- VISIBILITY LISTENER (For tracking tab switches) ---
@@ -127,7 +127,7 @@ function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
     const gridSize = 8;
-    container.style.gridTemplateColumns = `repeat(${gridSize}, 40px)`;
+    container.style.gridTemplateColumns = `repeat(${gridSize}, 45px)`; // Cập nhật size
 
     for (let i = 0; i < 64; i++) {
         let isT = Math.random() > 0.5;
@@ -138,7 +138,7 @@ function generateMatrix() {
         
         if (activeTask.id === 'shapes') cell.style.fontSize = '20px'; 
         else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
-        else cell.style.fontSize = '20px';
+        else cell.style.fontSize = '22px';
 
         container.appendChild(cell);
     }
@@ -234,8 +234,18 @@ function endBlock(reason) {
 
 // --- SURVEYS & BREAKS ---
 function submitPostBlockSurvey() {
-    let earnSat = document.getElementById('block-earnings-satisfaction').value || "N/A";
-    let interest = document.getElementById('block-interest').value || "N/A";
+    let earnSatVal = document.getElementById('block-earnings-satisfaction').value;
+    let interestVal = document.getElementById('block-interest').value;
+
+    let earnSat = parseInt(earnSatVal);
+    let interest = parseInt(interestVal);
+
+    // --- VALIDATION CHECK ---
+    if (isNaN(earnSat) || earnSat < 1 || earnSat > 7 || 
+        isNaN(interest) || interest < 1 || interest > 7) {
+        alert("Please enter a valid number between 1 and 7 for both questions.");
+        return; 
+    }
 
     detailedLog.forEach(row => {
         if (row.block_number === currentBlock) {
@@ -287,9 +297,23 @@ function endBreak() {
 }
 
 function submitExitSurvey() {
+    let compVal = document.getElementById('survey-competitiveness').value;
+    let comp = parseInt(compVal);
+    let rememberedEarnings = document.getElementById('survey-remembered-earnings').value;
+
+    // --- VALIDATION CHECK ---
+    if (isNaN(comp) || comp < 1 || comp > 7) {
+        alert("Please enter a valid number between 1 and 7 for the Competitiveness question.");
+        return; 
+    }
+    if (rememberedEarnings.trim() === "") {
+        alert("Please estimate how much the previous participant earned.");
+        return; 
+    }
+
     const surveyData = {
-        competitiveness: document.getElementById('survey-competitiveness').value || "N/A",
-        remembered_earnings: document.getElementById('survey-remembered-earnings').value || "N/A", // NEW DATA HERE
+        competitiveness: comp,
+        remembered_earnings: rememberedEarnings,
         age: document.getElementById('survey-age').value || "N/A",
         gender: document.getElementById('survey-gender').value || "N/A",
         major: document.getElementById('survey-major').value || "N/A",
@@ -334,7 +358,7 @@ function saveDataToCloud() {
 
 // --- ACCIDENTAL EXIT PREVENTION (THE SHIELD) ---
 window.addEventListener("beforeunload", function (e) {
-    if (!isExperimentFinished && detailedLog.length > 0) {
+    if (!isExperimentFinished && participantId !== "") {
         e.preventDefault();
         e.returnValue = "Wait! Your experiment data is not saved yet. Are you sure you want to leave?";
     }
