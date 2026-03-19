@@ -119,33 +119,29 @@ button:hover:enabled {
         }
 
        /* --- BẢNG MATRIX MỚI (Thu nhỏ lại cho đẹp) --- */
-        #matrix-container {
-            display: grid;
-            gap: 6px; /* Thu nhỏ khoảng cách giữa các ô */
-            justify-content: center;
-            margin: 0 auto 20px auto;
-            border: none !important; 
-            background-color: transparent;
-        }
+#matrix-container {
+    display: grid;
+    gap: 6px;                  /* This creates the space between boxes */
+    justify-content: center;
+    margin: 0 auto 25px auto;
+    border: none !important;    /* This removes the big outer border */
+    background-color: transparent;
+}
 
-        .matrix-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;  /* Thu nhỏ từ 50px xuống 42px */
-            height: 42px; /* Thu nhỏ từ 50px xuống 42px */
-            border: 1px solid #777; 
-            border-radius: 6px !important; 
-            background-color: #fff;
-            font-family: "Courier New", Courier, monospace; 
-            font-weight: bold;
-            font-size: 20px; /* Thu nhỏ font chữ từ 24px xuống 20px */
-            color: #333;
-            margin: 0 !important;
-            box-sizing: border-box;
-            user-select: none; 
-        }
-
+.matrix-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;                /* Match this with your JS below */
+    height: 42px;
+    border: 1px solid #333;     /* The 1px border for each box */
+    border-radius: 4px;         /* The slight rounding */
+    background: #f9f9f9;
+    font-family: "Courier New", Courier, monospace; /* The font you wanted */
+    font-weight: bold;
+    font-size: 20px;
+    user-select: none;          /* Prevents participants from highlighting text */
+}
 /* --- INPUTS --- */
 .input-area {
     display: flex;
