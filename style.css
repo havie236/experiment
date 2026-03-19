@@ -118,27 +118,28 @@ button:hover:enabled {
     margin-top: 30px;
 }
 
-/* The container grid columns are now set via JS */
-#matrix-container {
-    display: grid;
-    gap: 0; /* Xóa khoảng trống giữa các ô */
-    border: 2px solid #333; /* Viền ngoài đậm cho ra dáng cái bảng */
-    margin: 0 auto;
-    width: fit-content;
-    background-color: #fff;
-}
+/* Rounded Grid CSS cho Matrix (Giống ảnh bạn gửi) */
+        #matrix-container {
+            display: grid;
+            gap: 8px; /* Tạo khoảng trống giữa các ô */
+            margin: 0 auto;
+            width: fit-content;
+            background-color: transparent;
+            border: none; /* Xóa viền đen to bên ngoài */
+        }
 
-.matrix-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 40px;
-    height: 40px;
-    border: 1px solid #ccc; /* Viền mỏng bên trong */
-    box-sizing: border-box;
-    border-radius: 0 !important; /* Ép bỏ góc bo tròn */
-    margin: 0 !important; /* Ép bỏ khoảng cách */
-}
+        .matrix-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 45px;
+            height: 45px;
+            border: 1px solid #888; 
+            box-sizing: border-box;
+            border-radius: 6px !important; /* Bo góc tròn tròn */
+            margin: 0 !important; 
+            background-color: #fafafa;
+        }
 
 /* --- INPUTS --- */
 .input-area {
