@@ -118,30 +118,28 @@ button:hover:enabled {
             margin-top: 30px;
         }
 
-      /* --- TRẢ LẠI MATRIX DESIGN "HÔM QUA" --- */
+    /* --- KHÔI PHỤC CHUẨN DESIGN THỨ 4 --- */
 #matrix-container {
     display: grid;
-    gap: 8px;                  /* Khoảng cách giữa các ô */
+    gap: 6px; /* Khoảng cách nhỏ giữa các ô */
     justify-content: center;
-    margin: 0 auto 25px auto;
-    border: none !important;    /* XOÁ SẠCH VIỀN ĐEN TO BAO QUANH */
-    background-color: transparent;
+    margin: 0 0 20px 0;
+    border: none !important; /* Xoá cái khung viền to bên ngoài */
 }
 
 .matrix-cell {
+    background: #f9f9f9;
+    border: 1px solid #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 42px;                /* Size chuẩn m ưng */
-    height: 42px;
-    border: 1px solid #333;     /* Viền đen mảnh cho từng ô */
-    border-radius: 4px;         /* Bo góc nhẹ */
-    background: #f9f9f9;
-    font-family: "Courier New", Courier, monospace; /* Font monospace xịn */
+    width: 42px;  /* Độ rộng ô chuẩn bản cũ */
+    height: 42px; /* Độ cao ô chuẩn bản cũ */
+    font-family: "Courier New", Courier, monospace; 
     font-weight: bold;
     font-size: 20px;
-    color: #333;
-    user-select: none;          /* Chống bôi đen text */
+    border-radius: 4px; /* Bo góc nhẹ 4px đúng bài */
+    user-select: none;
 }
 /* --- INPUTS --- */
 .input-area {
