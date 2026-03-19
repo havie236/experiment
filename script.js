@@ -1,11 +1,11 @@
 // --- CONFIGURATION ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSxCBpVQ1vBXkCJJjr2vKq5xtmFm8WwkHLI8uHMLFiVwdL8MSD496Znv_9JVGnvVLi3A/exec"; 
-const BLOCK_DURATION_SEC = 10 * 60; 
-const BREAK_DURATION_SEC = 120; // 2 minutes
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSxCBpVQ1vBXkCJJjr2vKq5xtmFm8WwkHLI8uHMLFiVwdL8MSD496Znv_9JVGnvVLi3A/exec"; // <--- PASTE YOUR URL HERE
+const BLOCK_DURATION_SEC = 20 * 60; // 20 minutes per session
+const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
-const PAY_PER_MATRIX = 2000;        
+const PAY_PER_CORRECT = 2000;       
 
-// --- CODE MAPPING ---
+// --- CODE MAPPING (1-6) ---
 const CODE_LOGIC = {
     "1": [{ t: 'numbers', c: 'Baseline' }, { t: 'shapes', c: 'High' }, { t: 'letters', c: 'Low' }],
     "2": [{ t: 'numbers', c: 'High' }, { t: 'shapes', c: 'Low' }, { t: 'letters', c: 'Baseline' }],
@@ -15,17 +15,19 @@ const CODE_LOGIC = {
     "6": [{ t: 'shapes', c: 'Low' }, { t: 'letters', c: 'Baseline' }, { t: 'numbers', c: 'High' }]
 };
 
-// --- STATE ---
+// --- STATE VARIABLES ---
 let participantId = ""; 
 let assignedCode = "";
+let assignedCondition = ""; 
 let currentSessionConfig = [];
 let currentBlock = 1;
-let blockEarnings = 0;
+let correctCount = 0; 
 let totalEarningsGlobal = 0; 
 let timerInterval, breakTimerInterval;
 let matrixStartTime = 0, blockStartTime = 0;
 let currentTargetCount = 0, attemptGlobalCounter = 0; 
-let matrixTabSwitches = 0, matrixSwitchHistory = [], detailedLog = [], activeTask = null;
+let matrixTabSwitches = 0, matrixSwitchHistory = [];
+let detailedLog = [], activeTask = null;
 
 const TASKS = {
     'numbers': { id: 'numbers', instruction: "Count the Zeros (0).", generator: (isT) => isT ? 0 : 1 },
@@ -33,17 +35,52 @@ const TASKS = {
     'shapes': { id: 'shapes', instruction: "Count the TRIANGLES (▲).", generator: (isT) => isT ? '▲' : '●' }
 };
 
+// --- VISIBILITY LISTENER (For tracking tab switches) ---
+document.addEventListener("visibilitychange", () => {
+    const taskScreen = document.getElementById('screen-task');
+    if (!taskScreen || taskScreen.classList.contains('hidden')) return;
+
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-GB'); 
+
+    if (document.visibilityState === "hidden") {
+        matrixTabSwitches++;
+        matrixSwitchHistory.push(`OUT: ${timeString}`);
+    } else {
+        matrixSwitchHistory.push(`IN: ${timeString}`);
+    }
+});
+
+// --- NAVIGATION & UI ---
 function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.replace('active', 'hidden'));
-    document.getElementById(id).classList.replace('hidden', 'active');
+    document.querySelectorAll('.screen').forEach(s => {
+        s.classList.remove('active');
+        s.classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+    document.getElementById(id).classList.add('active');
 }
 
+function toggleSubmitButton() {
+    const input = document.getElementById('user-answer').value;
+    const btn = document.getElementById('submit-matrix-btn');
+    btn.disabled = input === "";
+    btn.style.opacity = input === "" ? "0.5" : "1";
+    btn.style.cursor = input === "" ? "not-allowed" : "pointer";
+}
+
+function updateCorrectUI() { 
+    document.getElementById('current-correct').innerText = correctCount; 
+}
+
+// --- EXPERIMENT FLOW ---
 function startExperiment() {
     assignedCode = document.getElementById('user-code-input').value.trim();
     if (!CODE_LOGIC[assignedCode]) return alert("Please enter a valid code (1-6).");
 
     currentSessionConfig = CODE_LOGIC[assignedCode];
     participantId = `P_Code${assignedCode}_${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
+    
     totalEarningsGlobal = 0; 
     currentBlock = 1;
     detailedLog = []; 
@@ -53,15 +90,19 @@ function startExperiment() {
 function handleSessionTransition() {
     const session = currentSessionConfig[currentBlock - 1];
     activeTask = TASKS[session.t];
-    const condition = session.c;
+    assignedCondition = session.c;
 
-    if (condition === 'High') {
-        document.getElementById('treatment-message').innerHTML = "On average, Fulbright students complete <strong>15 matrices</strong> and earn around <strong>30,000 VND</strong>.";
+    // TREATMENT MESSAGES
+    if (assignedCondition === 'High') {
+        document.getElementById('treatment-message').innerHTML = 
+            "On average, Fulbright students completed <strong>15 correct counts</strong> and earned around <strong>30,000 VND</strong>.";
         showScreen('screen-treatment');
-    } else if (condition === 'Low') {
-        document.getElementById('treatment-message').innerHTML = "On average, Fulbright students complete <strong>6 matrices</strong> and earn around <strong>14,000 VND</strong>.";
+    } else if (assignedCondition === 'Low') {
+        document.getElementById('treatment-message').innerHTML = 
+            "On average, Fulbright students completed <strong>6 correct counts</strong> and earned around <strong>14,000 VND</strong>.";
         showScreen('screen-treatment');
     } else {
+        // Baseline: skip treatment screen
         setupBlockIntro();
     }
 }
@@ -73,14 +114,16 @@ function setupBlockIntro() {
 
 function startBlock() {
     showScreen('screen-task');
-    blockEarnings = 0; 
+    correctCount = 0; 
+    document.getElementById('block-progress').innerText = `${currentBlock}/3`;
     document.getElementById('task-instruction-label').innerText = activeTask.instruction;
-    updateEarningsUI();
+    updateCorrectUI();
     generateMatrix(); 
     blockStartTime = Date.now(); 
     startTimer(BLOCK_DURATION_SEC);
 }
 
+// --- TASK LOGIC ---
 function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
@@ -96,91 +139,172 @@ function generateMatrix() {
         container.appendChild(cell);
     }
     matrixStartTime = Date.now();
-    document.getElementById('user-answer').value = '';
-    document.getElementById('user-answer').focus();
+    const input = document.getElementById('user-answer');
+    input.value = '';
+    input.focus();
     toggleSubmitButton();
 }
 
 function checkAnswer() {
     const val = parseInt(document.getElementById('user-answer').value);
     if (isNaN(val)) return;
+    
     const isCorrect = (val === currentTargetCount);
     const duration = (Date.now() - matrixStartTime) / 1000;
     attemptGlobalCounter++;
 
     detailedLog.push({
-        participant_id: participantId, attempt_id: attemptGlobalCounter, block_number: currentBlock,
-        condition: currentSessionConfig[currentBlock-1].c, task_type: activeTask.id,
-        user_guess: val, actual_answer: currentTargetCount, is_correct: isCorrect,
-        time_spent_seconds: duration.toFixed(3), timestamp: new Date().toISOString()
+        participant_id: participantId,
+        attempt_id: attemptGlobalCounter,
+        block_number: currentBlock,
+        condition: assignedCondition, // <--- FIXED: NOW SAVES HIGH, LOW, OR BASELINE
+        task_type: activeTask.id,
+        user_guess: val,
+        actual_answer: currentTargetCount,
+        is_correct: isCorrect,
+        time_spent_seconds: duration.toFixed(3),
+        tab_switches_count: matrixTabSwitches,
+        switch_history: matrixSwitchHistory.join(" | "),
+        timestamp: new Date().toISOString()
     });
 
-    if (isCorrect) { blockEarnings += PAY_PER_MATRIX; updateEarningsUI(); alert("Correct!"); }
-    else alert(`Incorrect. It was ${currentTargetCount}.`);
+    if (isCorrect) { 
+        correctCount++; 
+        updateCorrectUI(); 
+        alert("Correct!"); 
+    } else {
+        alert(`Incorrect. The actual correct answer was ${currentTargetCount}.`);
+    }
     generateMatrix();
 }
 
-function updateEarningsUI() { document.getElementById('current-earnings').innerText = blockEarnings.toLocaleString(); }
-
+// --- TIMERS & NAVIGATION ---
 function startTimer(sec) {
     let left = sec;
     clearInterval(timerInterval);
-    timerInterval = setInterval(() => { left--; if (left <= 0) endBlock('time_out'); }, 1000);
+    timerInterval = setInterval(() => { 
+        left--; 
+        if (left <= 0) endBlock('time_out'); 
+    }, 1000);
 }
 
-function stopEarly() { if (confirm("Stop this session early?")) endBlock('manual'); }
+function stopEarly() { 
+    if (confirm("Are you sure you want to stop this session and move to the next step?")) {
+        endBlock('manual'); 
+    }
+}
 
 function endBlock(reason) {
     clearInterval(timerInterval);
-    totalEarningsGlobal += blockEarnings;
-    if (currentBlock < MAX_BLOCKS) { currentBlock++; startBreak(); }
-    else showScreen('screen-exit-survey');
+    
+    // Log final attempt as abandoned
+    const duration = (Date.now() - matrixStartTime) / 1000;
+    attemptGlobalCounter++;
+    detailedLog.push({
+        participant_id: participantId,
+        attempt_id: attemptGlobalCounter,
+        block_number: currentBlock,
+        condition: assignedCondition, // <--- FIXED HERE TOO
+        task_type: activeTask.id,
+        user_guess: "ABANDONED",
+        actual_answer: currentTargetCount,
+        is_correct: "FALSE",
+        time_spent_seconds: duration.toFixed(3),
+        tab_switches_count: matrixTabSwitches,
+        switch_history: matrixSwitchHistory.join(" | "),
+        timestamp: new Date().toISOString()
+    });
+
+    totalEarningsGlobal += (correctCount * PAY_PER_CORRECT);
+    let finalBlockDur = (Date.now() - blockStartTime) / 1000;
+
+    detailedLog.forEach(row => {
+        if (row.block_number === currentBlock) {
+            row.block_total_duration = finalBlockDur.toFixed(2);
+        }
+    });
+
+    if (reason === 'time_out') alert("Time is up for this session!");
+
+    if (currentBlock < MAX_BLOCKS) { 
+        currentBlock++; 
+        startBreak(); 
+    } else { 
+        showScreen('screen-exit-survey'); 
+    }
 }
 
 function startBreak() {
     showScreen('screen-break');
     let left = BREAK_DURATION_SEC;
     const btn = document.getElementById('end-break-btn');
+    const display = document.getElementById('break-timer-display');
+    
     btn.disabled = true;
+    btn.style.opacity = "0.5";
+    btn.innerText = "Wait for timer...";
+
     clearInterval(breakTimerInterval);
     breakTimerInterval = setInterval(() => {
         let m = Math.floor(left / 60).toString().padStart(2, '0');
         let s = (left % 60).toString().padStart(2, '0');
-        document.getElementById('break-timer-display').innerText = `${m}:${s}`;
-        if (left <= 0) { clearInterval(breakTimerInterval); btn.disabled = false; btn.style.opacity = "1"; btn.innerText = "Continue"; }
+        display.innerText = `${m}:${s}`;
+
+        if (left <= 0) { 
+            clearInterval(breakTimerInterval); 
+            btn.disabled = false; 
+            btn.style.opacity = "1"; 
+            btn.innerText = "Continue to Next Session"; 
+            btn.style.cursor = "pointer";
+        }
         left--;
     }, 1000);
 }
 
-function endBreak() { handleSessionTransition(); }
+function endBreak() { 
+    handleSessionTransition(); 
+}
 
+// --- DATA SUBMISSION ---
 function submitExitSurvey() {
-    const data = {
-        sat: document.getElementById('survey-satisfaction').value,
-        bor: document.getElementById('survey-boredom').value,
-        dist: document.getElementById('survey-distraction').value,
-        age: document.getElementById('survey-age').value,
-        gen: document.getElementById('survey-gender').value,
-        maj: document.getElementById('survey-major').value,
-        yr: document.getElementById('survey-year').value
+    const surveyData = {
+        satisfaction: document.getElementById('survey-satisfaction').value || "N/A",
+        boredom: document.getElementById('survey-boredom').value || "N/A",
+        distraction: document.getElementById('survey-distraction').value || "N/A",
+        age: document.getElementById('survey-age').value || "N/A",
+        gender: document.getElementById('survey-gender').value || "N/A",
+        major: document.getElementById('survey-major').value || "N/A",
+        year_study: document.getElementById('survey-year').value || "N/A"
     };
-    detailedLog.forEach(row => { Object.assign(row, data); row.grand_total_earnings = totalEarningsGlobal; });
+
+    detailedLog.forEach(row => { 
+        Object.assign(row, surveyData); 
+        row.grand_total_earnings = totalEarningsGlobal; 
+    });
+
     showScreen('screen-end');
     document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
 }
 
 function saveDataToCloud() {
-    fetch(GOOGLE_SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(detailedLog) })
+    const saveBtn = document.getElementById('save-data-btn');
+    saveBtn.innerText = "Saving, please wait...";
+    saveBtn.disabled = true;
+
+    fetch(GOOGLE_SCRIPT_URL, { 
+        method: "POST", 
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+        body: JSON.stringify(detailedLog) 
+    })
     .then(() => { 
-        document.getElementById('save-data-btn').style.display = "none";
+        saveBtn.style.display = "none";
         document.getElementById('save-status-msg').style.display = "block";
         document.getElementById('earnings-display-area').style.display = "block";
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Error saving to cloud. Please download the CSV backup if available.");
+        saveBtn.innerText = "Error - Try Again";
+        saveBtn.disabled = false;
     });
-}
-
-function toggleSubmitButton() {
-    const input = document.getElementById('user-answer').value;
-    const btn = document.getElementById('submit-matrix-btn');
-    btn.disabled = input === "";
-    btn.style.opacity = input === "" ? "0.5" : "1";
 }
