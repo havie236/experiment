@@ -118,13 +118,13 @@ button:hover:enabled {
             margin-top: 30px;
         }
 
-       /* --- BẢNG MATRIX MỚI (Thu nhỏ lại cho đẹp) --- */
+      /* --- TRẢ LẠI MATRIX DESIGN "HÔM QUA" --- */
 #matrix-container {
     display: grid;
-    gap: 6px;                  /* This creates the space between boxes */
+    gap: 8px;                  /* Khoảng cách giữa các ô */
     justify-content: center;
     margin: 0 auto 25px auto;
-    border: none !important;    /* This removes the big outer border */
+    border: none !important;    /* XOÁ SẠCH VIỀN ĐEN TO BAO QUANH */
     background-color: transparent;
 }
 
@@ -132,15 +132,16 @@ button:hover:enabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 42px;                /* Match this with your JS below */
+    width: 42px;                /* Size chuẩn m ưng */
     height: 42px;
-    border: 1px solid #333;     /* The 1px border for each box */
-    border-radius: 4px;         /* The slight rounding */
+    border: 1px solid #333;     /* Viền đen mảnh cho từng ô */
+    border-radius: 4px;         /* Bo góc nhẹ */
     background: #f9f9f9;
-    font-family: "Courier New", Courier, monospace; /* The font you wanted */
+    font-family: "Courier New", Courier, monospace; /* Font monospace xịn */
     font-weight: bold;
     font-size: 20px;
-    user-select: none;          /* Prevents participants from highlighting text */
+    color: #333;
+    user-select: none;          /* Chống bôi đen text */
 }
 /* --- INPUTS --- */
 .input-area {
