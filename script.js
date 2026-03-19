@@ -126,8 +126,6 @@ function startBlock() {
 function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
-    const gridSize = 8;
-    container.style.gridTemplateColumns = `repeat(${gridSize}, 45px)`; // Cập nhật size
 
     for (let i = 0; i < 64; i++) {
         let isT = Math.random() > 0.5;
