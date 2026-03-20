@@ -182,11 +182,17 @@ function checkAnswer() {
 
 // --- TIMERS & NAVIGATION ---
 function startTimer(sec) {
-    let left = sec;
+    let endTime = Date.now() + (sec * 1000); // Lấy mốc thời gian thực để chốt sổ
+    
     clearInterval(timerInterval);
     timerInterval = setInterval(() => { 
-        left--; 
-        if (left <= 0) endBlock('time_out'); 
+        // Tính thời gian còn lại dựa trên đồng hồ thật của máy tính
+        let left = Math.round((endTime - Date.now()) / 1000); 
+        
+        if (left <= 0) { 
+            clearInterval(timerInterval);
+            endBlock('time_out'); 
+        }
     }, 1000);
 }
 
@@ -264,7 +270,10 @@ function submitPostBlockSurvey() {
 
 function startBreak() {
     showScreen('screen-break');
-    let left = BREAK_DURATION_SEC;
+    
+    let durationSec = BREAK_DURATION_SEC;
+    let endTime = Date.now() + (durationSec * 1000); // Chốt mốc thời gian kết thúc
+    
     const btn = document.getElementById('end-break-btn');
     const display = document.getElementById('break-timer-display');
     
@@ -272,21 +281,31 @@ function startBreak() {
     btn.style.opacity = "0.5";
     btn.innerText = "Wait for timer...";
 
+    // Hiện ngay số 02:00 ở giây đầu tiên cho đẹp
+    let mInit = Math.floor(durationSec / 60).toString().padStart(2, '0');
+    let sInit = (durationSec % 60).toString().padStart(2, '0');
+    display.innerText = `${mInit}:${sInit}`;
+
     clearInterval(breakTimerInterval);
+    
+    // Tớ để interval là 500ms (nửa giây) check 1 lần cho giao diện đếm mượt hơn, 
+    // không bao giờ bị hiện tượng nhảy cóc giây.
     breakTimerInterval = setInterval(() => {
-        let m = Math.floor(left / 60).toString().padStart(2, '0');
-        let s = (left % 60).toString().padStart(2, '0');
-        display.innerText = `${m}:${s}`;
+        let left = Math.round((endTime - Date.now()) / 1000);
 
         if (left <= 0) { 
+            left = 0; // Ép về 0 để lỡ bị lag nó không hiện số âm (ví dụ -00:01)
             clearInterval(breakTimerInterval); 
             btn.disabled = false; 
             btn.style.opacity = "1"; 
             btn.innerText = "Continue to Next Session"; 
             btn.style.cursor = "pointer";
         }
-        left--;
-    }, 1000);
+        
+        let m = Math.floor(left / 60).toString().padStart(2, '0');
+        let s = (left % 60).toString().padStart(2, '0');
+        display.innerText = `${m}:${s}`;
+    }, 500); 
 }
 
 function endBreak() { 
