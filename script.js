@@ -3,7 +3,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx
 const BLOCK_DURATION_SEC = 20 * 60; // 20 minutes per session
 const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
-const PAY_PER_CORRECT = 2000;       
+const PAY_PER_CORRECT = 1500;       
 
 // --- CODE MAPPING (1-6) ---
 const CODE_LOGIC = {
@@ -95,11 +95,11 @@ function handleSessionTransition() {
 
     if (assignedCondition === 'High') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, Fulbright students completed <strong>15 correct counts</strong> and earned around <strong>30,000 VND</strong>.";
+            "On average, previous participants at Fulbright earned <strong>30,000 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else if (assignedCondition === 'Low') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, Fulbright students completed <strong>6 correct counts</strong> and earned around <strong>14,000 VND</strong>.";
+            "On average, previous participants at Fulbright earned <strong>12,000 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else {
         setupBlockIntro();
