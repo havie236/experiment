@@ -95,11 +95,11 @@ function handleSessionTransition() {
 
     if (assignedCondition === 'High') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>30,000 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>24,000 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else if (assignedCondition === 'Low') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>12,000 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>15,000 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else {
         setupBlockIntro();
