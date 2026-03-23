@@ -1,6 +1,6 @@
 // --- CONFIGURATION ---
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx0l8Ce2U6qaRI_bgKu97nWOa3yW2TEETgG4JYU1lK_q4FrHoJZRQvkQ3Q/exec"; 
-const BLOCK_DURATION_SEC = 20 * 60; // 20 minutes per session
+const BLOCK_DURATION_SEC = 15 * 60; // 15 minutes per session
 const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
 const PAY_PER_CORRECT = 1500;       
@@ -95,7 +95,7 @@ function handleSessionTransition() {
 
     if (assignedCondition === 'High') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>24,000 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>22,500 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else if (assignedCondition === 'Low') {
         document.getElementById('treatment-message').innerHTML = 
