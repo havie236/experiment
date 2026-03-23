@@ -71,7 +71,7 @@ function toggleSubmitButton() {
 }
 
 function updateCorrectUI() { 
-    document.getElementById('current-correct').innerText = correctCount; 
+    document.getElementById('current-earnings').innerText = (correctCount * PAY_PER_CORRECT).toLocaleString(); 
 }
 
 // --- EXPERIMENT FLOW ---
@@ -182,11 +182,10 @@ function checkAnswer() {
 
 // --- TIMERS & NAVIGATION ---
 function startTimer(sec) {
-    let endTime = Date.now() + (sec * 1000); // Lấy mốc thời gian thực để chốt sổ
+    let endTime = Date.now() + (sec * 1000); 
     
     clearInterval(timerInterval);
     timerInterval = setInterval(() => { 
-        // Tính thời gian còn lại dựa trên đồng hồ thật của máy tính
         let left = Math.round((endTime - Date.now()) / 1000); 
         
         if (left <= 0) { 
@@ -244,7 +243,6 @@ function submitPostBlockSurvey() {
     let earnSat = parseInt(earnSatVal);
     let interest = parseInt(interestVal);
 
-    // --- VALIDATION CHECK ---
     if (isNaN(earnSat) || earnSat < 1 || earnSat > 7 || 
         isNaN(interest) || interest < 1 || interest > 7) {
         alert("Please enter a valid number between 1 and 7 for both questions.");
@@ -272,7 +270,7 @@ function startBreak() {
     showScreen('screen-break');
     
     let durationSec = BREAK_DURATION_SEC;
-    let endTime = Date.now() + (durationSec * 1000); // Chốt mốc thời gian kết thúc
+    let endTime = Date.now() + (durationSec * 1000); 
     
     const btn = document.getElementById('end-break-btn');
     const display = document.getElementById('break-timer-display');
@@ -281,20 +279,17 @@ function startBreak() {
     btn.style.opacity = "0.5";
     btn.innerText = "Wait for timer...";
 
-    // Hiện ngay số 02:00 ở giây đầu tiên cho đẹp
     let mInit = Math.floor(durationSec / 60).toString().padStart(2, '0');
     let sInit = (durationSec % 60).toString().padStart(2, '0');
     display.innerText = `${mInit}:${sInit}`;
 
     clearInterval(breakTimerInterval);
     
-    // Tớ để interval là 500ms (nửa giây) check 1 lần cho giao diện đếm mượt hơn, 
-    // không bao giờ bị hiện tượng nhảy cóc giây.
     breakTimerInterval = setInterval(() => {
         let left = Math.round((endTime - Date.now()) / 1000);
 
         if (left <= 0) { 
-            left = 0; // Ép về 0 để lỡ bị lag nó không hiện số âm (ví dụ -00:01)
+            left = 0; 
             clearInterval(breakTimerInterval); 
             btn.disabled = false; 
             btn.style.opacity = "1"; 
@@ -318,7 +313,6 @@ function submitExitSurvey() {
     let comp = parseInt(compVal);
     let rememberedEarnings = document.getElementById('survey-remembered-earnings').value;
 
-    // --- VALIDATION CHECK ---
     if (isNaN(comp) || comp < 1 || comp > 7) {
         alert("Please enter a valid number between 1 and 7 for the Competitiveness question.");
         return; 
@@ -356,6 +350,7 @@ function saveDataToCloud() {
 
     fetch(GOOGLE_SCRIPT_URL, { 
         method: "POST", 
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" }, 
         body: JSON.stringify(detailedLog) 
     })
