@@ -15,6 +15,12 @@ const CODE_LOGIC = {
     "6": [{ t: 'shapes', c: 'Low' }, { t: 'letters', c: 'Baseline' }, { t: 'numbers', c: 'High' }]
 };
 
+const TASKS = {
+    'numbers': { id: 'numbers', instruction: "Count the number of 3s.", generator: (isT) => isT ? 3 : 8 },
+    'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
+    'shapes': { id: 'shapes', instruction: "Count the number of regular triangles (▲).", generator: (isT) => isT ? '▲' : '◤' }
+};
+
 // --- STATE VARIABLES ---
 let participantId = ""; 
 let assignedCode = "";
@@ -30,13 +36,12 @@ let matrixTabSwitches = 0, matrixSwitchHistory = [];
 let detailedLog = [], activeTask = null;
 let isExperimentFinished = false; 
 
-const TASKS = {
-    'numbers': { id: 'numbers', instruction: "Count the number of 3s.", generator: (isT) => isT ? 3 : 8 },
-    'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
-    'shapes': { id: 'shapes', instruction: "Count the number of regular triangles (▲).", generator: (isT) => isT ? '▲' : '◤' }
-};
+// Biến cho Practice
+let practiceAttempt = 0;
+let practiceTargetCount = 0;
+const PRACTICE_TASKS = ['numbers', 'letters', 'shapes']; 
 
-// --- VISIBILITY LISTENER (For tracking tab switches) ---
+// --- VISIBILITY LISTENER ---
 document.addEventListener("visibilitychange", () => {
     const taskScreen = document.getElementById('screen-task');
     if (!taskScreen || taskScreen.classList.contains('hidden')) return;
@@ -85,9 +90,81 @@ function startExperiment() {
     totalEarningsGlobal = 0; 
     currentBlock = 1;
     detailedLog = []; 
-    handleSessionTransition();
+    
+    startPractice();
 }
 
+// --- PRACTICE LOGIC ---
+function startPractice() {
+    showScreen('screen-practice');
+    practiceAttempt = 0;
+    generatePracticeMatrix();
+}
+
+function generatePracticeMatrix() {
+    if (practiceAttempt >= 3) {
+        alert("Great! You have finished the practice round. Now the real experiment begins.");
+        handleSessionTransition();
+        return;
+    }
+
+    const taskKey = PRACTICE_TASKS[practiceAttempt];
+    const activePracticeTask = TASKS[taskKey];
+    
+    document.getElementById('practice-instruction-label').innerText = `Practice ${practiceAttempt + 1}/3: ${activePracticeTask.instruction}`;
+    
+    const container = document.getElementById('practice-matrix-container');
+    container.innerHTML = ''; 
+    practiceTargetCount = 0;
+
+    for (let i = 0; i < 16; i++) {
+        let isT = Math.random() > 0.5;
+        if (isT) practiceTargetCount++;
+        
+        let cell = document.createElement('div');
+        cell.className = 'matrix-cell'; 
+        cell.innerText = activePracticeTask.generator(isT);
+        
+        if (activePracticeTask.id === 'shapes') cell.style.fontSize = '20px'; 
+        else if (activePracticeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
+        else cell.style.fontSize = '22px';
+
+        container.appendChild(cell);
+    }
+    
+    container.style.display = "none";
+    container.offsetHeight; 
+    container.style.display = "grid";
+
+    const input = document.getElementById('practice-user-answer');
+    input.value = '';
+    input.focus();
+    togglePracticeSubmit();
+}
+
+function togglePracticeSubmit() {
+    const input = document.getElementById('practice-user-answer').value;
+    const btn = document.getElementById('submit-practice-btn');
+    btn.disabled = input === "";
+    btn.style.opacity = input === "" ? "0.5" : "1";
+    btn.style.cursor = input === "" ? "not-allowed" : "pointer";
+}
+
+function checkPracticeAnswer() {
+    const val = parseInt(document.getElementById('practice-user-answer').value);
+    if (isNaN(val)) return;
+    
+    if (val === practiceTargetCount) {
+        alert("Correct! Good job.");
+    } else {
+        alert(`Incorrect. You counted ${val}, but the actual correct answer was ${practiceTargetCount}.`);
+    }
+    
+    practiceAttempt++;
+    generatePracticeMatrix();
+}
+
+// --- REAL EXPERIMENT LOGIC ---
 function handleSessionTransition() {
     const session = currentSessionConfig[currentBlock - 1];
     activeTask = TASKS[session.t];
@@ -95,11 +172,11 @@ function handleSessionTransition() {
 
     if (assignedCondition === 'High') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at UEH-ISB earned <strong>22,500 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>22,500 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else if (assignedCondition === 'Low') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at UEH-ISB earned <strong>13,500 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>13,500 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else {
         setupBlockIntro();
@@ -122,7 +199,6 @@ function startBlock() {
     startTimer(BLOCK_DURATION_SEC);
 }
 
-// --- TASK LOGIC ---
 function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
@@ -140,6 +216,11 @@ function generateMatrix() {
 
         container.appendChild(cell);
     }
+    
+    container.style.display = "none";
+    container.offsetHeight; 
+    container.style.display = "grid";
+
     matrixStartTime = Date.now();
     const input = document.getElementById('user-answer');
     input.value = '';
@@ -180,7 +261,6 @@ function checkAnswer() {
     generateMatrix();
 }
 
-// --- TIMERS & NAVIGATION ---
 function startTimer(sec) {
     let endTime = Date.now() + (sec * 1000); 
     
@@ -196,7 +276,7 @@ function startTimer(sec) {
 }
 
 function stopEarly() { 
-    if (confirm("Are you sure you want to stop this session and move to the next step?")) {
+    if (confirm("Are you sure you want to try the next session?")) {
         endBlock('manual'); 
     }
 }
@@ -235,7 +315,6 @@ function endBlock(reason) {
     showScreen('screen-post-block');
 }
 
-// --- SURVEYS & BREAKS ---
 function submitPostBlockSurvey() {
     let earnSatVal = document.getElementById('block-earnings-satisfaction').value;
     let interestVal = document.getElementById('block-interest').value;
@@ -340,7 +419,6 @@ function submitExitSurvey() {
     document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
 }
 
-// --- DATA SUBMISSION ---
 function saveDataToCloud() {
     isExperimentFinished = true; 
     
@@ -368,7 +446,6 @@ function saveDataToCloud() {
     });
 }
 
-// --- ACCIDENTAL EXIT PREVENTION (THE SHIELD) ---
 window.addEventListener("beforeunload", function (e) {
     if (!isExperimentFinished && participantId !== "") {
         e.preventDefault();
