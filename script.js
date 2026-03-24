@@ -31,9 +31,9 @@ let detailedLog = [], activeTask = null;
 let isExperimentFinished = false; 
 
 const TASKS = {
-    'numbers': { id: 'numbers', instruction: "Count the number of Zeros (0).", generator: (isT) => isT ? 0 : 1 },
+    'numbers': { id: 'numbers', instruction: "Count the number of 3s.", generator: (isT) => isT ? 3 : 8 },
     'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
-    'shapes': { id: 'shapes', instruction: "Count the number of TRIANGLES (▲).", generator: (isT) => isT ? '▲' : '●' }
+    'shapes': { id: 'shapes', instruction: "Count the number of regular triangles (▲).", generator: (isT) => isT ? '▲' : '◤' }
 };
 
 // --- VISIBILITY LISTENER (For tracking tab switches) ---
