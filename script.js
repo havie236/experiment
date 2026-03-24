@@ -17,7 +17,7 @@ const CODE_LOGIC = {
 
 const TASKS = {
     'numbers': { id: 'numbers', instruction: "Count the number of 1s.", generator: (isT) => isT ? 1 : 0 },
-    'letters': { id: 'letters', instruction: "Count the number of letter 'C'.", generator: (isT) => isT ? 'C' : (Math.random() > 0.5 ? 'C' : 'O') },
+    'letters': { id: 'letters', instruction: "Count the number of letter 'm'.", generator: (isT) => isT ? 'm' : 'w' },
     'shapes': { id: 'shapes', instruction: "Count the number of UP-pointing triangles (▲).", generator: (isT) => isT ? '▲' : '▼' }
 };
 
