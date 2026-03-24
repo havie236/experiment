@@ -16,9 +16,9 @@ const CODE_LOGIC = {
 };
 
 const TASKS = {
-    'numbers': { id: 'numbers', instruction: "Count the number of 3s.", generator: (isT) => isT ? 3 : 8 },
-    'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
-    'shapes': { id: 'shapes', instruction: "Count the number of regular triangles (▲).", generator: (isT) => isT ? '▲' : '◤' }
+    'numbers': { id: 'numbers', instruction: "Count the number of 1s.", generator: (isT) => isT ? 1 : 0 },
+    'letters': { id: 'letters', instruction: "Count the number of letter 'C'.", generator: (isT) => isT ? 'C' : (Math.random() > 0.5 ? 'C' : 'O') },
+    'shapes': { id: 'shapes', instruction: "Count the number of UP-pointing triangles (▲).", generator: (isT) => isT ? '▲' : '▼' }
 };
 
 // --- STATE VARIABLES ---
@@ -203,9 +203,24 @@ function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
 
+    // 1. Chốt số lượng đáp án đúng (random từ 20 đến 35)
+    currentTargetCount = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
+
+    // 2. Tạo mảng chứa ĐÚNG số lượng target và chim mồi
+    let cellTypes = Array(64).fill(false);
+    for (let i = 0; i < currentTargetCount; i++) {
+        cellTypes[i] = true;
+    }
+
+    // 3. Xào bài (Shuffle) thuật toán Fisher-Yates để rải ngẫu nhiên vị trí
+    for (let i = cellTypes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [cellTypes[i], cellTypes[j]] = [cellTypes[j], cellTypes[i]];
+    }
+
+    // 4. Đổ ra màn hình
     for (let i = 0; i < 64; i++) {
-        let isT = Math.random() > 0.5;
-        if (isT) currentTargetCount++;
+        let isT = cellTypes[i];
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
         cell.innerText = activeTask.generator(isT);
@@ -227,7 +242,6 @@ function generateMatrix() {
     input.focus();
     toggleSubmitButton();
 }
-
 function checkAnswer() {
     const val = parseInt(document.getElementById('user-answer').value);
     if (isNaN(val)) return;
