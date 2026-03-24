@@ -41,10 +41,10 @@
             <p>Thank you for participating in this experiment.</p>
             <p>In this task, you will be asked to count specific items. You may be asked to:</p>
             
-            <ul style="margin-bottom: 20px;">
-                <li>Count the number of threes (3) in a table containing 3 and 8</li>
-                <li>Count the number of letters “E” in a table containing E and F</li>
-                <li>Count the number of regular triangles (▲) in a table containing regular and tilted triangles (◤)</li>
+           <ul style="margin-bottom: 20px;">
+                <li>Count the number of ones (<strong>1</strong>) in a table containing 1s and 0s</li>
+                <li>Count the number of letters <strong>“m”</strong> in a table containing m and w</li>
+                <li>Count the number of UP-pointing triangles <strong>(▲)</strong> in a table containing UP (▲) and DOWN (▼) triangles</li>
             </ul>
 
             <div style="display: flex; justify-content: space-between; gap: 15px; margin: 20px 0;">
@@ -158,7 +158,10 @@
 
     <div id="screen-break" class="screen hidden">
         <h2>Break Time</h2>
-        <p>Please take a 2-minute mandatory break to rest your eyes.</p>
+        <p style="font-size: 18px; max-width: 600px; margin: 0 auto; line-height: 1.6; color: #555;">
+            Please take a short break. At least 2 minutes!<br><br>
+            <span style="font-weight: bold; color: #2557a7;">You may take more time if you want to rest your eyes, and please get back whenever you're ready.</span>
+        </p>
         <h3 id="break-timer-display" style="font-size: 48px; color: #d9534f; margin: 30px 0;">02:00</h3>
         <button id="end-break-btn" onclick="endBreak()" disabled style="opacity: 0.5; padding: 12px 30px; font-size: 18px;">Wait for timer...</button>
     </div>
