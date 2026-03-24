@@ -103,7 +103,6 @@
        <h3 id="task-instruction-label" style="margin: 15px 0; color: #333;"></h3>
        
        <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 60px; width: 100%; margin-top: 10px;">
-           
            <div style="flex: 1; max-width: 250px;"></div>
 
            <div class="matrix-area" style="margin-top: 0;">
@@ -116,16 +115,21 @@
                </div>
            </div>
 
-           <div style="flex: 1; max-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;">
+           <div style="flex: 1; max-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
                
-               <div style="font-size: 20px; color: #888; font-weight: bold; background: #fff; padding: 8px 20px; border-radius: 5px; border: 1px solid #ddd; margin: 0; text-align: center; width: 100%; box-sizing: border-box;">
-                   <span id="block-progress">1/3</span>
+               <div style="font-size: 14px; color: #888; font-weight: bold; text-align: center; width: 100%;">
+                   Session No: <span id="block-progress">1/3</span>
                </div>
-
-               <button id="btn-stop-working" onclick="stopEarly()" style="margin: 0; background-color: #28a745; border: none; color: white; cursor: pointer; padding: 15px 10px; border-radius: 6px; transition: 0.2s; font-weight: bold; font-size: 16px; width: 100%; box-sizing: border-box;">Try the next session</button>
+               
+               <button id="btn-stop-working" onclick="stopEarly()" 
+                       onmousedown="this.style.backgroundColor='#7bc087'; this.style.color='white'; this.style.borderColor='#7bc087';" 
+                       onmouseup="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
+                       style="margin: 0; background-color: transparent; border: 1px solid #ccc; color: #888; cursor: pointer; padding: 12px 10px; border-radius: 6px; transition: 0.1s; font-weight: bold; font-size: 14px; width: 100%; box-sizing: border-box;">
+                   Try the next session
+               </button>
 
            </div>
-
        </div>
        
        <hr style="width: 80%; margin: 30px 0 20px 0; border: none; border-top: 1px solid #ccc;">
