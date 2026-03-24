@@ -97,27 +97,16 @@
         <button class="start-session-btn" onclick="startBlock()" style="padding: 15px 40px; font-size: 20px;">Start Session</button>
     </div>
 
-    <div id="screen-task" class="screen hidden">
-       <div id="score-display" style="font-size: 24px; font-weight: bold; margin-top: 20px; color: #28a745;"> Earnings: <span id="current-earnings">0</span> VND </div>
+  <div id="screen-task" class="screen hidden">
        
-       <h3 id="task-instruction-label" style="margin: 15px 0; color: #333;"></h3>
-       
-       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 60px; width: 100%; margin-top: 10px;">
-           <div style="flex: 1; max-width: 250px;"></div>
-
-           <div class="matrix-area" style="margin-top: 0;">
-               <div id="matrix-container"></div>
-               
-               <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                   <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
-                   <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
-                  <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="background-color: #3b5998; color: white; border: none; opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed;">Submit</button>
-               </div>
+       <div style="display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 800px; margin-top: 20px;">
+           
+           <div id="score-display" style="font-size: 24px; font-weight: bold; color: #28a745; margin: 0;"> 
+               Earnings: <span id="current-earnings">0</span> VND 
            </div>
 
-           <div style="flex: 1; max-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
-               
-               <div style="font-size: 14px; color: #888; font-weight: bold; text-align: center; width: 100%;">
+           <div style="display: flex; align-items: center; gap: 20px;">
+               <div style="font-size: 16px; color: #888; font-weight: bold; margin: 0;">
                    Session No: <span id="block-progress">1/3</span>
                </div>
                
@@ -125,10 +114,25 @@
                        onmousedown="this.style.backgroundColor='#7bc087'; this.style.color='white'; this.style.borderColor='#7bc087';" 
                        onmouseup="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
                        onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
-                       style="margin: 0; background-color: transparent; border: 1px solid #ccc; color: #888; cursor: pointer; padding: 12px 10px; border-radius: 6px; transition: 0.1s; font-weight: bold; font-size: 14px; width: 100%; box-sizing: border-box;">
+                       style="margin: 0; background-color: transparent; border: 1px solid #ccc; color: #888; cursor: pointer; padding: 10px 15px; border-radius: 6px; transition: 0.1s; font-weight: bold; font-size: 14px;">
                    Try the next session
                </button>
+           </div>
 
+       </div>
+       
+       <h3 id="task-instruction-label" style="margin: 20px 0; color: #333;"></h3>
+       
+       <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+           <div class="matrix-area" style="margin-top: 0;">
+               <div id="matrix-container"></div>
+               
+               <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                   <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
+                   <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
+                   
+                   <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="background-color: #3b5998; color: white; border: none; opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed;">Submit</button>
+               </div>
            </div>
        </div>
        
