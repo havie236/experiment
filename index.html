@@ -1,454 +1,208 @@
-// --- CONFIGURATION ---
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx0l8Ce2U6qaRI_bgKu97nWOa3yW2TEETgG4JYU1lK_q4FrHoJZRQvkQ3Q/exec"; 
-const BLOCK_DURATION_SEC = 15 * 60; // 15 minutes per session
-const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
-const MAX_BLOCKS = 3;               
-const PAY_PER_CORRECT = 1500;       
-
-// --- CODE MAPPING (1-6) ---
-const CODE_LOGIC = {
-    "1": [{ t: 'numbers', c: 'Baseline' }, { t: 'shapes', c: 'High' }, { t: 'letters', c: 'Low' }],
-    "2": [{ t: 'numbers', c: 'High' }, { t: 'shapes', c: 'Low' }, { t: 'letters', c: 'Baseline' }],
-    "3": [{ t: 'numbers', c: 'Low' }, { t: 'shapes', c: 'Baseline' }, { t: 'letters', c: 'High' }],
-    "4": [{ t: 'shapes', c: 'Baseline' }, { t: 'letters', c: 'High' }, { t: 'numbers', c: 'Low' }],
-    "5": [{ t: 'shapes', c: 'High' }, { t: 'letters', c: 'Low' }, { t: 'numbers', c: 'Baseline' }],
-    "6": [{ t: 'shapes', c: 'Low' }, { t: 'letters', c: 'Baseline' }, { t: 'numbers', c: 'High' }]
-};
-
-const TASKS = {
-    'numbers': { id: 'numbers', instruction: "Count the number of 3s.", generator: (isT) => isT ? 3 : 8 },
-    'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
-    'shapes': { id: 'shapes', instruction: "Count the number of regular triangles (▲).", generator: (isT) => isT ? '▲' : '◤' }
-};
-
-// --- STATE VARIABLES ---
-let participantId = ""; 
-let assignedCode = "";
-let assignedCondition = ""; 
-let currentSessionConfig = [];
-let currentBlock = 1;
-let correctCount = 0; 
-let totalEarningsGlobal = 0; 
-let timerInterval, breakTimerInterval;
-let matrixStartTime = 0, blockStartTime = 0;
-let currentTargetCount = 0, attemptGlobalCounter = 0; 
-let matrixTabSwitches = 0, matrixSwitchHistory = [];
-let detailedLog = [], activeTask = null;
-let isExperimentFinished = false; 
-
-// Biến cho Practice
-let practiceAttempt = 0;
-let practiceTargetCount = 0;
-const PRACTICE_TASKS = ['numbers', 'letters', 'shapes']; 
-
-// --- VISIBILITY LISTENER ---
-document.addEventListener("visibilitychange", () => {
-    const taskScreen = document.getElementById('screen-task');
-    if (!taskScreen || taskScreen.classList.contains('hidden')) return;
-
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-GB'); 
-
-    if (document.visibilityState === "hidden") {
-        matrixTabSwitches++;
-        matrixSwitchHistory.push(`OUT: ${timeString}`);
-    } else {
-        matrixSwitchHistory.push(`IN: ${timeString}`);
-    }
-});
-
-// --- NAVIGATION & UI ---
-function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => {
-        s.classList.remove('active');
-        s.classList.add('hidden');
-    });
-    document.getElementById(id).classList.remove('hidden');
-    document.getElementById(id).classList.add('active');
-}
-
-function toggleSubmitButton() {
-    const input = document.getElementById('user-answer').value;
-    const btn = document.getElementById('submit-matrix-btn');
-    btn.disabled = input === "";
-    btn.style.opacity = input === "" ? "0.5" : "1";
-    btn.style.cursor = input === "" ? "not-allowed" : "pointer";
-}
-
-function updateCorrectUI() { 
-    document.getElementById('current-earnings').innerText = (correctCount * PAY_PER_CORRECT).toLocaleString(); 
-}
-
-// --- EXPERIMENT FLOW ---
-function startExperiment() {
-    assignedCode = document.getElementById('user-code-input').value.trim();
-    if (!CODE_LOGIC[assignedCode]) return alert("Please enter a valid code (1-6).");
-
-    currentSessionConfig = CODE_LOGIC[assignedCode];
-    participantId = `P_Code${assignedCode}_${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-    
-    totalEarningsGlobal = 0; 
-    currentBlock = 1;
-    detailedLog = []; 
-    
-    startPractice();
-}
-
-// --- PRACTICE LOGIC ---
-function startPractice() {
-    showScreen('screen-practice');
-    practiceAttempt = 0;
-    generatePracticeMatrix();
-}
-
-function generatePracticeMatrix() {
-    if (practiceAttempt >= 3) {
-        alert("Great! You have finished the practice round. Now the real experiment begins.");
-        handleSessionTransition();
-        return;
-    }
-
-    const taskKey = PRACTICE_TASKS[practiceAttempt];
-    const activePracticeTask = TASKS[taskKey];
-    
-    document.getElementById('practice-instruction-label').innerText = `Practice ${practiceAttempt + 1}/3: ${activePracticeTask.instruction}`;
-    
-    const container = document.getElementById('practice-matrix-container');
-    container.innerHTML = ''; 
-    practiceTargetCount = 0;
-
-    for (let i = 0; i < 16; i++) {
-        let isT = Math.random() > 0.5;
-        if (isT) practiceTargetCount++;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Counting Task Experiment</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .hidden { display: none !important; }
+        .active { display: block; }
         
-        let cell = document.createElement('div');
-        cell.className = 'matrix-cell'; 
-        cell.innerText = activePracticeTask.generator(isT);
-        
-        if (activePracticeTask.id === 'shapes') cell.style.fontSize = '20px'; 
-        else if (activePracticeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
-        else cell.style.fontSize = '22px';
-
-        container.appendChild(cell);
-    }
-    
-    container.style.display = "none";
-    container.offsetHeight; 
-    container.style.display = "grid";
-
-    const input = document.getElementById('practice-user-answer');
-    input.value = '';
-    input.focus();
-    togglePracticeSubmit();
-}
-
-function togglePracticeSubmit() {
-    const input = document.getElementById('practice-user-answer').value;
-    const btn = document.getElementById('submit-practice-btn');
-    btn.disabled = input === "";
-    btn.style.opacity = input === "" ? "0.5" : "1";
-    btn.style.cursor = input === "" ? "not-allowed" : "pointer";
-}
-
-function checkPracticeAnswer() {
-    const val = parseInt(document.getElementById('practice-user-answer').value);
-    if (isNaN(val)) return;
-    
-    if (val === practiceTargetCount) {
-        alert("Correct! Good job.");
-    } else {
-        alert(`Incorrect. You counted ${val}, but the actual correct answer was ${practiceTargetCount}.`);
-    }
-    
-    practiceAttempt++;
-    generatePracticeMatrix();
-}
-
-// --- REAL EXPERIMENT LOGIC ---
-function handleSessionTransition() {
-    const session = currentSessionConfig[currentBlock - 1];
-    activeTask = TASKS[session.t];
-    assignedCondition = session.c;
-
-    if (assignedCondition === 'High') {
-        document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>22,500 VND</strong> from this task.";
-        showScreen('screen-treatment');
-    } else if (assignedCondition === 'Low') {
-        document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>13,500 VND</strong> from this task.";
-        showScreen('screen-treatment');
-    } else {
-        setupBlockIntro();
-    }
-}
-
-function setupBlockIntro() {
-    document.getElementById('block-title').innerText = `SESSION ${currentBlock} of 3`;
-    showScreen('screen-block-intro');
-}
-
-function startBlock() {
-    showScreen('screen-task');
-    correctCount = 0; 
-    document.getElementById('block-progress').innerText = `${currentBlock}/3`;
-    document.getElementById('task-instruction-label').innerText = activeTask.instruction;
-    updateCorrectUI();
-    generateMatrix(); 
-    blockStartTime = Date.now(); 
-    startTimer(BLOCK_DURATION_SEC);
-}
-
-function generateMatrix() {
-    const container = document.getElementById('matrix-container');
-    container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
-
-    for (let i = 0; i < 64; i++) {
-        let isT = Math.random() > 0.5;
-        if (isT) currentTargetCount++;
-        let cell = document.createElement('div');
-        cell.className = 'matrix-cell';
-        cell.innerText = activeTask.generator(isT);
-        
-        if (activeTask.id === 'shapes') cell.style.fontSize = '20px'; 
-        else if (activeTask.id === 'letters') { cell.style.fontSize = '22px'; cell.style.fontFamily = 'Arial, Helvetica, sans-serif'; }
-        else cell.style.fontSize = '22px';
-
-        container.appendChild(cell);
-    }
-    
-    container.style.display = "none";
-    container.offsetHeight; 
-    container.style.display = "grid";
-
-    matrixStartTime = Date.now();
-    const input = document.getElementById('user-answer');
-    input.value = '';
-    input.focus();
-    toggleSubmitButton();
-}
-
-function checkAnswer() {
-    const val = parseInt(document.getElementById('user-answer').value);
-    if (isNaN(val)) return;
-    
-    const isCorrect = (val === currentTargetCount);
-    const duration = (Date.now() - matrixStartTime) / 1000;
-    attemptGlobalCounter++;
-
-    detailedLog.push({
-        participant_id: participantId,
-        attempt_id: attemptGlobalCounter,
-        block_number: currentBlock,
-        condition: assignedCondition,
-        task_type: activeTask.id,
-        user_guess: val,
-        actual_answer: currentTargetCount,
-        is_correct: isCorrect,
-        time_spent_seconds: duration.toFixed(3),
-        tab_switches_count: matrixTabSwitches,
-        switch_history: matrixSwitchHistory.join(" | "),
-        timestamp: new Date().toISOString()
-    });
-
-    if (isCorrect) { 
-        correctCount++; 
-        updateCorrectUI(); 
-        alert("Correct!"); 
-    } else {
-        alert(`Incorrect. The actual correct answer was ${currentTargetCount}.`);
-    }
-    generateMatrix();
-}
-
-function startTimer(sec) {
-    let endTime = Date.now() + (sec * 1000); 
-    
-    clearInterval(timerInterval);
-    timerInterval = setInterval(() => { 
-        let left = Math.round((endTime - Date.now()) / 1000); 
-        
-        if (left <= 0) { 
-            clearInterval(timerInterval);
-            endBlock('time_out'); 
+        #screen-task, #screen-practice {
+            position: relative;
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-    }, 1000);
-}
+    </style>
+</head>
+<body>
 
-function stopEarly() { 
-    if (confirm("Are you sure you want to try the next session?")) {
-        endBlock('manual'); 
-    }
-}
-
-function endBlock(reason) {
-    clearInterval(timerInterval);
-    
-    const duration = (Date.now() - matrixStartTime) / 1000;
-    attemptGlobalCounter++;
-    detailedLog.push({
-        participant_id: participantId,
-        attempt_id: attemptGlobalCounter,
-        block_number: currentBlock,
-        condition: assignedCondition, 
-        task_type: activeTask.id,
-        user_guess: "ABANDONED",
-        actual_answer: currentTargetCount,
-        is_correct: "FALSE",
-        time_spent_seconds: duration.toFixed(3),
-        tab_switches_count: matrixTabSwitches,
-        switch_history: matrixSwitchHistory.join(" | "),
-        timestamp: new Date().toISOString()
-    });
-
-    totalEarningsGlobal += (correctCount * PAY_PER_CORRECT);
-    let finalBlockDur = (Date.now() - blockStartTime) / 1000;
-
-    detailedLog.forEach(row => {
-        if (row.block_number === currentBlock) {
-            row.block_total_duration = finalBlockDur.toFixed(2);
-        }
-    });
-
-    if (reason === 'time_out') alert("Time is up for this session!");
-
-    showScreen('screen-post-block');
-}
-
-function submitPostBlockSurvey() {
-    let earnSatVal = document.getElementById('block-earnings-satisfaction').value;
-    let interestVal = document.getElementById('block-interest').value;
-
-    let earnSat = parseInt(earnSatVal);
-    let interest = parseInt(interestVal);
-
-    if (isNaN(earnSat) || earnSat < 1 || earnSat > 7 || 
-        isNaN(interest) || interest < 1 || interest > 7) {
-        alert("Please enter a valid number between 1 and 7 for both questions.");
-        return; 
-    }
-
-    detailedLog.forEach(row => {
-        if (row.block_number === currentBlock) {
-            row.earnings_satisfaction = earnSat;
-            row.task_interest = interest;
-        }
-    });
-
-    document.getElementById('block-earnings-satisfaction').value = "";
-    document.getElementById('block-interest').value = "";
-
-    if (currentBlock < MAX_BLOCKS) { 
-        startBreak(); 
-    } else { 
-        showScreen('screen-exit-survey'); 
-    }
-}
-
-function startBreak() {
-    showScreen('screen-break');
-    
-    let durationSec = BREAK_DURATION_SEC;
-    let endTime = Date.now() + (durationSec * 1000); 
-    
-    const btn = document.getElementById('end-break-btn');
-    const display = document.getElementById('break-timer-display');
-    
-    btn.disabled = true;
-    btn.style.opacity = "0.5";
-    btn.innerText = "Wait for timer...";
-
-    let mInit = Math.floor(durationSec / 60).toString().padStart(2, '0');
-    let sInit = (durationSec % 60).toString().padStart(2, '0');
-    display.innerText = `${mInit}:${sInit}`;
-
-    clearInterval(breakTimerInterval);
-    
-    breakTimerInterval = setInterval(() => {
-        let left = Math.round((endTime - Date.now()) / 1000);
-
-        if (left <= 0) { 
-            left = 0; 
-            clearInterval(breakTimerInterval); 
-            btn.disabled = false; 
-            btn.style.opacity = "1"; 
-            btn.innerText = "Continue to Next Session"; 
-            btn.style.cursor = "pointer";
-        }
+    <div id="screen-intro" class="screen active">
+        <h1 style="text-transform: uppercase;">Instructions</h1>
         
-        let m = Math.floor(left / 60).toString().padStart(2, '0');
-        let s = (left % 60).toString().padStart(2, '0');
-        display.innerText = `${m}:${s}`;
-    }, 500); 
-}
+        <div style="text-align: left; max-width: 750px; margin: 0 auto; font-size: 16px;">
+            <p>Thank you for participating in this experiment.</p>
+            <p>In this task, you will be asked to count specific items. You may be asked to:</p>
+            
+            <ul style="margin-bottom: 20px;">
+                <li>Count the number of <strong>3s</strong> in a table containing 3s and 8s</li>
+                <li>Count the number of letter <strong>“E”</strong> in a table containing E and F</li>
+                <li>Count the number of regular triangles <strong>(▲)</strong> in a table containing normal and tilted triangles <strong>(◤)</strong></li>
+            </ul>
 
-function endBreak() { 
-    currentBlock++;
-    handleSessionTransition(); 
-}
+            <p>You will complete <strong>3 sessions</strong>. Each session lasts up to <strong>15 minutes</strong>, but you may stop a session and <strong>proceed to the next one</strong> at any time.</p>
+            <p>You will receive <strong>1,500 VND</strong> for each correct count.</p>
 
-function submitExitSurvey() {
-    let compVal = document.getElementById('survey-competitiveness').value;
-    let comp = parseInt(compVal);
-    let rememberedEarnings = document.getElementById('survey-remembered-earnings').value;
+            <div style="margin: 40px auto; padding: 25px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-align: center; max-width: 400px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 15px; font-size: 16px; color: #495057;">Enter your Experiment Code:</label>
+                
+                <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+                    <input type="text" id="user-code-input" placeholder="e.g. 1" style="padding: 10px; width: 100px; text-align: center; font-size: 18px; border: 2px solid #ced4da; border-radius: 4px; margin: 0;">
+                    <button id="start-btn" onclick="startExperiment()" style="background-color: #28a745; color: white; border: none; padding: 12px 30px; font-size: 18px; border-radius: 4px; cursor: pointer; font-weight: bold; margin: 0;">Next</button>
+                </div>
+            </div>
+        </div>
+    </div> 
 
-    if (isNaN(comp) || comp < 1 || comp > 7) {
-        alert("Please enter a valid number between 1 and 7 for the Competitiveness question.");
-        return; 
-    }
-    if (rememberedEarnings.trim() === "") {
-        alert("Please estimate how much the previous participant earned.");
-        return; 
-    }
+    <div id="screen-practice" class="screen hidden">
+        <h2 style="color: #2557a7; font-size: 28px; text-transform: uppercase; margin-top: 20px;">Practice Round</h2>
+        <p style="font-size: 18px; color: #555;">Let's try a few small 4x4 tables first to get familiar with the tasks.</p>
+        
+        <h3 id="practice-instruction-label" style="margin: 20px 0; color: #333; font-size: 22px;"></h3>
+        
+        <div class="matrix-area" style="margin-top: 0;">
+            <div id="practice-matrix-container" style="display: grid; grid-template-columns: repeat(4, 42px); gap: 6px; justify-content: center; margin: 20px auto; padding: 10px; background: white;"></div>
+            
+            <div class="input-area" style="margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
+                <input type="number" id="practice-user-answer" placeholder="0" oninput="togglePracticeSubmit()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
+                <button id="submit-practice-btn" class="submit-btn" onclick="checkPracticeAnswer()" disabled style="background-color: #2557a7; color: white; opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed; border: none;">Submit</button>
+            </div>
+        </div>
+    </div>
 
-    const surveyData = {
-        competitiveness: comp,
-        remembered_earnings: rememberedEarnings,
-        age: document.getElementById('survey-age').value || "N/A",
-        gender: document.getElementById('survey-gender').value || "N/A",
-        major: document.getElementById('survey-major').value || "N/A",
-        year_study: document.getElementById('survey-year').value || "N/A"
-    };
-
-    detailedLog.forEach(row => { 
-        Object.assign(row, surveyData); 
-        row.grand_total_earnings = totalEarningsGlobal; 
-    });
-
-    showScreen('screen-end');
-    document.getElementById('final-total-earnings').innerText = totalEarningsGlobal.toLocaleString();
-}
-
-function saveDataToCloud() {
-    isExperimentFinished = true; 
+    <div id="screen-treatment" class="screen hidden">
+        <h2>Information</h2>
+        <div style="max-width: 600px; margin: 30px auto; padding: 30px; background-color: #fff; border: 2px solid #28a745; border-radius: 8px; font-size: 20px; line-height: 1.6;">
+            <p id="treatment-message"></p>
+        </div>
+        <button onclick="setupBlockIntro()" style="background-color: #28a745; color: white; padding: 12px 30px; font-size: 18px; border: none; border-radius: 4px; cursor: pointer;">Proceed to Experiment</button>
+    </div>
     
-    const saveBtn = document.getElementById('save-data-btn');
-    saveBtn.innerText = "Saving, please wait...";
-    saveBtn.disabled = true;
+    <div id="screen-block-intro" class="screen hidden">
+        <h2 id="block-title" style="font-size: 28px; margin-bottom: 20px;">SESSION 1 of 3</h2>
+        <button class="start-session-btn" onclick="startBlock()" style="padding: 15px 40px; font-size: 20px;">Start Session</button>
+    </div>
 
-    fetch(GOOGLE_SCRIPT_URL, { 
-        method: "POST", 
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-        body: JSON.stringify(detailedLog) 
-    })
-    .then(() => { 
-        saveBtn.style.display = "none";
-        document.getElementById('save-status-msg').style.display = "block";
-        document.getElementById('earnings-display-area').style.display = "block";
-    })
-    .catch(err => {
-        console.error(err);
-        alert("Error saving to cloud. Please contact the researcher.");
-        saveBtn.innerText = "Error - Try Again";
-        saveBtn.disabled = false;
-        isExperimentFinished = false; 
-    });
-}
+    <div id="screen-task" class="screen hidden">
+       <div id="score-display" style="font-size: 24px; font-weight: bold; margin-top: 20px; color: #28a745;"> Earnings: <span id="current-earnings">0</span> VND </div>
+       
+       <h3 id="task-instruction-label" style="margin: 15px 0; color: #333;"></h3>
+       
+       <div style="display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 60px; width: 100%; margin-top: 10px;">
+           <div style="flex: 1; max-width: 250px;"></div>
 
-window.addEventListener("beforeunload", function (e) {
-    if (!isExperimentFinished && participantId !== "") {
-        e.preventDefault();
-        e.returnValue = "Wait! Your experiment data is not saved yet. Are you sure you want to leave?";
-    }
-});
+           <div class="matrix-area" style="margin-top: 0;">
+               <div id="matrix-container"></div>
+               
+               <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                   <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
+                   <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
+                   <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed;">Submit</button>
+               </div>
+           </div>
+
+           <div style="flex: 1; max-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+               <div style="font-size: 16px; color: #777; font-weight: bold; text-align: center; width: 100%;">
+                   Session No: <span id="block-progress">1/3</span>
+               </div>
+               <button id="btn-stop-working" onclick="stopEarly()" style="margin: 0; background-color: #7bc087; border: none; color: white; cursor: pointer; padding: 15px 10px; border-radius: 6px; transition: 0.2s; font-weight: bold; font-size: 16px; width: 100%; box-sizing: border-box;">Try the next session</button>
+           </div>
+       </div>
+       
+       <hr style="width: 80%; margin: 30px 0 20px 0; border: none; border-top: 1px solid #ccc;">
+    </div>
+
+    <div id="screen-post-block" class="screen hidden">
+        <div style="text-align: left; max-width: 600px; margin: 40px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+            
+            <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">1. How satisfied are you with your earnings from this session?</label>
+            <div style="margin-bottom: 15px; font-size: 16px; color: #333; font-weight: bold;">(1 = Not at all satisfied, 7 = Very satisfied)</div>
+            <input type="number" id="block-earnings-satisfaction" min="1" max="7" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+            <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">2. How interesting did you find this task?</label>
+            <div style="margin-bottom: 15px; font-size: 16px; color: #333; font-weight: bold;">(1 = Very uninteresting, 7 = Very interesting)</div>
+            <input type="number" id="block-interest" min="1" max="7" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            
+            <button onclick="submitPostBlockSurvey()" style="background-color: #2557a7; color: white; width: 100%; padding: 15px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Submit Survey</button>
+        </div>
+    </div>
+
+    <div id="screen-break" class="screen hidden">
+        <h2>Break Time</h2>
+        <p>Please take a 2-minute mandatory break to rest your eyes.</p>
+        <h3 id="break-timer-display" style="font-size: 48px; color: #d9534f; margin: 30px 0;">02:00</h3>
+        <button id="end-break-btn" onclick="endBreak()" disabled style="opacity: 0.5; padding: 12px 30px; font-size: 18px;">Wait for timer...</button>
+    </div>
+
+    <div id="screen-exit-survey" class="screen hidden">
+        <div style="text-align: left; max-width: 600px; margin: 40px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
+            
+            <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">1. Competitiveness</label>
+            <div style="margin-bottom: 15px; font-size: 16px; color: #333; font-weight: bold;">On a scale from 1 to 7, how competitive do you consider yourself?<br>(1 = Not competitive at all, 7 = Very competitive)</div>
+            <input type="number" id="survey-competitiveness" min="1" max="7" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 18px;">2. We are checking how clearly the instructions were understood.</label>
+            <div style="margin-bottom: 8px; font-size: 16px; color: #333;">During the experiment, you may have seen information about a previous participant’s performance.</div>
+            <div style="margin-bottom: 8px; font-size: 16px; color: #333; font-weight: bold;">Approximately how much did that participant earn?</div>
+            <div style="margin-bottom: 15px; font-size: 14px; color: #555;">(If you saw this information more than once, please choose one amount and report the one you remember most clearly. If you are not sure, please give your best estimate.)</div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 35px;">
+                <input type="number" id="survey-remembered-earnings" placeholder="______" style="width: 150px; padding: 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; text-align: center;">
+                <span style="font-size: 16px; font-weight: bold;">VND</span>
+            </div>
+
+            <hr style="margin-bottom: 25px; border: none; border-top: 1px solid #eee;">
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Age:</label>
+            <input type="number" id="survey-age" placeholder="e.g., 20" style="width: 100%; padding: 12px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Gender:</label>
+            <select id="survey-gender" style="width: 100%; padding: 12px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <option value="">Select...</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+                <option value="Prefer not to say">Prefer not to say</option>
+            </select>
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Major / Field of study:</label>
+            <input type="text" id="survey-major" placeholder="e.g., Computer Science" style="width: 100%; padding: 12px; margin-bottom: 25px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+            <label style="display:block; margin-bottom: 8px; font-weight:bold; font-size: 16px;">Year of study:</label>
+            <select id="survey-year" style="width: 100%; padding: 12px; margin-bottom: 30px; font-size: 16px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+                <option value="">Select...</option>
+                <option value="Freshman (Year 1)">Freshman (Year 1)</option>
+                <option value="Sophomore (Year 2)">Sophomore (Year 2)</option>
+                <option value="Junior (Year 3)">Junior (Year 3)</option>
+                <option value="Senior (Year 4)">Senior (Year 4)</option>
+                <option value="Graduate">Graduate</option>
+            </select>
+
+            <button onclick="submitExitSurvey()" style="background-color: #2557a7; color: white; width: 100%; padding: 15px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Finish Experiment</button>
+        </div>
+    </div>
+
+    <div id="screen-end" class="screen hidden">
+        <h2>Experiment Complete</h2>
+        <p>Click below to submit your results, reveal your final payment, and read the debriefing information.</p>
+        
+        <h3 id="earnings-display-area" style="display: none; color: #28a745; margin: 25px 0; font-size: 26px;">Total Earnings: <span id="final-total-earnings">0</span> VND</h3>
+        
+        <button id="save-data-btn" onclick="saveDataToCloud()" style="background-color: #28a745; color: white; padding: 15px 40px; font-size: 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Submit Result & Reveal Earnings</button>
+        
+        <p id="save-status-msg" style="display: none; color: #28a745; font-weight: bold; margin-top: 20px; font-size: 18px;">✅ Data saved successfully! Please read the final statement below before closing this tab.</p>
+
+        <div style="text-align: left; max-width: 800px; margin: 40px auto; padding: 40px; border: 1px solid #ddd; border-radius: 8px; background: #fdfdfd; font-size: 16px; line-height: 1.6; color: #333; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 22px; border-bottom: 2px solid #eee; padding-bottom: 10px;">Debriefing Statement</h3>
+            <p>Thank you for participating in this study.</p>
+            <p>The purpose of this experiment is to understand how information about other people's performance affects the amount of effort individuals choose to put into a task. In particular, we are interested in whether seeing information about how many tasks other participants completed influences how long people work, how many tasks they complete, and how quickly they work.</p>
+            <p>During the experiment, you may have seen information about the average number of tasks completed by previous participants, or you may not have seen any such information. This information was intentionally varied across different parts of the experiment so that we could study how different reference points (higher, lower, or no benchmark) affect work behavior.</p>
+            <p>It is important to note that:</p>
+            <ul style="margin-bottom: 20px; padding-left: 20px;">
+                <li style="margin-bottom: 8px;">The benchmark information did not affect your payment rate.</li>
+                <li style="margin-bottom: 8px;">There is no expected, correct, or "ideal" level of performance in this study.</li>
+                <li style="margin-bottom: 8px;">The benchmark numbers are used only for research purposes and are not a judgment of your ability or effort.</li>
+                <li style="margin-bottom: 8px;">You were free to stop working at any time, and your decisions about how long to continue working are a key part of what we are studying.</li>
+            </ul>
+            <p>All data collected in this study are anonymous and will be analyzed only in aggregate. Your participation will not affect your academic standing in any way.</p>
+            <p>If you experienced any frustration or fatigue during the task, this is completely normal. If you have any concerns or questions about the study, you may contact the researcher or the faculty advisor using the information provided in the consent form.</p>
+            <p style="margin-top: 25px; font-weight: bold; font-size: 18px;">Thank you again for your time and contribution to this research.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
