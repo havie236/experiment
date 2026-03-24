@@ -129,7 +129,7 @@ button:hover:enabled {
 /* MATRIX CELLS */
 .matrix-cell {
     background: #f9f9f9;
-    border: 1px solid #333;
+    border: 1px solid #eaeaea;
     width: 35px; height: 35px;
     display: flex;
     align-items: center;
