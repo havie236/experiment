@@ -3,7 +3,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx
 const BLOCK_DURATION_SEC = 15 * 60; // 15 minutes per session
 const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
-const PAY_PER_CORRECT = 1500;       
+const PAY_PER_CORRECT = 1200;       
 
 // --- CODE MAPPING (1-6) ---
 const CODE_LOGIC = {
@@ -172,11 +172,11 @@ function handleSessionTransition() {
 
     if (assignedCondition === 'High') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>22,500 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>28,800 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else if (assignedCondition === 'Low') {
         document.getElementById('treatment-message').innerHTML = 
-            "On average, previous participants at Fulbright earned <strong>13,500 VND</strong> from this task.";
+            "On average, previous participants at Fulbright earned <strong>16,200 VND</strong> from this task.";
         showScreen('screen-treatment');
     } else {
         setupBlockIntro();
