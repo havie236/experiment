@@ -47,7 +47,7 @@
                 <li>Count the number of UP-pointing triangles <strong>(▲)</strong> in a table containing UP (▲) and DOWN (▼) triangles</li>
             </ul>
 
-           <div style="display: flex; justify-content: center; align-items: stretch; gap: 15px; margin: 20px 0;">
+            <div style="display: flex; justify-content: center; align-items: stretch; gap: 15px; margin: 20px 0;">
                 <div style="flex: 1; display: flex; justify-content: center;">
                     <img src="hinh-1.png" alt="Zeros" style="width: 100%; max-width: 220px; height: 260px; object-fit: contain; border: 1px solid #eaeaea; border-radius: 4px; padding: 5px; background: #fff;">
                 </div>
@@ -59,7 +59,7 @@
                 </div>
             </div>
 
-            <p>You will complete <strong>3 sessions</strong>. Each session lasts up to 15 minutes, but you may stop a session and <strong>proceed to the next one</strong> at any time.</p>
+            <p>You will complete <strong>3 sessions</strong>. Each session lasts up to 15 minutes, but you may stop a session and </strong>proceed to the next one</strong> at any time.</p>
             <p>You will receive <strong> 920 VND</strong> for each correct count.</p>
 
             <div style="margin: 40px auto; padding: 25px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; text-align: center; max-width: 400px;">
@@ -103,41 +103,48 @@
         <button class="start-session-btn" onclick="startBlock()" style="padding: 15px 40px; font-size: 20px;">Start Session</button>
     </div>
 
-    <div id="screen-task" class="screen hidden">
+ <div id="screen-task" class="screen hidden">
        
        <div style="display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 900px; margin-top: 20px;">
+           
            <div style="flex: 1;"></div>
+
            <div id="score-display" style="flex: 1; text-align: center; font-size: 24px; font-weight: bold; color: #28a745; margin: 0;"> 
                Earnings: <span id="current-earnings">0</span> VND 
            </div>
+
+           <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+               <div style="font-size: 16px; color: #888; font-weight: bold; margin: 0; white-space: nowrap;">
+                   Session No: <span id="block-progress">1/3</span>
+               </div>
+               
+               <button id="btn-stop-working" onclick="stopEarly()" 
+                       onmousedown="this.style.backgroundColor='#7bc087'; this.style.color='white'; this.style.borderColor='#7bc087';" 
+                       onmouseup="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
+                       style="margin: 0; background-color: transparent; border: 1px solid #ccc; color: #888; cursor: pointer; padding: 10px 15px; border-radius: 6px; transition: 0.1s; font-weight: bold; font-size: 14px; white-space: nowrap;">
+                   Try the next session
+               </button>
+           </div>
+
        </div>
        
        <h3 id="task-instruction-label" style="margin: 20px 0; color: #333;"></h3>
-        
-        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
-            <div class="matrix-area" style="margin-top: 0;">
-                <div id="matrix-container"></div>
-                
-                <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                    <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
-                    <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
-                    
-                    <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="background-color: #3b5998; color: white; border: none; opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed;">Submit</button>
-                </div>
-
-                <div id="session-control-area" style="margin-top: 15px; display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div id="session-counter" style="font-size: 14px; font-weight: bold; color: #666;">
-                        Session <span id="current-session-display">1</span> / 3
-                    </div>
-                    <button id="btn-next-session" class="hidden" onclick="nextSession()" style="padding: 8px 24px; font-size: 15px; border-radius: 6px; border: none; background-color: #28a745; color: white; cursor: pointer;">
-                        Next Session
-                    </button>
-                </div>
-
-            </div>
-        </div>
-        
-        <hr style="width: 80%; margin: 30px 0 20px 0; border: none; border-top: 1px solid #ccc;">
+       
+       <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+           <div class="matrix-area" style="margin-top: 0;">
+               <div id="matrix-container"></div>
+               
+               <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                   <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
+                   <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
+                   
+                   <button id="submit-matrix-btn" class="submit-btn" onclick="checkAnswer()" disabled style="background-color: #3b5998; color: white; border: none; opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed;">Submit</button>
+               </div>
+           </div>
+       </div>
+       
+       <hr style="width: 80%; margin: 30px 0 20px 0; border: none; border-top: 1px solid #ccc;">
     </div>
     
     <div id="screen-post-block" class="screen hidden">
