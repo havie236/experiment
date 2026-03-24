@@ -3,7 +3,7 @@ const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx
 const BLOCK_DURATION_SEC = 15 * 60; // 15 minutes per session
 const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
-const PAY_PER_CORRECT = 1200;       
+const PAY_PER_CORRECT = 920;       
 
 // --- CODE MAPPING (1-6) ---
 const CODE_LOGIC = {
