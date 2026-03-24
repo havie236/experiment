@@ -66,6 +66,23 @@
             </div>
         </div>
     </div> 
+    
+    <div id="screen-practice" class="screen hidden">
+        <h2 style="color: #2557a7; font-size: 28px; text-transform: uppercase; margin-top: 20px;">Practice Round</h2>
+        <p style="font-size: 18px; color: #555;">Let's try a few small 4x4 tables first to get familiar with the tasks.</p>
+        
+        <h3 id="practice-instruction-label" style="margin: 20px 0; color: #333; font-size: 22px;"></h3>
+        
+        <div class="matrix-area" style="margin-top: 0;">
+            <div id="practice-matrix-container" style="display: grid; grid-template-columns: repeat(4, 42px); gap: 6px; justify-content: center; margin: 20px auto; padding: 10px; background: white;"></div>
+            
+            <div class="input-area" style="margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+                <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
+                <input type="number" id="practice-user-answer" placeholder="0" oninput="togglePracticeSubmit()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
+                <button id="submit-practice-btn" class="submit-btn" onclick="checkPracticeAnswer()" disabled style="background-color: #2557a7; color: white; opacity: 0.5; padding: 10px 25px; font-size: 18px; margin: 0; border-radius: 4px; cursor: not-allowed; border: none;">Submit</button>
+            </div>
+        </div>
+    </div>
 
     <div id="screen-treatment" class="screen hidden">
         <h2>Information</h2>
@@ -113,7 +130,7 @@
        
        <hr style="width: 80%; margin: 30px 0 20px 0; border: none; border-top: 1px solid #ccc;">
     </div>
-    </div><div id="screen-post-block" class="screen hidden">
+    <div id="screen-post-block" class="screen hidden">
         <div style="text-align: left; max-width: 600px; margin: 40px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
             
             <label style="display:block; margin-bottom: 5px; font-weight:bold; font-size: 18px;">1. How satisfied are you with your earnings from this session?</label>
