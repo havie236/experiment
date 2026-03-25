@@ -268,9 +268,8 @@ function checkAnswer() {
     if (isCorrect) { 
         correctCount++; 
         updateCorrectUI(); 
-        alert("Correct!"); 
     } else {
-        alert(`Incorrect. The actual correct answer was ${currentTargetCount}.`);
+        alert(`Incorrect. Actual correct answer: ${currentTargetCount}.`);
     }
     generateMatrix();
 }
