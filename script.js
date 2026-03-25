@@ -1,9 +1,9 @@
 // --- CONFIGURATION ---
 const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzTUdz9Ck6QXx0l8Ce2U6qaRI_bgKu97nWOa3yW2TEETgG4JYU1lK_q4FrHoJZRQvkQ3Q/exec"; 
-const BLOCK_DURATION_SEC = 15 * 60; // 15 minutes per session
+const BLOCK_DURATION_SEC = 20 * 60; // 20 minutes per session
 const BREAK_DURATION_SEC = 120;     // 2 minute mandatory break
 const MAX_BLOCKS = 3;               
-const PAY_PER_CORRECT = 920;       
+const PAY_PER_CORRECT = 620;       
 
 // --- CODE MAPPING (1-6) ---
 const CODE_LOGIC = {
@@ -203,8 +203,8 @@ function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
 
-    // 1. Chốt số lượng đáp án đúng (random từ 20 đến 35)
-    currentTargetCount = Math.floor(Math.random() * (35 - 20 + 1)) + 20;
+    // 1. Chốt số lượng đáp án đúng (random từ 28 đến 40)
+    currentTargetCount = Math.floor(Math.random() * (40 - 28 + 1)) + 28;
 
     // 2. Tạo mảng chứa ĐÚNG số lượng target và chim mồi
     let cellTypes = Array(64).fill(false);
