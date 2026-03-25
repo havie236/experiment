@@ -103,14 +103,30 @@
         <button class="start-session-btn" onclick="startBlock()" style="padding: 15px 40px; font-size: 20px;">Start Session</button>
     </div>
 
-    <div id="screen-task" class="screen hidden">
+<div id="screen-task" class="screen hidden">
        
        <div style="display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 900px; margin-top: 20px;">
+           
            <div style="flex: 1;"></div>
+
            <div id="score-display" style="flex: 1; text-align: center; font-size: 24px; font-weight: bold; color: #28a745; margin: 0;"> 
                Earnings: <span id="current-earnings">0</span> VND 
            </div>
-           <div style="flex: 1;"></div>
+
+           <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; gap: 15px;">
+               <div style="font-size: 16px; color: #888; font-weight: bold; margin: 0; white-space: nowrap;">
+                   Session No: <span id="block-progress">1/3</span>
+               </div>
+               
+               <button id="btn-stop-working" onclick="stopEarly()" 
+                       onmousedown="this.style.backgroundColor='#7bc087'; this.style.color='white'; this.style.borderColor='#7bc087';" 
+                       onmouseup="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
+                       onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#ccc';"
+                       style="margin: 0; background-color: transparent; border: 1px solid #ccc; color: #888; cursor: pointer; padding: 10px 15px; border-radius: 6px; transition: 0.1s; font-weight: bold; font-size: 14px; white-space: nowrap;">
+                   Stop this session and next session
+               </button>
+           </div>
+
        </div>
        
        <h3 id="task-instruction-label" style="margin: 20px 0; color: #333;"></h3>
@@ -119,7 +135,7 @@
            <div class="matrix-area" style="margin-top: 0;">
                <div id="matrix-container"></div>
                
-               <div class="input-area" style="margin-top: 30px; display: flex; align-items: center; justify-content: center; gap: 15px;">
+               <div class="input-area" style="margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 15px;">
                    <label style="font-size: 20px; font-weight: bold; margin: 0;">Count:</label>
                    <input type="number" id="user-answer" placeholder="0" oninput="toggleSubmitButton()" style="font-size: 18px; padding: 10px; width: 80px; text-align: center; border: 1px solid #ccc; border-radius: 4px; margin: 0;">
                    
@@ -128,23 +144,7 @@
            </div>
        </div>
        
-       <hr style="width: 80%; max-width: 900px; margin: 15px auto 10px auto; border: none; border-top: 1px solid #ddd;">
-       
-       <div style="width: 80%; max-width: 900px; margin: 0 auto 30px auto; display: flex; justify-content: center; align-items: center; position: relative;">
-           
-           <button id="btn-stop-working" onclick="stopEarly()" 
-                   onmousedown="this.style.backgroundColor='#e2e2e2';" 
-                   onmouseup="this.style.backgroundColor='#f4f4f4';"
-                   onmouseout="this.style.backgroundColor='#f4f4f4';"
-                   style="background-color: #f4f4f4; border: 1px solid #bbb; color: #555; cursor: pointer; padding: 10px 20px; border-radius: 4px; transition: 0.1s; font-size: 15px;">
-               Stop & try next session
-           </button>
-
-           <div style="position: absolute; right: 0; font-size: 18px; color: #555; border: 1px solid #bbb; padding: 8px 12px; border-radius: 4px; background: #fff;">
-               <span id="block-progress">1/3</span>
-           </div>
-           
-       </div>
+       <hr style="width: 80%; margin: 30px 0 20px 0; border: none; border-top: 1px solid #ccc;">
     </div>
     
     <div id="screen-post-block" class="screen hidden">
