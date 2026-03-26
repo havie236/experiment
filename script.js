@@ -16,8 +16,8 @@ const CODE_LOGIC = {
 };
 
 const TASKS = {
-    'numbers': { id: 'numbers', instruction: "Count the number of 1s.", generator: (isT) => isT ? 1 : 0 },
-    'letters': { id: 'letters', instruction: "Count the number of letter 'm'.", generator: (isT) => isT ? 'm' : 'w' },
+    'numbers': { id: 'numbers', instruction: "Count the number of 3s.", generator: (isT) => isT ? 3 : 8 },
+    'letters': { id: 'letters', instruction: "Count the number of letter 'E'.", generator: (isT) => isT ? 'E' : 'F' },
     'shapes': { id: 'shapes', instruction: "Count the number of UP-pointing triangles (▲).", generator: (isT) => isT ? '▲' : '▼' }
 };
 
