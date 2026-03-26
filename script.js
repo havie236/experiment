@@ -203,23 +203,34 @@ function generateMatrix() {
     const container = document.getElementById('matrix-container');
     container.innerHTML = ''; currentTargetCount = 0; matrixTabSwitches = 0; matrixSwitchHistory = [];
 
-    // 1. Chốt số lượng đáp án đúng (random từ 30 đến 45)
-    currentTargetCount = Math.floor(Math.random() * (45 - 30 + 1)) + 30;
+    // 1. Tính toán kích thước ma trận dựa trên số câu trả lời đúng
+    // Cứ 2 câu đúng thì tăng thêm 1 bậc (Bắt đầu 4x4, tối đa 9x9)
+    let currentGridSize = Math.min(9, 4 + Math.floor(correctCount / 2));
+    let totalCells = currentGridSize * currentGridSize;
 
-    // 2. Tạo mảng chứa ĐÚNG số lượng target và chim mồi
-    let cellTypes = Array(64).fill(false);
+    // Gán CSS trực tiếp để chia cột bằng với kích thước hiện tại
+    container.style.gridTemplateColumns = `repeat(${currentGridSize}, 35px)`;
+
+    // 2. Tính số lượng đáp án đúng (tỷ lệ ngẫu nhiên từ 40% đến 60% tổng số ô)
+    // Vì kích thước thay đổi nên không thể fix cứng 30-45 như cũ được
+    let minTarget = Math.floor(totalCells * 0.4);
+    let maxTarget = Math.floor(totalCells * 0.6);
+    currentTargetCount = Math.floor(Math.random() * (maxTarget - minTarget + 1)) + minTarget;
+
+    // 3. Tạo mảng chứa ĐÚNG số lượng target và chim mồi
+    let cellTypes = Array(totalCells).fill(false);
     for (let i = 0; i < currentTargetCount; i++) {
         cellTypes[i] = true;
     }
 
-    // 3. Xào bài (Shuffle) thuật toán Fisher-Yates để rải ngẫu nhiên vị trí
+    // 4. Xào bài (Shuffle)
     for (let i = cellTypes.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [cellTypes[i], cellTypes[j]] = [cellTypes[j], cellTypes[i]];
     }
 
-    // 4. Đổ ra màn hình
-    for (let i = 0; i < 64; i++) {
+    // 5. Đổ ra màn hình
+    for (let i = 0; i < totalCells; i++) {
         let isT = cellTypes[i];
         let cell = document.createElement('div');
         cell.className = 'matrix-cell';
